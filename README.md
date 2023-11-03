@@ -311,15 +311,65 @@ Ashishs-MacBook-Pro:src ashishkhanal$ docker run -d -p 8080:80 reservationsystem
 After you're done, remove it: `docker rm reservations`
 
 ## Deploy Docker Image to Azure Container Instance
+Follow this [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/7-exercise-deploy-docker-image-to-container-instance).
 
 ### Create Azure Container Registry
+1. Create a resource group
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cd2add06-7826-414f-aff5-9f9b951fb9ab">
+
+2. Create container registry
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6031ce23-3884-4d53-b05a-23315a788ca6">
+
+3. In the resource menu, under Settings, select Access keys. The Access keys pane for your container registry appears.
+4. Enable the Admin user access switch.
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8cdcd70e-f32a-407c-a81d-d796a5f354c5">
+5. Make a note of the Registry name, Login server, Username, and password.
 
 ### Tag an Image
+In short tags are used in order to identify an image.
+
+You push an image from your local computer to Azure Container Registry by using `docker push` command. Before you push an image, you must create an alias for the image that specifies the repository and tag, that the Azure Container Registry will create (if it doesn't already exist).
+
+A repository in Azure Container Registry is a collection of related Docker images, differentiated by their tags. So when you push an image with a new tag, it's added to the specified repository in the registry.
+
+Tag the current `reservationsystem` image with the name of our Azure Container Registry.
+<img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/51e076ec-f41c-45f6-89a3-b67a1b688310">
+
+Now check the images again:
+
+<img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/56000c96-c9d5-454e-95d5-3722269b9432">
 
 ### Push an Image
+1. Sign into Azure Container Registry using `docker login <login-server>`
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/58d34abc-3fc7-44bb-9af9-f05a9effc59b">
+
+2. Upload an image using `docker push <registry-name>.azurecr.io/reservationsystem:latest`
+   `Ashishs-MacBook-Pro:src ashishkhanal$ docker push myregistry5.azurecr.io/reservationsystem:latest`
+
+Login Issues if you don't use admin user:
+https://stackoverflow.com/q/65316558/8644294
+
+### Verify an Image
+In the resource menu, under Services, select Repositories. The Repositories pane for your container registry appears.
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/30f8b83b-352c-4d06-86c9-37147d4efd66">
 
 ### Run an Image
+1. Create `Container Instances` resource
+   
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdf548ad-044a-4661-af7b-f9fe8b8e8e7e">
+   
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d30a49a5-d6ce-48fe-905d-041e92c75e86">
+   
+   On the Advanced tab, set the _Restart Policy_ to _Always_, and leave all the other settings as is.
 
+   Hit 'Review + Create' -> 'Create'.
+   
+   <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2fe6c799-c71c-4102-9442-f34d3bb02b57">
+
+2. Navigate to the URL: http://container-hotelsystem-eastus-dev.c7bbehfraef3epdq.eastus.azurecontainer.io/api/reservations/1
+   
+   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4215e131-c6c5-4bfa-913c-738434279c69">
 
 
 
