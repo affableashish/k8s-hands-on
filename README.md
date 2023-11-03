@@ -224,7 +224,7 @@ Follow this nice [exercise](https://learn.microsoft.com/en-us/training/modules/i
    For eg: `docker image rm mcr.microsoft.com/dotnet/core/samples:aspnetapp`.
    Containers running the image must be terminated before the image can be removed.
 
-Docker Commands cheat sheet:
+### Docker Commands cheat sheet
 https://docs.docker.com/get-started/docker_cheatsheet.pdf
 
 https://cheat-sheets.nicwortel.nl/docker-cheat-sheet.pdf
@@ -234,8 +234,7 @@ To create a Docker image containing your application, you'll typically begin by 
 
 A Dockerfile contains the steps for building a custom Docker image. Follow along this [guide at Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/5-exercise-create-custom-docker-image).
 
-### Step 1:
-Clone this sample MSLearn repo to your projects folder:
+### Step 1: Clone this sample MSLearn repo to your projects folder:
 `Ashishs-MacBook-Pro:RiderProjects ashishkhanal$ git clone https://github.com/MicrosoftDocs/mslearn-hotel-reservation-system.git`
 
 ### Step 2: Go into src folder
@@ -300,14 +299,13 @@ Ashishs-MacBook-Pro:src ashishkhanal$ docker build -t reservationsystem:v1 .
 `-t` flag specifies the name of the image to be created.
 `.` provides the build context for the source files for the COPY command: the set of files on the host computer needed during the build process. So the first `.` in the COPY is `Ashishs-MacBook-Pro:src ashishkhanal$` which contains following files:
 
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8b76c1fe-1071-4542-a076-304de49103a6">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8b76c1fe-1071-4542-a076-304de49103a6">
 
 ### Step 7: Run the image
+Give the container a name as `reservations`.
 ````
 Ashishs-MacBook-Pro:src ashishkhanal$ docker run -d -p 8080:80 reservationsystem:v1 --name reservations
 ````
-Give the container a name as `reservations`.
-
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f8695714-7ccf-46b4-b28b-219313498d1c">
 
 After you're done, remove it: `docker rm reservations`
