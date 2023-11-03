@@ -1,5 +1,5 @@
 # k8s-hands-on
-Learning Kubernetes from a freecodecamp course.
+Learning Kubernetes from Microsoft Learn and freecodecamp course.
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
@@ -38,11 +38,6 @@ Incrementally migrate a legacy system by gradually replacing specific pieces of 
 ![image](https://github.com/affableashish/k8s-hands-on/assets/30603497/e0de73ca-d817-4c80-b375-b0dfb5c7d47d)
 
 [Reference](https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig)
-
-## Microservices Anti Patterns
-1. Risk of un-necessary complexity.
-2. Risk that changes can impact numerous services.
-3. Risk of complex security.
 
 ## Cloud Native
 Cloud native technologies empower organizations to build and run scalable applications in the cloud.
@@ -100,12 +95,12 @@ A container image is immutable. Once you've built an image, you can't change it.
 <img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/700ae582-2f4a-431e-86b7-a7bbb88340e7">
 
 ### Container Registry
-Docker images are stored and made available in registries. A registry is a web service to which Docker can connect to upload and dlownload container images. When you download and run an image, you must specify the registry, repository and version tag for the image.
+Docker images are stored and made available in registries. A registry is a web service to which Docker can connect to upload and download container images. When you download and run an image, you must specify the registry, repository and version tag for the image.
 
 For eg:
 ````
 mcr.microsoft.com/dotnet/core/aspnet:7   <-- Tag is 7
-mcr.microsoft.com/dotnet/core/aspnet:8   <-- Tag is 8
+mcr.microsoft.com/dotnet/core/aspnet:8
 ````
 
 | Term | Value |
@@ -113,9 +108,11 @@ mcr.microsoft.com/dotnet/core/aspnet:8   <-- Tag is 8
 | Registry | mcr.microsoft.com |
 | Repository | dotnet/core/aspnet |
 | Image Name | aspnet |
-| Version Tag | 7 or 8 |
+| Version Tag | 7 |
 
-Foor eg: This is how repositories looks like:
+The repository name must be of the form *<login_server>/<image_name>:<tag/>.
+
+For eg: This is how repositories looks like:
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/29cbde5c-6ad8-4ef6-8961-4f571f9414b7">
 
@@ -150,7 +147,6 @@ RUN dotnet restore -a $TARGETARCH
 COPY aspnetapp/. .
 RUN dotnet publish -a $TARGETARCH --no-restore -o /app
 
-
 # final stage/image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
@@ -162,11 +158,15 @@ ENTRYPOINT ["./aspnetapp"]
 ### Container and files
 If a running container makes changes to the files in its image, those changes only exist in the container where the changes are made. Unless you take specific steps to preserve the state of a container, these changes are lost when the container is removed. Similarly, multiple containers based on the same image that run simultaneously don't share the files in the image. Each container has its own independent copy. Any data written by one container to its filesystem isn't visible to the other.
 
-It's possible to add writable volumes to a container. A volume represents a filesystem that can be mounted by the container, and is made available to the application running in the container. The data in a volume does persist when the container stops, and multiple containers can share the same volume. 
-
 It's a best practice to avoid the need to make changes to the image filesystem for applications deployed with Docker. Only use it for temporary files that can afford to be lost.
 
-### Docker commands
+It's possible to add writable volumes to a container. A volume represents a filesystem that can be mounted by the container, and is made available to the application running in the container. The data in a volume does persist when the container stops, and multiple containers can share the same volume.
+
+Recommended Reading: https://stackoverflow.com/a/47152658/8644294.
+
+## Docker commands
+Follow this nice [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/3-exercise-deploy-docker-image-locally). 
+
 1. Pull an image
    
    For eg: `docker pull mcr.microsoft.com/dotnet/samples:aspnetapp`
@@ -220,9 +220,110 @@ It's a best practice to avoid the need to make changes to the image filesystem f
    For eg: `docker container rm -f elegant_ramanujan`
 
 8. Remove docker images
-
-   For eg: `docker image rm mcr.microsoft.com/dotnet/core/samples:aspnetapp`
-
+   
+   For eg: `docker image rm mcr.microsoft.com/dotnet/core/samples:aspnetapp`.
    Containers running the image must be terminated before the image can be removed.
+
+Docker Commands cheat sheet:
+https://docs.docker.com/get-started/docker_cheatsheet.pdf
+
+https://cheat-sheets.nicwortel.nl/docker-cheat-sheet.pdf
+
+## Create custom image with a Dockerfile
+To create a Docker image containing your application, you'll typically begin by identifying a **base image** to which you add files and configuration information.
+
+A Dockerfile contains the steps for building a custom Docker image. Follow along this [guide at Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/5-exercise-create-custom-docker-image).
+
+### Step 1:
+Clone this sample MSLearn repo to your projects folder:
+`Ashishs-MacBook-Pro:RiderProjects ashishkhanal$ git clone https://github.com/MicrosoftDocs/mslearn-hotel-reservation-system.git`
+
+### Step 2: Go into src folder
+`Ashishs-MacBook-Pro:RiderProjects ashishkhanal$ cd mslearn-hotel-reservation-system/src`
+
+### Step 3: Create a Dockerfile
+`Ashishs-MacBook-Pro:src ashishkhanal$ touch Dockerfile`
+
+### Step 4: Open Dockerfile in Vim
+`Ashishs-MacBook-Pro:src ashishkhanal$ vim Dockerfile`
+
+Hit `i` to get into insert (write) mode. Make the following changes:
+
+````
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2
+WORKDIR /src
+
+# The project files for the web app and the library project are copied to the /src folder in the container.
+COPY ["/HotelReservationSystem/HotelReservationSystem.csproj", "HotelReservationSystem/"]
+COPY ["/HotelReservationSystemTypes/HotelReservationSystemTypes.csproj", "HotelReservationSystemTypes/"]
+
+# Download the dependencies required by these projects from NuGet.
+RUN dotnet restore "HotelReservationSystem/HotelReservationSystem.csproj"
+
+# Copy the source code for the web app to the container. First . comes from the build context, and second . represents container's /src folder. Then build the app. The dll files are written to the /app folder in the container.
+COPY . .
+WORKDIR "/src/HotelReservationSystem"
+RUN dotnet build "HotelReservationSystem.csproj" -c Release -o /app
+
+# dotnet publish command copies the executables for the website to a new folder and removes any interim files. The files in this folder can then be deployed to a website.
+RUN dotnet publish "HotelReservationSystem.csproj" -c Release -o /app
+
+EXPOSE 80
+# Move to the /app folder containing the published version of the web app.
+WORKDIR /app
+
+# When the container runs it should execute the command dotnet HotelReservationSystem.dll
+ENTRYPOINT ["dotnet", "HotelReservationSystem.dll"]
+
+````
+
+| Command | Action |
+| --- | ----------- |
+| FROM | Downloads the specified image and **creates a new container** based on this image. |
+| WORKDIR | Sets the current working directory in the container, used by the subsequent commands. |
+| COPY | Copies files from the host computer to the container. The first argument (`.`) is a file or folder on the host computer. The second argument (`.`) specifies the name of the file or folder to act as the destination in the container. In this case, the destination is the current working directory (`/src`). |
+| RUN | Executes a command in the container. Arguments to the RUN command are command-line commands. |
+| EXPOSE | Creates a configuration in the new image that specifies which ports to open when the container runs. If the container is running a web app, it's common to EXPOSE port 80. |
+| ENTRYPOINT | Specifies the operation the container should run when it starts. In this example, it runs the newly built app. You specify the command you want to run and each of its arguments as a string array. |
+
+The `docker build` command creates a new image by running a Dockerfile.
+`docker build` command **creates a container**, runs commands in it, then commits the changes to a new image.
+
+### Step 5: Save and exit
+Hit `Esc` key and type `:` then type `wq` to write and exit the editor.
+
+### Step 6: Build the image
+This command builds the image and stores it locally.
+````
+Ashishs-MacBook-Pro:src ashishkhanal$ docker build -t reservationsystem:v1 .
+````
+`-t` flag specifies the name of the image to be created.
+`.` provides the build context for the source files for the COPY command: the set of files on the host computer needed during the build process. So the first `.` in the COPY is `Ashishs-MacBook-Pro:src ashishkhanal$` which contains following files:
+
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8b76c1fe-1071-4542-a076-304de49103a6">
+
+### Step 7: Run the image
+````
+Ashishs-MacBook-Pro:src ashishkhanal$ docker run -d -p 8080:80 reservationsystem:v1 --name reservations
+````
+Give the container a name as `reservations`.
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f8695714-7ccf-46b4-b28b-219313498d1c">
+
+After you're done, remove it: `docker rm reservations`
+
+## Deploy Docker Image to Azure Container Instance
+
+### Create Azure Container Registry
+
+### Tag an Image
+
+### Push an Image
+
+### Run an Image
+
+
+
+
 
 
