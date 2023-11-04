@@ -502,7 +502,188 @@ Controller manager launches and monitors the controllers configured for a cluste
    Suppose that one of three containers running in your cluster stops responding and has died. In this case, a controller decides whether you need to launch new containers to ensure that your apps are always available. If the desired state is to run three containers at any time, then a new container is scheduled to run.
 
 #### Cloud controller manager
+The cloud controller manager integrates with the underlying cloud technologies in your cluster when the cluster is running in a cloud environment. These services can be load balancers, queues, and storage, for example.
 
+1. Suppose you have a service in your Kubernetes cluster that needs to be exposed to the internet. You would define this service in Kubernetes and specify that it needs a load balancer.
+2. The CCM sees this new service and communicates with Azure to create a new Azure Load Balancer.
+3. The CCM then configures the Azure Load Balancer with the necessary settings, such as which ports to listen on and which pods to forward traffic to.
+4. The CCM updates the service in Kubernetes with the details of the new Azure Load Balancer, such as its IP address.
 
+So CCM is essentially a bridge between your K8s cluster and your cloud provider.
 
+#### Services that run on a node
+There are several services that run on a K8s node to control how workloads run.
 
+<img width="360" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d043a3f-019c-46b8-9a97-f947207a8f9c">
+
+The following services run on the Kubernetes node:
+
+1. Kubelet
+2. Kube-proxy
+3. Container runtime
+
+#### Kubelet
+Agent that runs on each node in the cluster and monitors work requests from the API server. It makes sure that the requested unit of work is running and healthy.
+
+It monitors the nodes and makes sure that the containers scheduled on each node run as expected. It manages only containers K8s creates. It isn't responsible for rescheduling work to run on other nodes if the current node can't run the work.
+
+#### Kube-proxy
+It is responsible for local cluster networking, and runs on each node. It ensures that each node has a unique IP address. It also implements rules to handle routing and load balancing of traffic by using iptables and IPVS.
+
+This proxy doesn't provide DNS services by itself. A DNS cluster add-on based on CoreDNS is recommended and installed by default.
+
+#### Container runtime
+Container runtime is the underlying software that runs containers on a K8s cluster.
+It's responsible for fetching, starting and stopping container images. It supports several container runtimes, like: Docker, containerd, rkt, CRI-O frakti etc.
+
+The support for many container runtime types is based on the Container Runtime Interface (CRI). The CRI is a plug-in design that enables the kubelet to communicate with the available container runtime.
+
+The default container runtime in AKS is `containerd`, an industry-standard container runtime.
+
+#### Interact with a K8s cluster
+K8s provides a command line tool called `kubectl` to manage your cluster. You use `kubectl` to send commands to the cluster's control plane or fetch information about all K8s objects via the API server.
+
+`kubectl` uses a configuration file that includes the following configuration information:
+
+1. **Cluster** configuration specifies a cluster name, certificate information, and the service API endpoint associated with the cluster. This definition allows you to connect from a single workstation to multiple clusters.
+2. **User** configuration specifies the users and their permission levels when they're accessing the configured clusters.
+3. **Context** configuration groups clusters and users by using a friendly name. For example, you might have a "dev-cluster" and a "prod-cluster" to identify your development and production clusters.
+4. 
+You can configure `kubectl` to connect to multiple clusters by providing the correct context as part of the command-line syntax.
+
+#### Kubernetes Pods
+A pod represents a single instance of an app running in K8s. 
+
+<img width="424" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c7016ccb-02df-4396-afa1-1c53cd665787">
+
+Unlike in a Docker environment, you can't run containers directly on Kubernetes. You package the container into a Kubernetes object called a pod. A pod is the smallest object that you can create in Kubernetes.
+
+A single pod can hold a group of one or more containers. However, a pod typically doesn't contain multiples of the same app.
+
+A pod includes information about the shared storage and network configuration and a specification about how to run its packaged containers. You use pod templates to define the information about the pods that run in your cluster. Pod templates are YAML-coded files that you reuse and include in other objects to manage pod deployments.
+
+For example, let's say that you want to deploy a website to a Kubernetes cluster. You create the pod definition file that specifies the app's container images and configuration. Next, you deploy the pod definition file to Kubernetes.
+
+Assume that your site uses a database. The website is packaged in the main container, and the database is packaged in the supporting container. Multiple containers communicate with each other through an environment. The containers include services for a host OS, network stack, kernel namespace, shared memory, and storage volume. The pod is the sandbox environment that provides all of these services to your app. The pod also allows the containers to share its assigned IP address.
+
+Because you can potentially create many pods that are running on many nodes, it can be hard to identify them. You can recognize and group pods by using string labels that you specify when you define a pod.
+
+#### Lifecycle of Kubernetes Pods
+Kubernetes pods have a distinct lifecycle that affects the way you deploy, run, and update pods. You start by submitting the pod YAML manifest to the cluster. After the manifest file is submitted and persisted to the cluster, it defines the desired state of the pod. The scheduler schedules the pod to a healthy node that has enough resources to run the pod.
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/34330559-426b-433f-9790-81c8b0b150e9">
+
+| Phase | Description |
+| --- | ----------- |
+| Pending | The cluster has accepted the pod, but not all containers are set up or ready to run. The Pending status indicates the time a pod is waiting to be scheduled and the time spent downloading container images. |
+| Running | The pod transitions to a running state after all of the resources within the pod are ready. |
+| Succeeded | The pod transitions to a succeeded state after the pod completes its intended task and runs successfully. |
+| Failed | Pods can fail for various reasons. A container in the pod might have failed, leading to the termination of all other containers, or maybe an image wasn't found during preparation of the pod containers. In these types of cases, the pod can go to a Failed state. Pods can transition to a failed state from either a Pending state or a Running state. A specific failure can also place a pod back in the pending state. |
+| Unknown | If the state of the pod can't be determined, the pod is an Unknown state. |
+
+Pods are kept on a cluster until a controller, the control plane, or a user explicitly removes them. When a pod is deleted, a new pod is created immediately after. The new pod is considered an entirely new instance based on the pod manifest.
+
+The cluster doesn't save the pod's state or dynamically assigned configuration. For example, it doesn't save the pod's ID or IP address. This aspect affects how you deploy pods and how you design your apps. For example, you can't rely on preassigned IP addresses for your pods.
+
+#### Container states
+Keep in mind that the phases explained above are a summary of where the pod is in its lifecycle. When you inspect a pod, the cluster uses three states to track your containers inside the pod:
+
+| State | Description |
+| --- | ----------- |
+| Waiting | Default state of a container and the state that the container is in when it's not running or terminated. |
+| Running | The container is running as expected without any problems. |
+| Terminated | The container is no longer running. The reason is that either all tasks finished or the container failed for some reason. A reason and exit code are available for debugging both cases. |
+
+### How Kubernetes deployments work
+The drone-tracking app has several components that are deployed separately from each other. It's your job to configure deployments for these components on the cluster.
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c955a7b0-f0ea-45e6-b031-d548e70ea8cb">
+
+#### Pod Deployment options
+There are several options to manage the deployment of pods in a Kubernetes cluster when you're using `kubectl`. The options are:
+
+1. Pod templates
+2. Replication Controllers
+3. Replica set
+4. Deployments
+
+You can use any of these four Kubernetes object-type definitions to deploy a pod or pods. These files make use of YAML to describe the intended state of the pod or pods to be deployed.
+
+#### Pod Template
+A pod template enables you to define the configuration of the pod you want to deploy. The template contains information such as the name of container image and which container registry to use to fetch the images. The template also includes runtime configuration information, such as ports to use. Templates are defined by using YAML in the same way as when you create Docker files.
+
+You can use templates to deploy pods manually. However, a manually deployed pod isn't relaunched after it fails, is deleted, or is terminated. To manage the lifecycle of a pod, you need to create a higher-level Kubernetes object.
+
+#### Replication Controller
+A replication controller uses pod templates and defines a specified number of pods that must run. The controller helps you run multiple instances of the same pod, and ensures pods are always running on one or more nodes in the cluster. The controller replaces running pods in this way with new pods if they fail, are deleted, or are terminated.
+
+For example, assume you deploy the drone tracking front-end website, and users start accessing the website. If all the pods fail for any reason, the website is unavailable to your users unless you launch new pods. A replication controller helps you make sure your website is always available.
+
+#### Replica Set
+A replica set replaces the replication controller as the preferred way to deploy replicas. A replica set includes the same functionality as a replication controller, but it has an extra configuration option to include a selector value.
+
+A selector enables the replica set to identify all the pods running underneath it. Using this feature, you can manage pods labeled with the same value as the selector value, but not created with the replicated set.
+
+#### Deployment
+A deployment creates a management object one level higher than a replica set, and allows you to deploy and manage updates for pods in a cluster.
+
+Assume that you have five instances of your app deployed in your cluster. There are five pods running version 1.0.0 of your app.
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/80697bac-8828-40bb-8ac5-e05b9f52f3ff">
+
+If you decide to update your app manually, you can remove all pods, then launch new pods running version 2.0.0 of your app. With this strategy, your app experiences downtime.
+
+Instead, you want to execute a rolling update where you launch pods with the new version of your app before you remove the older app versioned pods. Rolling updates launch one pod at a time instead of taking down all the older pods at once. Deployments honor the number of replicas configured in the section that describes information about replica sets. It maintains the number of pods specified in the replica set as it replaces old pods with new pods.
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3b91f482-730f-4279-8740-05975b9d3b0d">
+
+Deployments, by default, provide a rolling update strategy for updating pods. You can also use a re-create strategy. This strategy terminates pods before launching new pods.
+
+Deployments also provide you with a rollback strategy, which you can execute by using `kubectl`.
+
+Deployments make use of YAML-based definition files and make it easy to manage deployments. Keep in mind that deployments allow you to apply any changes to your cluster. For example, you can deploy new versions of an app, update labels, and run other replicas of your pods.
+
+`kubectl` has convenient syntax to create a deployment automatically when you're using the `kubectl run` command to deploy a pod. This command creates a deployment with the required replica set and pods. However, the command doesn't create a definition file. It's a best practice to manage all deployments with deployment definition files, and track changes by using a version-control system.
+
+#### Deployment Considerations
+Kubernetes has specific requirements about how you configure networking and storage for a cluster. How you configure these two aspects affects your decisions about how to expose your apps on the cluster network and store data.
+
+For example, each of the services in the drone-tracking app has specific requirements for user access, inter-process network access, and data storage. Now, take a look at these aspects of a Kubernetes cluster and how they affect the deployment of apps.
+
+#### Kubernetes networking
+Assume you have a cluster with one control plane and two nodes. When you add nodes to Kubernetes, an IP address is automatically assigned to each node from an internal private network range. For example, assume that your local network range is `192.168.1.0/24`.
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a3894369-3f70-4240-9346-1e88d7771a3f">
+
+Each pod that you deploy gets assigned an IP from a pool of IP addresses. For example, assume that your configuration uses the 10.32.0.0/12 network range, as the following image shows.
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bb814554-897a-457e-9c8d-4d959afe57b9">
+
+By default, the pods and nodes can't communicate with each other by using different IP address ranges.
+
+To further complicate matters, recall that pods are transient. The pod's IP address is temporary, and can't be used to reconnect to a newly created pod. This configuration affects how your app communicates to its internal components and how you and services interact with it externally.
+
+To simplify communication, Kubernetes expects you to configure networking in such a way that:
+
+1. Pods can communicate with one another across nodes without Network Address Translation (NAT).
+2. Nodes can communicate with all pods, and vice versa, without NAT.
+3. Agents on a node can communicate with all nodes and pods.
+
+Kubernetes offers several networking options that you can install to configure networking. Examples include Antrea, Cisco Application Centric Infrastructure (ACI), Cilium, Flannel, Kubenet, VMware NSX-T, and Weave Net.
+
+Cloud providers also provide their own networking solutions. For example, Azure Kubernetes Service (AKS) supports the Azure Virtual Network container network interface (CNI), Kubenet, Flannel, Cilium, and Antrea.
+
+**A little explanation on `192.168.1.0/24`:**  
+
+Imagine you live in a big apartment building. This building is like your network. Each apartment in the building is like an IP address - it’s a specific location in the network.
+
+The building has 32 floors (8bits.8bits.8bits.8bits) but 24 floors are used to identify the building (network) itself. The remaining 8 floors (bits) are used for the apartments (hosts) within that building (network). 2^8 = 256 IP addresses.
+
+In Computer Networks language, `192.168.1.0/24` represents a subnet with a netmask of `255.255.255.0`. This means that the subnet can provide up 256 IP addresses, ranging from `192.168.1.0` to `192.168.1.255`.  
+However, in practice, the first address of a subnet (192.168.1.0 in this case) is reserved for the network address, and the last address (192.168.1.255) is reserved for the broadcast address. Therefore, there are typically 254 usable IP addresses (192.168.1.1 through 192.168.1.254) for hosts in this subnet.
+
+**Similarly range for `10.32.0.0/12`:**  
+Keep 12 bits to identify the network and use 20 bits for the hosts.  
+So first octet (8 bits) = 10. We want to figure out last 4 bits of the second octet because that's what's used for the hosts.  
+2^4 = 16, so that's what's needed to be added to `.32` to find max in second octet. 32 + 15 (0-15 is 16) = 47.  
+So the IP range is: `10.32.0.0` to `10.47.255.255`.
