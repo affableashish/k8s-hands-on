@@ -1,5 +1,5 @@
 # k8s-hands-on
-Learning Kubernetes from Microsoft Learn and freecodecamp course.
+Learning Kubernetes from [Microsoft Learn](https://learn.microsoft.com/en-us/training/paths/intro-to-kubernetes-on-azure/) and [freecodecamp](https://youtu.be/kTp5xUtcalw?si=OQgai8LBz8fttKoo) course.
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
@@ -381,6 +381,117 @@ In the resource menu, under Services, select Repositories. The Repositories pane
    
    <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4215e131-c6c5-4bfa-913c-738434279c69">
 
+## Intro to Kubernetes
+Reference: https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/
+
+Kubernetes is a portable, extensible open source platform for management and orchestration of containerized workloads.
+
+### Container management
+It is the process of organizing, adding, removing or updating a significant number of containers.
+
+### Container Orchestrator
+It is a system that automatically deploys and manages containerized apps. As part of management, it handles scaling dynamic changes in the environment to increase or decrease the number of deployed instances of the app. 
+It also ensures that all deployed container instances are updated when a new version of a service is released.
+
+<img width="750" alt="image" src="https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/media/2-tasks-of-orchestrator.svg">
+
+### Kubernetes Benefits
+<img width="650" alt="image" src="https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/media/2-kubernetes-benefits.svg">
+
+These tasks include:
+1. Self-healing of containers; for example, restarting containers that fail or replacing containers
+2. Scaling deployed container count up or down dynamically, based on demand
+3. Automating rolling updates and rollbacks of containers
+4. Managing storage
+5. Managing network traffic
+6. Storing and managing sensitive information such as usernames and passwords
+
+### Kubernetes Considerations
+With Kubernetes, you can view your datacenter as one large compute resource. You don't need to worry about how and where you deploy your containers, only about deploying and scaling your apps as needed.
+
+<img width="650" alt="image" src="https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/media/2-kubernetes-considerations.svg">
+
+However, it's important to understand that Kubernetes isn't a single installed app that comes with all possible components needed to manage and orchestrate a containerized solution:
+1. Aspects such as deployment, scaling, load balancing, logging, and monitoring are all optional. You're responsible for finding the best solution that fits your needs to address these aspects.
+2. Kubernetes doesn't limit the types of apps that can run on the platform. If your app can run in a container, it can run on Kubernetes. To make optimal use of containerized solutions, your developers need to understand concepts such as microservices architecture.
+3. Kubernetes doesn't provide middleware, data-processing frameworks, databases, caches, or cluster-storage systems. All these items are run as containers, or as part of another service offering.
+4. For Kubernetes to run containers, it needs a container runtime like Docker or containers. The container runtime is the object that's responsible for managing containers. For example, the container runtime starts, stops, and reports on the container's status.
+5. You're responsible for maintaining your Kubernetes environment. For example, you need to manage OS upgrades and the Kubernetes installation and upgrades. You also manage the hardware configuration of the host machines, such as networking, memory, and storage.
+
+Cloud services such as Azure Kubernetes Service (AKS) reduce these challenges by providing a hosted Kubernetes environment.
+
+### How Kubernetes Works
+<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/10663c92-689f-43f3-91e3-40e840ed2132">
+
+#### Cluster
+Cluster is a set of computers that you configure to work together and view as a single system. The computers configured in the cluster handle same kind of tasks. For eg, they all host websites, APIs or run compute intensive works.
+
+A cluster uses centralized software that's responsible for scheduling and controlling these tasks.  
+The computers in a cluster that run the tasks are called nodes, and the computers that run the scheduling software are called control planes.  
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4e3a1c69-51da-4695-9c12-a2845f02f168">
+
+#### Kubernetes Architecture
+You use Kubernetes as the orchestration and cluster software to deploy your apps and respond to changes in compute resource needs.
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e1202f9e-e735-42db-974a-173445306e7c">
+
+A K8s cluster contains at least one main plane and one or more nodes. THe default host OS in K8s is Linux, with default support for Linux based workloads.<br>
+You can also run Microsoft workloads by using Windows Server 2019 or later on cluster nodes. For eg: if you have some app that's written as .NET 4.5, this can run only on nodes that run a Windows Server OS.
+
+#### Kubernetes Node
+A node in a K8s cluster is where your compute workloads run. Each node communicates with the control plane via the **API server** to inform it about state changes on the node.
+
+#### Kubernetes Control Plane
+Kubernetes control plane runs a collection of services that manage the orchestration functionality in K8s.  
+It is responsible for maintaining the desired state of the cluster, such as which applications are running and which container images they use. These apps are user deployed apps and not services running the control plane like API server, Scheduler etc. (Nodes actually run the applications and workloads).
+
+K8s relies on several administrative services running on the control plane. These services manage aspects such as cluster-component communication, workload scheduling, and cluster-state persistence.
+
+The following services make up a Kubernetes cluster's control plane:
+1. API server
+2. Backing store
+3. Scheduler
+4. Controller manager
+5. Cloud controller manager
+
+Test environment -> 1 control plane<br>
+Prod environment -> 3-5 controls planes
+
+The fact that a control plane runs specific software to maintain the state of the cluster doesn't exclude it from running other compute workloads. However, you usually want to exclude the control plane from running noncritical and user app workloads.
+
+#### API server
+You can think of API server as the frontend to your K8s control plane. All the communication between the components in K8s is done through this API.  
+For eg, as a user you use a command line app called `kubectl` that allows you to run commands against your K8s cluster's API server.
+The component that provides this API is called `kube-apiserver`, and you can deploy several instances of this component to support scaling in your cluster.  
+This API exposes a RESTful API that you can use to post commands or YAML-based configuration files. You use YAML files to define the intended state of all the objects within a Kubernetes cluster.  
+For example, assume that you want to increase the number of instances of your app in the cluster. You define the new state with a YAML-based file and submit this file to the API server. The API server validates the configuration, save it to the cluster, and finally enact the configured increase in app deployments.
+
+#### Backing store
+The backing store is a persistent storage that your Kubernetes cluster saves it's complete configuration inside. Kubernetes uses a high-availability, distributed, and reliable key-value store called `etcd`. This key-value store stores the current state and the desired state of all objects within your cluster.
+
+In a production Kubernetes cluster, the official Kubernetes guidance is to have three to five replicated instances of the `etcd` database for high availability.
+
+`etcd` isn't responsible for data backup. It's your responsibility to ensure that an effective backup plan is in place to back up the `etcd` data.
+
+#### Scheduler
+The scheduler is the component that's responsible for the assignment of workloads across all nodes. The scheduler monitors the cluster for newly created containers and assigns them to nodes.
+
+For eg:  
+The Kubernetes scheduler does not create new instances of containers. Instead, it’s responsible for determining on which node in the Kubernetes cluster a new pod (which can contain one or more containers) should run.  
+Here’s a simplified version of how it works:
+1. A user or a controller creates a new pod by submitting it to the Kubernetes API server.
+2. The API server adds the new pod to its store of Kubernetes objects and makes it available to the scheduler.
+3. The scheduler watches for newly created pods that have no node assigned. This is what is meant by “monitoring newly created containers”.
+4. For each new pod, the scheduler determines which nodes have enough free resources to run the pod.
+5. The scheduler then ranks each suitable node based on its scheduling algorithm and assigns the pod to the best node.
+6. Once the scheduler has made its decision, it notifies the API server, which in turn notifies the chosen node.
+   
+So, the scheduler doesn’t create containers or pods. It simply decides where new pods should run based on the current state of the cluster and the resource requirements of the new pod. The actual creation and management of containers within a pod is handled by the Kubelet on the chosen node.
+
+#### Controller manager
+Controller manager launches and monitors controllers configured for a cluster through the API server. "through the API server" means that the controller manager uses the API server to interact with the K8s objects that the controllers manage.
+
+#### Cloud controller manager
 
 
 
