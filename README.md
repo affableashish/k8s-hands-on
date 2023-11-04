@@ -489,7 +489,17 @@ Here’s a simplified version of how it works:
 So, the scheduler doesn’t create containers or pods. It simply decides where new pods should run based on the current state of the cluster and the resource requirements of the new pod. The actual creation and management of containers within a pod is handled by the Kubelet on the chosen node.
 
 #### Controller manager
-Controller manager launches and monitors controllers configured for a cluster through the API server. "through the API server" means that the controller manager uses the API server to interact with the K8s objects that the controllers manage.
+Controller manager launches and monitors the controllers configured for a cluster through the API server. "through the API server" means that the controller manager uses the API server to interact with the K8s objects that the controllers manage.  
+
+1. Track Object States:  
+   Kubernetes uses controllers to track object states in the cluster. Each controller runs in a non-terminating loop, watching and responding to events in the cluster. For example, there are controllers to monitor nodes, containers, and endpoints.
+
+2. Communicate with the API Server:  
+   The Controller communicates with the API server to determine the object's state. It checks if the current state of an object is different from its desired state.
+
+3. Ensure Desired State:  
+   If the current state of an object is different from its desired state, the controller takes action to ensure the desired state.  
+   Suppose that one of three containers running in your cluster stops responding and has died. In this case, a controller decides whether you need to launch new containers to ensure that your apps are always available. If the desired state is to run three containers at any time, then a new container is scheduled to run.
 
 #### Cloud controller manager
 
