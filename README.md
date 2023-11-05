@@ -817,7 +817,60 @@ Even though the use of `kubectl` is handy, using manifest files is a best practi
 #### Test the website installation
 1. **Find the address of the pod**  
    `sudo kubectl get pods -o wide`  
-   <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a8fe7f88-f81b-4a9a-ae8a-ef3e345ed74e">
+   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a8fe7f88-f81b-4a9a-ae8a-ef3e345ed74e">
 
    Notice that the command returns both the IP address of the pod and the node name on which the workload is scheduled.
+
+2. **Access the website**  
+   `wget 10.1.254.73`  
+   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/473b0a7e-4931-4363-b597-dc9f2675892a">
+
+#### Scale the webserver deployment on a cluster
+To scale the number of replicas in your deployment, run the `kubectl scale` command. You specify the number of replicas you need and the name of the deployment.
+
+1. **Scale NGINX pods to 3**  
+   `sudo kubectl scale --replicas=3 deployments/nginxdeploy`  
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c2ca06bb-0597-4072-9b70-5abe18c4801d">
+
+2. **Check the pods**  
+   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/36e1b878-4250-4a63-9541-3411a38ae583">
+
+You'd need to apply several more configurations to the cluster to effectively expose your website as a public-facing website. Examples include installing a load balancer and mapping node IP addresses. This type of configuration forms part of advanced aspects that you'll explore in the future.
+
+### When to use and not use K8s
+#### Use K8s
+You want to use Kubernetes when your company:  
+1. Develops apps as microservices.
+2. Develops apps as cloud-native applications.
+3. Deploys microservices by using containers.
+4. Updates containers at scale.
+5. Requires centralized container networking and storage management.
+
+#### Don't use K8s
+For example, the effort in containerization and deployment of a monolithic app might be more than the benefits of running the app in Kubernetes. A monolithic architecture can't easily use features such as individual component scaling or updates.
+
+### Uninstall MicroK8s
+Before uninstall:  
+<img width="100" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48d515fe-2e7c-4e36-b324-8c39876d9ac0">
+
+1. **Remove add ons from the cluster**  
+   `sudo microk8s.disable dashboard dns registry`
+
+2. **Remove MicroK8s from the VM**  
+   `sudo snap remove microk8s`
+
+3. **Exit the VM**  
+   `exit`  
+   <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2add3d14-da0d-4dea-beba-fa0ce5a92312">
+
+4. **Stop the VM**  
+   `multipass stop microk8s-vm`
+
+5. **Delete and purge the VM instance**  
+   `multipass delete microk8s-vm`
+   `multipass purge`
+
+After uninstall:  
+<img width="100" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5fe17dad-8cd3-45ec-ac17-980b00ac126d">
+
 
