@@ -491,13 +491,13 @@ So, the scheduler doesn’t create containers or pods. It simply decides where n
 #### Controller manager
 Controller manager launches and monitors the controllers configured for a cluster through the API server. "through the API server" means that the controller manager uses the API server to interact with the K8s objects that the controllers manage.  
 
-1. Track Object States:  
+1. **Track Object States:**  
    Kubernetes uses controllers to track object states in the cluster. Each controller runs in a non-terminating loop, watching and responding to events in the cluster. For example, there are controllers to monitor nodes, containers, and endpoints.
 
-2. Communicate with the API Server:  
+2. **Communicate with the API Server:**  
    The Controller communicates with the API server to determine the object's state. It checks if the current state of an object is different from its desired state.
 
-3. Ensure Desired State:  
+3. **Ensure Desired State:**  
    If the current state of an object is different from its desired state, the controller takes action to ensure the desired state.  
    Suppose that one of three containers running in your cluster stops responding and has died. In this case, a controller decides whether you need to launch new containers to ensure that your apps are always available. If the desired state is to run three containers at any time, then a new container is scheduled to run.
 
@@ -518,9 +518,9 @@ There are several services that run on a K8s node to control how workloads run.
 
 The following services run on the Kubernetes node:
 
-1. Kubelet
-2. Kube-proxy
-3. Container runtime
+1. **Kubelet**
+2. **Kube-proxy**
+3. **Container runtime**
 
 #### Kubelet
 Agent that runs on each node in the cluster and monitors work requests from the API server. It makes sure that the requested unit of work is running and healthy.
@@ -548,7 +548,7 @@ K8s provides a command line tool called `kubectl` to manage your cluster. You us
 1. **Cluster** configuration specifies a cluster name, certificate information, and the service API endpoint associated with the cluster. This definition allows you to connect from a single workstation to multiple clusters.
 2. **User** configuration specifies the users and their permission levels when they're accessing the configured clusters.
 3. **Context** configuration groups clusters and users by using a friendly name. For example, you might have a "dev-cluster" and a "prod-cluster" to identify your development and production clusters.
-4. 
+
 You can configure `kubectl` to connect to multiple clusters by providing the correct context as part of the command-line syntax.
 
 #### Kubernetes Pods
@@ -602,10 +602,10 @@ The drone-tracking app has several components that are deployed separately from 
 #### Pod Deployment options
 There are several options to manage the deployment of pods in a Kubernetes cluster when you're using `kubectl`. The options are:
 
-1. Pod templates
-2. Replication Controllers
-3. Replica set
-4. Deployments
+1. **Pod templates**
+2. **Replication Controllers**
+3. **Replica set**
+4. **Deployments**
 
 You can use any of these four Kubernetes object-type definitions to deploy a pod or pods. These files make use of YAML to describe the intended state of the pod or pods to be deployed.
 
@@ -673,8 +673,9 @@ Kubernetes offers several networking options that you can install to configure n
 
 Cloud providers also provide their own networking solutions. For example, Azure Kubernetes Service (AKS) supports the Azure Virtual Network container network interface (CNI), Kubenet, Flannel, Cilium, and Antrea.
 
-**A little explanation on `192.168.1.0/24`:**  
+---
 
+##### Explanation on `192.168.1.0/24`
 Imagine you live in a big apartment building. This building is like your network. Each apartment in the building is like an IP address - it’s a specific location in the network.
 
 The building has 32 floors (8bits.8bits.8bits.8bits) but 24 floors are used to identify the building (network) itself. The remaining 8 floors (bits) are used for the apartments (hosts) within that building (network). 2^8 = 256 IP addresses.
@@ -682,8 +683,141 @@ The building has 32 floors (8bits.8bits.8bits.8bits) but 24 floors are used to i
 In Computer Networks language, `192.168.1.0/24` represents a subnet with a netmask of `255.255.255.0`. This means that the subnet can provide up 256 IP addresses, ranging from `192.168.1.0` to `192.168.1.255`.  
 However, in practice, the first address of a subnet (192.168.1.0 in this case) is reserved for the network address, and the last address (192.168.1.255) is reserved for the broadcast address. Therefore, there are typically 254 usable IP addresses (192.168.1.1 through 192.168.1.254) for hosts in this subnet.
 
-**Similarly range for `10.32.0.0/12`:**  
+##### Explanation on `10.32.0.0/12`
 Keep 12 bits to identify the network and use 20 bits for the hosts.  
 So first octet (8 bits) = 10. We want to figure out last 4 bits of the second octet because that's what's used for the hosts.  
 2^4 = 16, so that's what's needed to be added to `.32` to find max in second octet. 32 + 15 (0-15 is 16) = 47.  
 So the IP range is: `10.32.0.0` to `10.47.255.255`.
+
+#### Kubernetes services
+A K8s service is a K8s object that provides stable networking for pods. A Kubernetes service enables communication between nodes, pods, and users of your app, both internal and external, to the cluster.
+
+#### Group Pods
+Managing pods by IP address isn't practical. Pod IP addresses change as controllers re-create them, and you might have any number of pods running.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d200b5cc-9adf-4472-9389-07bbd55323ef">
+
+A service object allows you to target and manage specific pods in your cluster by using selector labels. You set the selector label in a service definition to match the pod label defined in the pod's definition file.
+
+For example, assume that you have many running pods. Only a few of these pods are on the front end, and you want to set a LoadBalancer service that targets only the front-end pods. You can apply your service to expose these pods by referencing the pod label as a selector value in the service's definition file. The service groups only the pods that match the label. If a pod is removed and re-created, the new pod is automatically added to the service group through its matching label.
+
+#### Kubernetes storage
+Kubernetes uses the same storage volume concept that you find when using Docker. Docker volumes are less managed than the Kubernetes volumes, because Docker volume lifetimes aren't managed. The Kubernetes volume's lifetime is an explicit lifetime that matches the pod's lifetime. This lifetime match means a volume outlives the containers that run in the pod. However, if the pod is removed, so is the volume.
+
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1bcdf8e2-dbe4-4775-8381-943fb1932eef">
+
+Kubernetes provides options to provision persistent storage with the use of PersistentVolumes. You can also request specific storage for pods by using PersistentVolumeClaims.
+
+Keep both of these options in mind when you're deploying app components that require persisted storage, like message queues and databases.
+
+#### Cloud integration considerations
+Kubernetes doesn't provide any of the following services:
+
+1. **Middleware**
+2. **Data-processing frameworks**
+3. **Databases**
+4. **Caches**
+5. **Cluster storage systems**
+
+In this drone-tracking solution, there are three services that provide middleware functionality: a NoSQL database, an in-memory cache service, and a message queue.
+
+When you're using a cloud environment such as Azure, it's a best practice to use services outside the Kubernetes cluster. This decision can simplify the cluster's configuration and management. For example, you can use Azure Cache for Redis for the in-memory caching services, Azure Service Bus messaging for the message queue, and Azure Cosmos DB for the NoSQL database.
+
+### Explore K8s cluster 
+Take a look at [this](https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/5-exercise-kubernetes-functionality?pivots=macos).
+
+#### Install MicroK8s
+To run MicroK8s on macOS, use Multipass. Multipass is a lightweight VM manager for Linux, Windows, and macOS.
+
+1. `brew install --cask multipass`  
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d0cc10e-02c3-4dc2-99c1-ff9bf2cc2438">
+
+2. Run the multipass launch command to configure and run the microk8s-vm image.  
+   `multipass launch --name microk8s-vm --memory 4G --disk 40G`  
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d934b92e-55dd-4385-9eb2-8fd0e9b27882">
+
+3. Enter into the VM instance  
+   `multipass shell microk8s-vm`  
+   <img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f1ea5e32-1096-49ea-b61f-17d02880df03">
+   At this point, you can access the Ubuntu VM to host your cluster. You still have to install MicroK8s.  
+
+4. Install the MicroK8s snap app.  
+   `sudo snap install microk8s --classic`  
+   <img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6ae3c2ca-5c8f-42c3-a398-04991edf4220">
+
+#### Prepare the cluster
+1. Check the status of the installation  
+   `sudo microk8s.status --wait-ready`  
+   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6fdf15b9-11de-4457-86af-0f92613f3105">
+
+2. Enable the 3 services
+   `sudo microk8s.enable dashboard registry` (`dns` was already enabled for me)
+   
+   | Add on | Purpose |
+   | --- | ----------- |
+   | DNS | 	Deploys the coreDNS service. |
+   | Dashboard | Deploys the `kubernetes-dashboard` service and several other services that support its functionality. It's a general-purpose, web-based UI for Kubernetes clusters. |
+   | Registry | Deploys a private registry and several services that support its functionality. To store private containers, use this registry. |
+
+#### Explore the Kubernetes cluster
+Recall from earlier that a Kubernetes cluster is composed of control planes and worker nodes. Control plane is responsible for maintaining the desired state of the cluster, while the worker nodes actually run the applications and workloads.
+
+MicroK8s provides a version of `kubectl` that you can use to interact with your new Kubernetes cluster. This copy of `kubectl` allows you to have a parallel installation of another system-wide `kubectl` instance without affecting its functionality.
+
+1. Run the `snap alias` command to alias `microk8s.kubectl` to `kubectl`. This simplifies usage.  
+   `sudo snap alias microk8s.kubectl kubectl`  
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdc075da-38d7-4b3e-ba9f-22eac0cf5dad">
+
+2. Check the nodes running in your cluster  
+   You know that MicroK8s is a single-node cluster installation, so you expect to see only one node. Keep in mind, though, that this node is both the control plane and a worker node in the cluster.
+
+   `sudo kubectl get nodes`  
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6af17180-5be2-423b-9b46-b00e6690d72c">  
+   The ready state indicates that the control plane might schedule workloads on this node.
+   
+   You can get more information for the specific resource that's requested. For example, let's assume that you need to find the IP address of the node.
+
+   `sudo kubectl get nodes -o wide`  
+   <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/657069fb-c280-4ed4-afd1-89072b37919b">
+
+3. Explore the services running on your cluster  
+   `sudo kubectl get services -o wide`
+
+    <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5de59576-5892-4e5a-b4da-32448cd84f35">     
+    Notice that only one service is listed. You installed add-ons on the cluster earlier, and you'd expect to see these services as well. The reason for the single service listing is that Kubernetes uses a concept called namespaces to logically divide a cluster into multiple virtual clusters.
+
+    To fetch all services in all namespaces, pass the `--all-namespaces` parameter:
+
+    <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/db756ded-70d4-4f41-9590-724b3101ad7f">
+
+   Notice all the namespaces.
+
+#### Install a web server on a cluster
+You want to schedule (means assigning a pod to a node) a web server on the cluster to serve a website to your customers. Kubernetes scheduler is responsible for this assigning task.
+
+Recall from earlier that you can use pod manifest files to describe your pods, replica sets, and deployments to define workloads.
+Because you haven't covered these files in detail, you run kubectl to directly pass the information to the API server.
+
+Even though the use of `kubectl` is handy, using manifest files is a best practice. Manifest files allow you to roll forward or roll back deployments with ease in your cluster. These files also help document the configuration of a cluster.
+
+1. **Create deployment**  
+   Specify the name of the deployment and the container imahe to create a single instance of the pod.  
+   `sudo kubectl create deployment nginxdeploy --image=nginx`
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/465372c3-3d3a-4333-9541-9653f6ed0d3b">
+
+2. **View deployments**  
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/aae09952-8ea0-44e3-97a8-e26323549ee0">
+
+3. **View Pods**  
+   The deployment from earlier created a pod. View it.  
+   `sudo kubectl get pods`  
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/313d83fd-1872-4695-9774-76a5deb90be0">  
+   Notice the name of the pod is generated using the deployment name I gave earlier.
+
+#### Test the website installation
+1. **Find the address of the pod**  
+   `sudo kubectl get pods -o wide`  
+   <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a8fe7f88-f81b-4a9a-ae8a-ef3e345ed74e">
+
+   Notice that the command returns both the IP address of the pod and the node name on which the workload is scheduled.
+
