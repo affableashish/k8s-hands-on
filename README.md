@@ -1,6 +1,8 @@
 # k8s-hands-on
 Learning Kubernetes from [Microsoft Learn](https://learn.microsoft.com/en-us/training/paths/intro-to-kubernetes-on-azure/) and [freecodecamp](https://youtu.be/kTp5xUtcalw?si=OQgai8LBz8fttKoo) course.
 
+Also check out this [video](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5).
+
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
 
@@ -388,6 +390,16 @@ Kubernetes is a portable, extensible open source platform for management and orc
 
 ### Container management
 It is the process of organizing, adding, removing or updating a significant number of containers.
+
+An app has an environment that it relies upon to run.  
+For eg:  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7bd896d9-78c7-4805-9ea7-e82f384a857e">
+
+Container provides an isolated context in which an app together with its environment can run but those isolated containers often need to be managed and connected to the external world. Shared file systems, networking, scheduling, load balancing and distribution are all challanges.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/871aae6b-1a1e-4907-8b2d-e33699181305">
+
+[Reference](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5).
 
 ### Container Orchestrator
 It is a system that automatically deploys and manages containerized apps. As part of management, it handles scaling dynamic changes in the environment to increase or decrease the number of deployed instances of the app. 
