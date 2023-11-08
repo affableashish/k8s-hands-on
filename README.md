@@ -423,7 +423,7 @@ With Kubernetes, you can view your datacenter as one large compute resource. You
 
 <img width="650" alt="image" src="https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/media/2-kubernetes-considerations.svg">
 
-However, it's important to understand that Kubernetes isn't a single installed app that comes with all possible components needed to manage and orchestrate a containerized solution:
+However, it's important to understand that Kubernetes isn't a single installed app that comes with all possible components needed to manage and orchestrate a containerized solution:  
 1. Aspects such as deployment, scaling, load balancing, logging, and monitoring are all optional. You're responsible for finding the best solution that fits your needs to address these aspects.
 2. Kubernetes doesn't limit the types of apps that can run on the platform. If your app can run in a container, it can run on Kubernetes. To make optimal use of containerized solutions, your developers need to understand concepts such as microservices architecture.
 3. Kubernetes doesn't provide middleware, data-processing frameworks, databases, caches, or cluster-storage systems. All these items are run as containers, or as part of another service offering.
@@ -500,6 +500,8 @@ Here’s a simplified version of how it works:
    
 So, the scheduler doesn’t create containers or pods. It simply decides where new pods should run based on the current state of the cluster and the resource requirements of the new pod. The actual creation and management of containers within a pod is handled by the Kubelet on the chosen node.
 
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5304b47a-6e3d-42ab-b692-17fe30a55308">
+
 #### Controller manager
 Controller manager launches and monitors the controllers configured for a cluster through the API server. "through the API server" means that the controller manager uses the API server to interact with the K8s objects that the controllers manage.  
 
@@ -553,6 +555,8 @@ The support for many container runtime types is based on the Container Runtime I
 The default container runtime in AKS is `containerd`, an industry-standard container runtime.
 
 #### Interact with a K8s cluster
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2adfddb-e6f5-4bac-ac23-540d381b32a7">
+
 K8s provides a command line tool called `kubectl` to manage your cluster. You use `kubectl` to send commands to the cluster's control plane or fetch information about all K8s objects via the API server.
 
 `kubectl` uses a configuration file that includes the following configuration information:
@@ -567,6 +571,8 @@ You can configure `kubectl` to connect to multiple clusters by providing the cor
 A pod represents a single instance of an app running in K8s. 
 
 <img width="424" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c7016ccb-02df-4396-afa1-1c53cd665787">
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cad0406a-8b59-4282-b58f-1c973ddd4884">
 
 Unlike in a Docker environment, you can't run containers directly on Kubernetes. You package the container into a Kubernetes object called a pod. A pod is the smallest object that you can create in Kubernetes.
 
@@ -636,8 +642,23 @@ A replica set replaces the replication controller as the preferred way to deploy
 
 A selector enables the replica set to identify all the pods running underneath it. Using this feature, you can manage pods labeled with the same value as the selector value, but not created with the replicated set.
 
-#### Deployment
+#### Deployment (abstraction over Pods)
 A deployment creates a management object one level higher than a replica set, and allows you to deploy and manage updates for pods in a cluster.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0a5337f0-ee99-49b4-b565-6c296c3f1e2e">
+
+Databases can't be replicated via deployment because Db have state. If we have clones or replica of the database, they would all need to access the same shared data storage and they you would need some kind of mechanism that manages which pods are currently reading/ writing from/ to that storage in order to avoid data inconsistencies and that mechanism in addition to replicating feature is offered by another K8s component called **StatefulSet**. This component is meant specifically for databases.
+
+Deploying StatefulSet is not easy that's why Databases are often hosted outside the K8s cluster.
+
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3b5c22f4-fc5a-4e9b-b30e-52f67ace66fc">
+
+**Layers of Abstraction:**  
+Everything below Deployment is handled by K8s.  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bad2acfa-45da-4a5a-aea5-aa458da21337">
+
+Eg:  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ed9b483e-c722-461d-a89a-c0829c58dac1">
 
 Assume that you have five instances of your app deployed in your cluster. There are five pods running version 1.0.0 of your app.
 
@@ -704,6 +725,16 @@ So the IP range is: `10.32.0.0` to `10.47.255.255`.
 #### Kubernetes services
 A K8s service is a K8s object that provides stable networking for pods. A Kubernetes service enables communication between nodes, pods, and users of your app, both internal and external, to the cluster.
 
+Service also provides load balancing.
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/73075614-7b57-415d-85ab-73f0e0be0833">
+
+To make your app accessible through the browser, you have to create an external service. External service opens communication from external sources into your cluster.
+
+#### Kubernetes Ingress
+The request goes to the Ingress which forwards it to the Service.
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/12cc8886-4592-41f3-a543-280e286fafbc">
+
 #### Group Pods
 Managing pods by IP address isn't practical. Pod IP addresses change as controllers re-create them, and you might have any number of pods running.
 
@@ -713,6 +744,12 @@ A service object allows you to target and manage specific pods in your cluster b
 
 For example, assume that you have many running pods. Only a few of these pods are on the front end, and you want to set a LoadBalancer service that targets only the front-end pods. You can apply your service to expose these pods by referencing the pod label as a selector value in the service's definition file. The service groups only the pods that match the label. If a pod is removed and re-created, the new pod is automatically added to the service group through its matching label.
 
+#### ConfigMap
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f1f1f3c4-285e-4d01-9996-0a9412a2c2f3">
+
+#### Secrets
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f355abc5-222e-4ff8-9ebe-f1c80a230b43">
+
 #### Kubernetes storage
 Kubernetes uses the same storage volume concept that you find when using Docker. Docker volumes are less managed than the Kubernetes volumes, because Docker volume lifetimes aren't managed. The Kubernetes volume's lifetime is an explicit lifetime that matches the pod's lifetime. This lifetime match means a volume outlives the containers that run in the pod. However, if the pod is removed, so is the volume.
 
@@ -721,6 +758,8 @@ Kubernetes uses the same storage volume concept that you find when using Docker.
 Kubernetes provides options to provision persistent storage with the use of PersistentVolumes. You can also request specific storage for pods by using PersistentVolumeClaims.
 
 Keep both of these options in mind when you're deploying app components that require persisted storage, like message queues and databases.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0b2bf7c7-d4e3-4c4f-868b-a8fe89b4c3fa">
 
 #### Cloud integration considerations
 Kubernetes doesn't provide any of the following services:
@@ -884,5 +923,393 @@ Before uninstall:
 
 After uninstall:  
 <img width="100" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5fe17dad-8cd3-45ec-ac17-980b00ac126d">
+
+---
+
+Nana's K8s course...
+---
+
+### Other `kubectl` commands
+1. Get Logs from Pod  
+   `kubectl logs [pd name]`  
+
+2. Describe Pod  
+   `kubectl describe pod [pod name]`
+
+3. Debugging by getting into the pod and get the terminal (bash for eg.) from in there  
+   `kubectl exec -it [pod name] -- bin/bash`
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/789efdfc-1d77-4bfe-8392-24b433c70c98">
+
+3. Delete Pods  
+   `kubectl delete deployment [name]`  
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b549874e-87a1-4fd6-ba1e-fc2625d0e5d8">
+
+4. Using config files to do deployments  
+   `kubectl apply -f [some-config-file.yaml]`
+   The first `spec` is for deployment and the second `spec` is for pods.  `template` is the blueprint for the pods.  
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/624db0b7-1660-49e2-9dd2-056f6ed9b962">
+
+**Summary:**  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/847d015b-1085-459f-94d5-22b7f48c3559">  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/54533231-60fe-4f3f-98c9-504bb5ad2d71">
+
+### K8s YAML config file
+YAML is a human friendly data serialization standard for all programming languages.  
+Its syntax uses strict indentation.  
+Best practice is to store config file with your code (or have a separate repo for config files).
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/754f9518-250a-4802-8720-9cd1521f6c0b">
+
+Each configuration file has 3 parts:  
+1. Metadata
+2. Specification
+3. Status (This part is automatically generated and added by K8s)  
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/333a0dc3-e0a7-4879-b857-5b0c679679c5">
+
+   K8s gets status data from `etcd` database.
+   `etcd` holds the current status of any K8s component.
+
+#### Blueprint for Pods (Template)
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2fd8c270-f25b-4be1-a802-0e565390599d">
+
+#### Connecting Components (Labels & Selectors & Ports)
+`metadata` part contains labels and `spec` part contains selectors.
+
+1. Connecting Deployment to Pods  
+   Way for deployment to know which Pods belong to it.
+   
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/eaa3face-37d5-4149-8963-00b5b08b2549">
+
+   Pods get the label through the template blueprint.
+   Then we tell the deployment to connect or to match all the labels `app: nginx`.
+
+2. Connecting Services to Deployments  
+   Way for service to know which Pods belong to it.
+   
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5ae2b2a1-f84b-48db-bf8a-25be3247c6c2">
+
+   Example:
+   Service has `spec:ports` configuration and deployment has `spec:template:spec:containers:ports` configuration:  
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8fcb98bd-fc49-4acc-93b3-970148742ed8">
+
+#### Ports in Service and Pod
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fbcaa9c7-61a1-498c-864f-0f71af2d10e6">
+
+#### Example
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/21ec293e-4579-44d5-907e-acff811b436b">
+
+#### View the status of the deployment generated by K8s from `etcd` and compare it to original
+`kubectl get deployment nginx-deployment -o yaml > nginx-deployment-result.yaml`
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a7aea357-a4f9-4ab1-a81e-c470a5dc3060">
+
+#### Delete the deployment and service
+`kubectl delete -f nginx-deployment.yaml`  
+`kubectl delete -f nginx-service.yaml`
+
+### Elaborate [example](https://youtu.be/X48VuDVv0do?si=-WTbSOZ04U-VLaCJ&t=4576)
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c0420032-d53b-4a61-8fab-65de95579945">
+
+#### Create MongoDb deployment
+Create secret first before you run deployment. Secret is created in the section that immediately follows this one.
+
+`mongodb-deployment.yaml`
+
+````
+# This file will get checked into app's Git Repo, so don't put secret value of settings like MONGO_INITDB_ROOT_USERNAME
+kind: Deployment
+metadata:
+    name: mongodb-deployment
+    # A service could use 'app:mongodb' selector to route network traffic to the pods created by this deployment. A label is used to identify the deployment itself.
+    labels:
+        app: mongodb
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: mongodb
+    template:
+        metadata:
+            labels:
+                app: mongodb
+        spec:
+            containers:
+            # Config this image from info here: https://hub.docker.com/_/mongo
+            - name: mongodb
+              image: mongo
+              
+              ports:
+              - containerPort: 27017
+              
+              env:
+              - name: MONGO_INITDB_ROOT_USERNAME
+                valueFrom:
+                    secretKeyRef:
+                        name: mongodb-secret
+                        key: mongodb-root-username
+              - name: MONGO_INITDB_ROOT_PASSWORD
+                valueFrom:
+                    secretKeyRef:
+                        name: mongodb-secret
+                        key: mongodb-root-password
+````
+
+Create Deployment:
+
+`[~]$ kubectl apply -f mongodb-deployment.yaml`  
+
+#### Create secret (this will live in K8s, not in repo)
+Create secret file:
+
+`mongodb-secret.yaml`
+
+````
+apiVersion: v1
+kind: secret
+metadata:
+    name: mongodb-secret
+# Basic key:value secret type. Other types include TLS
+type: Opaque
+data:
+    # The value you put here should be base64 encoded
+    # Get the base64 value by going to terminal and typing:
+    # echo -n 'username' | base64
+    # Similarly using 'password' for password
+    mongodb-root-username: dXNlcm5hbWU=
+    mongodb-root-password: cGFzc3dvcmQ=
+````
+
+Create Secret:
+
+`[~]$ cd k8s-config/`  
+`[~]$ ls`  
+`mongodb-deployment.yaml      mongo.yaml`  
+`[~]$ kubectl apply -f mongodb-secret.yaml`  
+`[~]$ secret/mongodb-secret created`  
+
+`k8s-config` is just a folder on your local computer.
+
+You can view secrets with command:  
+`kubectl get secret`
+
+#### Create MongoDb Internal Service
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/79eee145-8f9f-4e20-b663-5313a7c25661">
+
+Add this section to the `mongodb-deployment.yaml` file.
+
+````
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+spec:
+  selector:
+    # To connect to Pod through label
+    app: mongodb
+  ports:
+    - protocol: TCP
+      # Service port
+      port: 27017
+      # This is the containerPort of deployment
+      targetPort: 27017
+````
+
+Create Service:
+
+`[~]$ kubectl apply -f mongodb-deployment.yaml`  
+`deployment.apps/mongodb-deployment unchanged`  
+`service/mongodb-service created`  
+
+To check that the service is attached to the correct pod:  
+`kubectl describe service mongodb-service`  
+
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1ef6b94c-27cc-42ea-a4bd-69835d7011cc">  
+That's the POD IP address and 27017 is the port where the application inside the Pod is listening.
+
+Check that IP on the Pod by running:  
+`kubectl get pod -o wide`  
+
+#### View all components created so far
+`kubectl get all | grep mongodb`
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b6c20141-e2ed-4712-80d1-05dc73912828">
+
+#### Create External configuration to put Db url for MongoDb
+`mongodb-configmap.yaml`
+
+````
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-configmap
+data:
+  # Servername is just the name of the service
+  database_url: mongodb-service
+````
+
+Create config map:  
+`kubectl apply -f mongodb-configmap.yaml`
+
+#### Create MongoExpress deployment
+Use config from here: https://hub.docker.com/_/mongo-express
+
+You need these info:  
+1. Which Db it should connect to?  
+   Environment var: `ME_CONFIG_MONGODB_SERVER`
+2. Credentials to authenticate using.  
+   Environment var: `ME_CONFIG_ADMINUSERNAME` and `ME_CONFIG_ADMINPASSWORD`
+
+`mongoexpress-deployment.yaml`
+
+````
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  labels:
+    app: mongo-express
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: mongo-express
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-username
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-password
+        - name: ME_CONFIG_MONGODB_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: mongodb-configmap
+              key: database_url
+````
+
+Create deployment:  
+`kubectl apply -f mongoexpress-deployment.yaml`
+
+#### Create MongoExpress External Service
+To access mongoexpress from the browser.
+
+Add this section to the `mongoexpress-deployment.yaml` file.
+````
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-service
+spec:
+  selector:
+    app: mongo-express
+  # Add this guy that's different from internal service
+  # Bad naming choice because internal service also works as a load balancer
+  # This makes the service accept external requests by assigning the service an external IP address
+  type: LoadBalancer  
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+      # Add this guy that's different from internal service
+      # Port where the external IP address will be open. Must be between 30000 to 32767
+      nodePort: 30000
+````
+
+Create external service:  
+`kubectl apply -f mongoexpress-deployment.yaml`
+
+Check it out:  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ac0b67c1-2c53-4300-b776-ca515fbf6815">
+
+Internal Service or Cluster IP is DEFAULT.  
+LoadBalancer is also assigned an External IP.
+
+#### Give a URL to external service in minikube
+`minikube service mongo-express-service`
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/884d849b-96a5-409f-87d4-37e48eb82ce8">
+
+----
+
+Malai tyo bela samma thaha thiyena ki bhauju le mero relationship ramro banauna help garnu huncha ki nai bhanera teivara maile bhauju lai fully trust gareko thye. Tara jaba bhauju le ni timlai uchaleko dekhe ani tespachi maile bhauju ko sabai kura sunna hudaina jasto lagyo.
+
+Malai ta timi sita matra haina sabai sita fully honest huna man lagcha, biswas garne nagarne timro icchya.
+
+Malai bhauju ko yestai kura le ho sabai kura sunna hudaina bhanne lageko.
+
+Ho kinaki timi atti nai closed minded chau ni ta. "Maile suneko kura matra thik ho, mero husband le bhaneko kura sab galat ho" bhanne mentality cha ni ta timro.
+
+Malai bhane myth, misconception, suneko kura etc. haru ma fact khojna man lagcha, research garna man lagcha, bujhna man lagcha, tara timlai chai afno husband bahek aru le bhaneko sab thik ho, afule kei pani dimakh launa hudaina bhanne khalko mentality cha ni ta.
+
+Khai yo audio ma ke bhanna khojeko maile ramro sita bujhina. Ma ta bhanchu je kura ma ni afno dimakh lagauna parcha, kei kura logical nalage internet ma search garnu parcha, ani conclusion nikalne ho afaile.
+
+Bhauju le aba regular salt bhanda pink salt ramro bhanera kun uncle sita ke reason le bhannu bhayo malai thaha chaina, tyo bela timle sodheko bhaye hunthyo ali ramro sita bhauju lai ni sidhai. Mero research anusar chai Pink salt ma hune mineral ko amount yeti thorai huncha ki telle health ma kei affect nai gardina, ra tesma iodine nahune karan le tyo use garnu healthy hudaina bhanne ho. Maile tyo kura kunai doctor le sunayera bhaneko haina, afai research garera thaha bhayeko kura ho.
+Ra Bhauju Nutritionist pani hoina, teivara Bhauju ko kura or kunai pani doctor ko nutrition related kura blindly sunnu ramro hoina.
+Kasaiko kura ma ni blind faith rakhnu bhaneko murkhata ho. 
+
+Yo kura ma sorry, ki timle bhana ki Aama le bhannu huncha. Yesma Mama le bhanne kei kura chaina.
+Yeha ris uthne kura ke ma cha bhanda timle or Aama le kailei pani galti own nagareko bhayera ho.
+Malai Mama le CLEARLY bhannu bhako thyo "Aama le Washing machine pathaidincham" bhaneko ho bhanera tara Aama le testo bhaneko chaina bhannu bhayo.
+Maile aba kasko kura pattyaune? Malai yesari ghumayera kura gareko man pardaina.
+
+Ye baba, timle kura nabujheko ho ki nabujhe jasto gareko ho?
+Maile timro bhagwan ko kasam Sali harlai "ke testo taar wala paat chij dinu" bhanera Airpods kineko ho. Dekhaune bhanne mero secondary kura ho. Main kura ramro saman use garun bhanne ho, secondary kura ramro diyechan bhanera sabai le sochun bhanera ho.
+Yeti jabo kura ma kina niu khojchau ho? Yellai positively lina sakdainau? "La tani mero husband ko family le ke-ke diyenan bhanne sunecha, teivara ramro chij kinera kura katne haru lai dekhauna khojeko raicha" bhanera liu na. Kina yo kura ma masita fight garnu paryo ra?
+
+Ho straight kura garda of course help huncha tara hamro problem ke cha bhanda timi honest huna sakdainau, timi bhaneko manna sakdainau, timi maile bhaneko kei kura sunna pani ready chainau ani kasari ramro huncha relationship?
+Maile bhaneko mana, suna, ani honest bhau ta, I promise everything will get better.
+Tyo timlai chitta bujhdaina bhane ma pani timi jastai kura lai 100 fera batarera, jhut bolera basum ta? I don't know how that would help us.
+
+Malai thaha thiyena manche haru timi jasto dimkah sadkeko hunchan bhanne teivara tyo kura ma maile ramro sita dhyan nadinu mero galti ho.
+Spiritual bhanne nonsense liyera je pani "mero bhagwan - mero bhagwan" bhanera basne, afule chai kei mihinet nagarne, chahine kura ma alchi matra garna khojne, khali japera basne, afno dimakh kei pani use nagarne, yesto closed minded chau bhanne kura maile dhyan dinu parne thyo, maile diyina, teha mero galti bhayo
+
+Tyo bela fact bhanna sajilo thyo, ma koi thiyina tyo bela. Tara aba husband-wife bhayesi fact bhanna bhanda ghumauna thik lagcha timlai.
+
+Maile tyo bhaneko kina bhanda I was frustrated ki timi mero kura kailei sunna, bujhna ready nabhayeko dekhera ho.
+Yettikai niu khojeu tyo bela: "Thulmommy lai bhanera nalyauna bhanchu" bhanera. Tyo bela maile ke clear gareko bhanda: yedi timle yo kura ma malai jabaf dina ko lagi Thulmommy lai bhaneu bhane you don't respect me one bit, teivara malai lagyo ki mero wife le mero kura kei pani sundina, respect pani gardina bhane yo relationship ko ke kaam bhanera, we'll be done bhaneko.
+Aile farkera herda, that was a little too much. Maile teso bhanna hunthena ris ko jhok ma, I'm sorry.
+
+Yeha problem ke bhairako cha bhanda you don't respect me or this relationship more than your preconception and your ego.
+Timle maile bhaneko kura lai kailei pani seriously liyeko chainau, maile je bhane pani baal hanchau or negatively linchau or 100 fera ghumayera tarchau. Ani malai chitta bujhdaina ani maile ego dekhaye bhanne huncha.
+Maile timlai aile samma nachahine kura ke ma pressure gareko chu?
+Maile bhaneko timlai: timle yo Spirituality, ISKCON ma je je sikeu yo kura haru ma dherai jhut, propaganda cha, yo kura haru follow garna blind faith chahincha, blind faith bhaneko closed mindedness ho, yelle manche lai ekohoro banaucha, illogical banaucha, irrational banaucha teivara yo kura choda, baru ramro sita pada, ramro sita khau, afno body ko take care gara, ghar ma mommy le bhaneko suna, mana bhaneko ho.
+Yesma naramro chai maile ke bhane? Ho maile risayera bhane hola tyo mero mistake ho (I'm sorry), tara timle tei kura sunne ho, manne ho bhane yeha ke issue cha? Yeha issue ayeko timle malai na trust garchau, na maile bhaneko sunchau, ani maile je bhaneni ego dekhaye jasto huncha.
+
+ISKCON ka manche le bhaneko kura ma chai blind faith rakhna parcha bhanne timi, tara mero kura ma chai reasonable faith pani narakhne, ani kasari huncha? Ani dosh jati chai sabai mero?
+
+Yo relationship chalna malai timro faith chaiyeko cha, dina sakchau? Dherai haina 3 months maile bhaneko kura sabbai suna, mero kura lai seriously liu, malai positively liu, honest bhau, ghar ko kura duniya sita nagara, straight kura gara, maile bhaneko mana. 3 months tetti gardeu, afai positive change aucha. Aile timle malai afno manche jasto ni gardainau, malai trust garne bhanne kura ta tadha ko kura bhayo.
+
+
+Yeso afai bichar gara, yo sansar bhagwan le design gareko jasto nai dekhidaina.
+
+Yeti dherai evil cha sansar ma, yeti dherai pain and suffering cha. Cancer jasto rog lagera manche marchan, din ma sana sana bachcha hajaurau-hajar morchan tadpi-tadpi. "Existence is pain" bata mukti dina mareko hola ni bhanera bhanchau hola, tara bhagwan jasto maya ko khani le kosailai pida diyi-diyi exist garayera marnu bhanda ta exist nai nabanauna parne haina ra? For eg: Kunai bakhra (goat) lai janmayera, manche le katera khanu bhanda ta tyo bakhra najanmeko bhaye pida hunthena ni. Ani purba juni ko paap ko faal bhanera bhanlau, bhagwan jasto daya ko khani le purba juni ma paap garyo bhane arko juni ma tadi-tadpi marnu parcha bhanne thaha huda hudai kina afno sristi lai paap garne khalko banaunu bhayo hola ta? Present past future dekhne bhagwan le jani jani afno sristi lai paap garayera ako juni ma sajaya diyeko jasto bhayena ra logically sochda?
+
+Ani Spirituality bhaneko state of mind ho, hamro mind yeti powerful cha ki kunai kura dherai sochyo bhane tesko illusion nai banaidincha.
+Malai asti yo "Israel-Gaza" war ma bachcha haru lai bomb haneko dekhera yeti naramro lageko thyo ani maile yeti soche ki ma powerful bhako bhaye tyo war ma gayera ladthye, tyo bachcha haru lai bachauthye bhanera ani tyo sochda sochda maile room ma tyo war bhako thau ko tank gadi ko awaj suneko. Tei bhaye jastari suneko. Kassam. 
+Teivayera yesta kura haru bhaneko sabai mind ko khel ho. Yesto kura lai dherai seriously liyo bhane mind nai weak bhaidincha.
+
+Aba timlai universe ko origin, ani humans ko origin ma ekdam interest cha bhane Cosmology ra Theoretical Physics ko books haru kindimla, tyo pada ani khowledge pauchau. "Sabai bhagwan le banako" bhanne soch chai ekdam alchi soch ho, testo soch le kailei pani truth bhetinna, progress hudaina. 
+Ra maile pade anusar, bujhe anusar, dekhe anusar yo sansar bhagawan le banayeko jasto chai dekhidaina kinaki bhagwan le banayeko sansar yo bhanda dherai peaceful, beautiful hunthyo ra bhagwan le afno sristi lai at least afno roop dekhaunu hunthyo. Tara aile ko bhagwan lai lukamari kheldai fursad chaina, paapi haru le bachcha haru lai bomb haneka chan ani tiniharu nai khusi chan, tiniharu nai dhani chan, tiniharukai family ramro cha.
+
+
+
+
+
 
 
