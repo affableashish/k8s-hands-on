@@ -1,7 +1,7 @@
 # k8s-hands-on
-Learning Kubernetes from [Microsoft Learn](https://learn.microsoft.com/en-us/training/paths/intro-to-kubernetes-on-azure/) and [freecodecamp](https://youtu.be/kTp5xUtcalw?si=OQgai8LBz8fttKoo) course.
+This repo contains notes from Docker and Kubernetes course at [Microsoft Learn](https://learn.microsoft.com/en-us/training/paths/intro-to-kubernetes-on-azure/) and also [Kubernetes course](https://youtu.be/X48VuDVv0do?si=T1xGQVUEa2ZdTatH) by TechWorld with Nana.
 
-Also check out this [video](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5).
+Also check out this [video](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5) for ELI5 version of Kubernetes.
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
@@ -37,7 +37,7 @@ Complexity increases by quite a bit.
 ### Monolith to Microservices migration
 Incrementally migrate a legacy system by gradually replacing specific pieces of functionality with new applications and services. As features from the legacy system are replaced, the new system eventually replaces all of the old system's features, strangling the old system and allowing you to decommission it.
 
-![image](https://github.com/affableashish/k8s-hands-on/assets/30603497/e0de73ca-d817-4c80-b375-b0dfb5c7d47d)
+<img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0de73ca-d817-4c80-b375-b0dfb5c7d47d">
 
 [Reference](https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig)
 
@@ -49,42 +49,32 @@ Cloud native technologies empower organizations to build and run scalable applic
 
 View the Cloud Native Landscape here: https://landscape.cncf.io/
 
-### Cloud Native Concepts - Speed and Agility
-
-### Cloud Native Concepts - Application Architecture
-![image](https://github.com/affableashish/k8s-hands-on/assets/30603497/dc5b9041-9838-4010-893a-4125e32c7892)
-
-### Cloud Native Concepts - Mentality : Pets vs Cattle
-Infrastructure becomes like cattle.
-
-1. Infrastructure becomes immutable and disposable.
-2. Provisioned in minutes and destroyed on demand.
-3. Never updated or repaired, but re-provisioned.
-   
-### Cloud Native Concepts - Greenfield vs Brownfield
-Cloud native projects are a lot easier with New projects but also possible with Legacy projects.
-
-### Cloud Native Concepts - Cloud Native Trail Map
-Breaks the journey into smaller measurable objectives.
-
-Diagram here: https://raw.githubusercontent.com/cncf/trailmap/master/CNCF_TrailMap_latest.png
-Taken from [here](https://github.com/cncf/trailmap).
+### Cloud Native Concepts
+1. Speed and Agility
+2. Application Architecture  
+   <img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/dc5b9041-9838-4010-893a-4125e32c7892">
+3. Mentality : Pets vs Cattle
+   1. Infrastructure becomes like cattle, as it becomes immutable and disposable.
+   2. Provisioned in minutes and destroyed on demand.
+   3. Never updated or repaired, but re-provisioned.
+4. Greenfield vs Brownfield
+   Cloud native projects are a lot easier with New projects but also possible with Legacy projects.
+5. Cloud Native Trail Map
+   Breaks the journey into smaller measurable objectives.  
+   Diagram here: https://raw.githubusercontent.com/cncf/trailmap/master/CNCF_TrailMap_latest.png  
+   Taken from [here](https://github.com/cncf/trailmap).
 
 ## Containers
 Finish the [Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-docker-containers/) training. It's pretty great.
 
 Suppose you work for an online clothing retailer that's planning the development of several internal apps. Your team develops and tests all applications on-premises and then deploys them to Azure for pre-production testing and final production hosting. You're looking for maximum compatibility in each environment with little or no configuration changes. Using Docker as a containerization solution seems an ideal choice.
 
-A **container** is a loosely isolated environment that allows us to build and run software packages. These software packages include the code and all dependencies to run applications quickly and reliably on any computing environment. We call these packages container **images**. **The container is the in-memory instance of an image.**
+A **container** is a loosely isolated environment that allows us to build and run software packages. These software packages include the code and all dependencies (for eg: operating system, runtime, system tools, system libraries and so on) to run applications quickly and reliably on any computing environment. We call these packages container **images**. Docker containers are built off of Docker images. **The container is the in-memory instance of an image.** Since images are readonly, Docker adds a read-write file system over the read-only file system of the image to create a container.
 
-The container image becomes the unit we use to distribute our applications.
-
-![image](https://github.com/affableashish/k8s-hands-on/assets/30603497/42ed1fcf-becf-411f-bc88-ddf17f8e0f54)
-
-Docker container wraps an application's software into an invisible box with everything the application needs to run. That includes the operating system, application code, runtime, system tools, system libraries and so on. Docker containers are built off of Docker images. Since images are readonly, Docker adds a read-write file system over the read-only file system of the image to create a container.
+<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/42ed1fcf-becf-411f-bc88-ddf17f8e0f54">
 
 ### Container Image
-A container image is a portable package that contains software. It's this image that, when run, becomes our container. **The container is the in-memory instance of an image.**
+A container image is a portable package that contains software. It's this image that, when run, becomes our container. 
 
 A container image is immutable. Once you've built an image, you can't change it. The only way to change an image is to create a new image. This feature is our guarantee that the image we use in production is the same image used in development and QA.
 
@@ -93,8 +83,7 @@ A container image is immutable. Once you've built an image, you can't change it.
 [Microsoft Learn reference](https://learn.microsoft.com/en-us/training/modules/intro-to-docker-containers/).
 
 ### VMs vs Containers
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8731f9bc-291e-425d-b328-8d78103a07d7">
-<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/700ae582-2f4a-431e-86b7-a7bbb88340e7">
+<img width="480" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8731f9bc-291e-425d-b328-8d78103a07d7">
 
 ### Container Registry
 Docker images are stored and made available in registries. A registry is a web service to which Docker can connect to upload and download container images. When you download and run an image, you must specify the registry, repository and version tag for the image.
@@ -112,7 +101,7 @@ mcr.microsoft.com/dotnet/core/aspnet:8
 | Image Name | aspnet |
 | Version Tag | 7 |
 
-The repository name must be of the form *<login_server>/<image_name>:<tag/>.
+The repository name must be of the form `*<login_server>/<image_name>:<tag/>`.
 
 For eg: This is how repositories looks like:
 
@@ -128,7 +117,7 @@ Also take a look at [Microsoft Artifact Registry](https://mcr.microsoft.com/en-u
 Go to this site:
 https://hub.docker.com/_/microsoft-dotnet-samples/
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bd9dfe43-2529-4cc3-a5d6-6eefaddcc3de">
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bd9dfe43-2529-4cc3-a5d6-6eefaddcc3de">
 
 And check out the Dockerfile:
 
@@ -169,12 +158,10 @@ Recommended Reading: https://stackoverflow.com/a/47152658/8644294.
 ## Docker commands
 Follow this nice [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/3-exercise-deploy-docker-image-locally). 
 
-1. Pull an image
-   
+1. Pull an image  
    For eg: `docker pull mcr.microsoft.com/dotnet/samples:aspnetapp`
 
    When we pull an image, Docker stores it locally and makes it available for running it as containers.
-
 2. View images
    
    For eg: `docker image list`
