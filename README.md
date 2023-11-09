@@ -1245,6 +1245,469 @@ LoadBalancer is also assigned an External IP.
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/884d849b-96a5-409f-87d4-37e48eb82ce8">
 
+### Namespace
+Way to organize resources.
+
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/dfdf89d7-9a93-49e4-9eff-0f1902c487fd">
+
+You can put your object/ resource into some namespace in the .yaml configuration file.  
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6b58171f-c4a1-4863-91f4-80f5b7812987">
+
+**Why?**  
+1. To group resources into different namespaces.
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/699c0798-624e-4374-8fe5-18af861fef02">
+
+2. Use same cluster by different teams.  
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6d2809d6-83b0-49cd-aceb-dc40f09f4e17">
+
+3. Resource sharing: Staging and Development.  
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5da2c1b1-931e-4796-b972-570a517ef9a2">
+
+4. Set access and resource limits.  
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/80a7b5cb-fbbb-4f24-9aa6-9575d4944bc9">
+
+You **can access** service in another Namespace:
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d427f54a-b0f1-4623-81ce-2ec6bcf910f6">
+
+You **can't access** most resources from another namespace.  
+For eg: Each namespace must define its own ConfigMap, Secret etc.
+
+There are some components that can't live inside a namespace.  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0a224443-b673-45b4-829e-b49a7749c7de">
+
+### Ingress
+To make an app accessible through the browser, you can use external service or ingress.
+
+External Service looks like below. It uses http protocol and IP address:port of the node which is ok for testing but not good for final product.  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f43a4b47-8075-4ef3-bb91-269b7239b503">
+
+Ingress makes it better:  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/08c8836d-d372-4c37-888a-80a9cb875635">
+
+One thing to note is that the `http` attribute under `rules` doesn't correspond to http protocol in the browser.  
+This just means that the incoming request gets forwarded to internal service.
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a78853c4-b1ee-4082-99b1-6d9e484fd783">
+
+#### Ingress and internal service configuration
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/88972574-7f1d-426f-8caa-b4df5b6065d8">
+
+In the `host: myapp.com`, `myapp.com` must be a valid domain address.
+You should map domain name to Node's IP address, which is the entrypoint. 
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f23b89da-c00e-451f-9ff5-686cc5c47764">
+
+#### How to configure ingress in your cluster
+You need an implementation for Ingress which is called Ingress Controller.
+
+Install an ingress controller which is basically a pod or a set of pods which run on your node in your K8s cluster.
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6edf9cb0-bbf1-4539-aee7-383903e7a45b">
+
+#### Ingress Controller
+1. Evaluates all the rules defined in the cluster.  
+   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b6e2ba98-c58b-4999-b773-2e87c3ac8705">
+
+2. Manages redirections.
+3. Entrypoint to cluster.
+4. Many third-party implementations.
+
+If you're running your K8s cluster on some cloud environment, you'll already have a cloud load balancer.
+External requests will first hit the load balancer and that will redirect the request to Ingress Controller. 
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8228d68-cadd-4970-b66c-510223223ca8">
+
+But if you're deploying your K8s cluster on a bare-metal, you'll have to configure some kind of entrypoint yourself. That entrypoint can be either inside of your cluster or outside as a separate server.  
+For eg: An external Proxy Server shown below.
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8499ad31-76a4-41e1-ae5d-0924cef3b327">
+
+#### Install Ingress Controller in Minikube
+`minikube addons enable ingress`
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d27794bd-aedc-4e65-906e-b914881c8c71">
+
+With 1 simple command, I can have Nginx ingress controller pod setup.
+
+#### Create Ingress rule for K8s dashboard
+`kubectl get ns` just lists all the namespaces in your current K8s context.  
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/74d046fb-ed95-4daf-8198-7cea9f592ae3">
+
+`kubectl get all -n kubernetes-dashboard` shows all the components in kubernetes-dashboard.  
+It already has internal service and pod for K8s dashboard (you can see that if you run the command above).
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d80b601-6a6c-4c03-98f4-17775b2e183f">
+
+Now we can configure an ingress rule for dashboard so it's accessible from our browser using some domain name.
+
+`dashboard-ingress.yaml`
+
+````
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-ingress
+  # Same as service and pod!
+  namespace: kubernetes-dashboard
+spec:
+  rules:
+  - host: dashboard.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: kubernetes-dashboard
+            port: 
+              number: 80
+````
+
+Above is the ingress config for forwarding every request that is directed to `dashboard.com` to internal `kubernetes-dashboard` service.
+`kubernetes-dashboard` service is internal service as seen by it being of `ClusterIP` type.
+
+Create ingress rule:
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/784a680b-ffaa-466a-9c6a-6dc0d212a30e">
+
+#### Resolve IP address to host name `dashboard.com`
+Go to your hosts file and put that mapping.
+
+`[~]$ sudo vim /etc/hosts`
+
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/93259521-3b0c-4526-b34a-ad7fe9a1d555">
+
+Type `Esc` and `:wq` to save and exit.
+
+Now go to your browser and type `dashboard.com` and you'll reach the K8s dashboard.
+
+#### Ingress default backend
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e594e2e9-1228-40c8-a946-9c9ab7693a8c">
+
+A good usage for this is to provide user with some custom error messages when a page isn't found.
+
+For this, all you have to do is create an internal service with the name `default-http-backend` and create a pod or application that sends the custom error response.  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/85c7e0b0-aaf9-4f8d-9cba-c497f64599c5">
+
+#### Multiple paths for same host
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6d78b75f-bb8a-44c0-b4e8-bc6111e88214">
+
+#### Multiple sub-domains or domains
+You can also have multiple hosts with 1 path. Each host represents a subdomain.
+
+<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0e61b6e-ab95-4335-8215-64a18fb42727">
+
+#### Configuring TLS certificate - https
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bd5a0a9f-7165-4030-96c6-a4217aee484c">
+
+Notes:  
+1. Data keys need to be "tls.crt" and "tls.key".
+2. Values are file contents NOT file paths/ locations.
+3. Secret component must be in the same namespace as the Ingress component. `default` in the example.
+
+### Helm
+Package manager for Kubernetes.  
+To package YAML files and distribute them in public and private repositories.
+
+For eg: You have deployed your app in a K8s cluster. Now you want to deploy/ add elastic stack for logging.  
+If I wanted to do this myself, I'd have to take care of the following components:
+1. Stateful set: For stateful apps like Dbs
+2. ConfigMap: For external config
+3. K8s user with permissions
+4. Secret: For secret data
+5. Services
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/9e221f9d-e32f-43b1-94c6-7aaae9f8a1af">
+
+If I had to do this manually, it'd be tedious.  
+But since something like Elasticsearch is a standard deployment, someone already created the YAML files required for those deployments, packaged them up and made them available in repositories so other people could use them.
+
+That bundle of YAML files is called **HELM chart**.
+
+#### Helm Charts
+1. Bundle of YAML files
+2. Create your own Helm Charts with Helm
+3. Push them to Helm Repository
+4. Download and use existing ones
+
+Standard apps with complex setup like: Database apps: MongoDb, MySQL, Elasticsearch, Monitoring apps: Prometheus etc. all have charts already available.
+
+#### Helm is a templating engine
+If you have an app that has a bunch of microservices and deployment and service configuration of each of those microservices look almost the same. For eg: The only difference is something simple like version and image name.  
+In this scenario, you can just define a base/ common blueprint and use placeholders to populate dynamic values.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3931aca8-749a-4200-a0c3-577b69455f32">
+
+The values come from `values.yaml` file.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f248feaf-2c03-41c2-a705-797405a1c787">
+
+#### Values injection into template files
+`helm install --values=my-values.yaml <chartname>`
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/039605b5-2e17-4e06-850f-17445683f955">
+
+#### Helm helps deploying same app across different environments
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0d3f594-f21a-4b81-a733-b5318a3c695d">
+
+#### Helm chart structure
+<img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/124b26be-9dae-4b47-9e93-e162c474195f">
+
+1. mychart folder: Name of the chart.
+2. Chart.yaml: Meta info about the chart. For eg: name, version, dependencies etc.
+3. values.yaml: Values for the template files.
+4. charts folder: Chart dependencies. For eg: If this chart depends on other charts.
+5. templates folder: Actual template files.
+
+Install chart using the command:  
+`helm install <chartname>`
+
+#### Helm version 3 got rid of Tiller for good reasons
+
+### Kubernetes Volumes
+Persist data in K8s using following ways:  
+1. Persistent Volume
+2. Persistent Volume Claim
+3. Storage Class
+
+Let's say you have an app with a Db.  
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/69fa3fb5-0cdc-42f3-9fbd-4a4637765c3b">
+
+If you make changes to the db and restart the `mysql` pod, the data gets lost because K8s doesn't provide data persistence out of the box.
+
+**Storage Requirements:**  
+1. We need a storage that doesn't depend on the pod lifecycle.  
+   <img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7584ed59-ff6d-475b-b705-cffb41323a3d">
+2. Storage must be available on all nodes.  
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/94987239-4ba4-46e5-a2c9-56c3f6db9c4b">
+3. Storage needs to survive even if cluster crashes.
+
+#### Persistent Volume
+1. Cluster resource.
+2. Created via YAML file.
+3. Needs actual physical storage.  
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e65c8cf7-7d25-47e0-a3c8-e9307869243f">
+4. Example that uses Google cloud:
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/af252f0c-4df7-45d3-90e3-5aec28e68ae4">
+5. They are NOT namespaced.
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ebc1eea6-1336-4c6d-b8ef-bb85f45f2356">
+
+#### Persistent Volume Claim
+Application has to claim the Persistent volume.
+
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1a383fc1-829c-4ea6-acc8-8ff59232e688">
+
+In other words, PVC specifies claims about a volume with storage size, access mode etc. and whichever persistent volume matches those claims will be used for the application.
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2bd62e8-f5d4-40ae-aa48-1673ae95f8b3">
+
+Note: PVClaims must exist in the same namespace as the pod.
+
+You use that claim in the Pods configuration like so:  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fee3ae01-a2e6-48f0-a149-ae3f9823df03">
+
+**Mounting volume:**  
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4d860872-729b-41e2-ad93-4c4ecde0411c">
+
+#### Different volume types in a Pod
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/df181cc9-b598-48f9-b87b-8700650c4b50">
+
+#### Storage Class
+Storage class provisions persistent volumes dynamically when PersistentVolumeClaim claims it.  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a356b34f-e2b1-42ad-8cf0-58124dab2754">
+
+Using Storage class:  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/04677f2e-2834-416f-86cc-c99e44fca23f">
+
+Flow:  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/87506ae1-55ae-40d5-b8c3-1b0f35034891">
+
+#### Volume Types: ConfigMap and Secret
+1. They both are local volumes.
+2. They are not created via PV or PVC.
+3. They are managed by K8s.
+
+### StatefulSet
+Stateful vs Stateless apps
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c58b7dc3-befe-436c-8bbf-0796aa3567d4">
+
+#### Deployment vs StatefulSet
+**Deployment:**
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e43dcd7d-baf8-4d56-9584-d89475c879ac">
+
+When you delete one, one of those pods can be deleted randomly. 
+
+**StatefulSet:**
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/71a6477b-143f-4d80-aa04-6fcc427b3905">
+
+#### Pod Identity
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1e3c1181-a506-41c4-8746-6fecee9048b4">
+
+Let's say `ID-2` pod goes down and created again. Even when it's created newly this time, it'll have the same Id of `ID-2`.
+
+#### Scaling Db apps
+Only let one instance to write data to prevent data inconsistencies.
+
+Let's say you add `mysql-3` instance.  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/284d1af5-84ba-48cd-bae7-9328cf9b15a6">
+
+The workers continuously synchronize data.  
+PV means Persistent volume.
+
+#### Pod state 
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/036fb5c8-bcb1-4fa2-9f66-5a38383a0b93">
+
+Pod state is stored in its storage. When a pod dies and it gets replaced, the persistent pod identifiers make sure that the storage volume gets reattached to the replacement pod.
+
+#### Pod Identity
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/344b5add-a958-45f7-9efd-7dd07905c50b">
+
+For eg: StatefulSet with 3 replica:
+1. mysql-0 : Master
+2. mysql-1 : Worker
+3. mysql-2 : Worker
+
+Next pod is only created if previois one is up and running.  
+Deletion in reverse order, starting from the last one.
+
+#### Pod Endpoints
+Each pod in a stateful set gets it own DNS endpoint from a service.
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8cb0d78d-8e29-483d-b471-ebf6d66b1199">
+
+2 characteristics:  
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a4bbcbc5-21cb-4494-aa64-2aa766578a99">
+
+#### It's complex so just use cloud db services.
+Stateful apps are not perfect for containerized apps, stateless are.
+
+### Kubernetes Services
+Pods in K8s are destroyed frequently, so it's not practical to reach them using their ip addresses.
+Services address this problem by providing a stable IP address even when the pod dies.
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f677caad-fd51-47eb-b1cd-943194ddd6c2">
+
+**Different Services:**
+1. ClusterIP Services
+2. Headless Services
+3. NodePort Services
+4. LoadBalancer Services
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2dfe7d6e-90a5-4407-975c-5b2cc5afc79b">
+
+#### ClusterIP Services
+This is a default type, so when you create a service and don't specify the type, this is what you'll get.
+
+<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c87f3b55-c180-4008-a9a8-a79ab1b299a9">
+
+For eg:  
+Let's say we have deployed our microservice app in our cluster. Let's say this pod contains the app container and a sidecar container that collects logs from the app and sends it to some log store. The deployment yaml file looks like this:  
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ee490118-8260-400e-b21a-7a20c0e78557">
+
+**Pod gets an IP address from a range that is assigned to a Node.**
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d48f38c7-1f29-4667-9adc-60501d235eb7">
+
+Let's say you access the app through the browser:
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cbf516f7-4038-4d7f-b443-63db0cb4f932">
+
+The ingress rule and app service yaml contents look like this:
+
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8fa1242c-a1f5-485a-b81c-baaf5101cf80">  
+As you can see, the ingress forwards to port 3200 where the service is, and the service forwards to port 3000 in the container where the app is running.
+
+The Service port is arbitrary while targetPort is not. targetPort has to match the port where container inside the pod is listening at.
+
+**Which pods to forward request to?**  
+By using selectors which are labels of pods.
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f449dc1d-2fbb-4aba-b1b9-c0d9feb2186c">
+
+**Which port to forward request to?**  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3cb110d9-424d-4988-a028-e3cbc6cf920e">
+
+When we create the service, it will find all the pods that match the selector (1), so these pods will become **endpoints** of the service.
+When service gets a request, it will pick one of those pod replicas randomly beause it's a load balancer and it will send the request it received to that specific pod on a port defined by `targetPort` attribute (2).
+
+**Service Endpoints:**  
+When we create a service, K8s creates an endpoints object that has the same name as the service and it will use the endpoints object to keep track of which pods are members/ endpoints of the service.
+
+<img width="380" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6f335791-f1c7-4877-a1e6-9d7d52bb7136">
+
+**Multi-Port Services:**  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f04cb733-52ad-43d1-a835-499867807101">
+
+When you have multiple ports defined in a service, you have to name them.
+
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/32f013d4-2240-461d-a0c5-829478b9e1c0">
+
+#### Headless Services
+Useful in scenario like:
+1. Client wants to communicate with 1 specific Pod directly.
+2. Pods wants to talk directly with specific Pod.
+3. Pod can't be randomly selected.
+
+**Use case:** Stateful applications, like databases where Pod replicas aren't identical.
+
+To create a headless service, set clusterIP to none.  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48b67607-a0fb-4652-a069-7150e9b88233">
+
+We have these 2 services alongside each other. ClusterIP one will handle load balanced requests, Headless one will handle data synchronization requests.
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ae95e98b-5227-4a7d-a7af-4a2e5f7925fe">
+
+#### NodePort Services
+Recall that CLusterIP is only accessible within the cluster so no external traffic can directly address the cluster IP service.
+The node port service however makes the external traffic accessible on static or fixed port on each worker node.
+
+So in this case, instead of a browser request coming through the Ingress, it can directly come to the worker node at the port that the service specification defines.
+This way external traffic has access to fixed port on each Worker Node.
+
+This is how NodePort service is created.
+Whenever we create a node port service, a cluster ip service to which the node port service will route is automatically created.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ec3c57fc-2628-4cb9-82b7-5a69fb8f7f0a">
+
+The nodePort value has a predefined range of 30000 to 32767.
+Here you can reach the app at `172.90.1.2:30008`.
+
+**View the service:**  
+The node port has the cluster IP address and for that IP address, it also has the port open where the service is accessible at.  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/941eb8bd-0a3b-44cf-b3f4-7cfe7ed4aa47">
+
+**Service spans all the worker nodes:**  
+Service is able to handle a request coming on any of the worker nodes and then forward it to one of the pod replicas. Like `172.90.1.1:30008` or `172.90.1.2:30008` or `172.90.1.3:30008`. This type of service exposure is not secure.  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4ea4d459-2053-4784-8eb6-713b9936d3ef">
+
+Don't use it for external connection. Use it only for testing.
+
+Configure Ingress or LoadBalancer for production environments.
+
+#### LoadBalancer Services
+A service becomes accessible externally through a cloud provider's load balancer service. 
+
+LoadBalancer service is an extension of NodePort service.  
+NodePort service is an extension of ClusterIP service.  
+So whenever we create LoadBalancer service, NodePort and ClusterIP service are created automatically.
+
+The YAML file looks like this:  
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0e41ac26-8297-4c25-8881-59b261b37261">
+
+It works like this:  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c717755a-24ad-4a2d-98bb-39b9391906d1">
+
+NodePort is the port that open on the worker node but it's not directly accessible externally but only through the load balancer. 
+So the entry point becomes the load balancer first and it can then direct the traffic to node port on the worker node and the cluster IP, the internal service.
+
+The load balancer service looks like this:  
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4706aeb2-8daf-4364-a820-ede12058f9c9">
+
+Configure Ingress or LoadBalancer for production environments.
+
 ----
 
 Malai tyo bela samma thaha thiyena ki bhauju le mero relationship ramro banauna help garnu huncha ki nai bhanera teivara maile bhauju lai fully trust gareko thye. Tara jaba bhauju le ni timlai uchaleko dekhe ani tespachi maile bhauju ko sabai kura sunna hudaina jasto lagyo.
