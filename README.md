@@ -347,9 +347,9 @@ In the resource menu, under Services, select Repositories. The Repositories pane
 
 #### Run an Image
 1. Create `Container Instances` resource  
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdf548ad-044a-4661-af7b-f9fe8b8e8e7e">
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdf548ad-044a-4661-af7b-f9fe8b8e8e7e">
    
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d30a49a5-d6ce-48fe-905d-041e92c75e86">
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d30a49a5-d6ce-48fe-905d-041e92c75e86">
    
    On the Advanced tab, set the _Restart Policy_ to _Always_, and leave all the other settings as is.
 
@@ -362,7 +362,7 @@ In the resource menu, under Services, select Repositories. The Repositories pane
    <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4215e131-c6c5-4bfa-913c-738434279c69">
 
 ## Intro to Kubernetes
-Reference: https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/
+Reference: [Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/) and [this YouTube video](https://youtu.be/X48VuDVv0do?si=UqYr2D-Lv_aL9bXc).
 
 Kubernetes is a portable, extensible open source platform for management and orchestration of containerized workloads.
 
