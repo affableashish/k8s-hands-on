@@ -155,7 +155,8 @@ It's possible to add writable volumes to a container. A volume represents a file
 
 Recommended Reading: https://stackoverflow.com/a/47152658/8644294.
 
-## Docker commands
+## Docker
+### Docker commands
 Follow this nice [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/3-exercise-deploy-docker-image-locally). 
 
 1. Pull an image  
@@ -198,7 +199,7 @@ Follow this nice [exercise](https://learn.microsoft.com/en-us/training/modules/i
    For eg:  
    `docker rm elegant_ramanujan`
 
-   You can't remove a container that's running, but you can force a container to be stopped and removed with the `-f` flag. Only use this iff the app inside the container doesn't need to perform a graceful shutdown.
+   You can't remove a container that's running, but you can force a container to be stopped and removed with the `-f` flag. Only use this if the app inside the container doesn't need to perform a graceful shutdown.
    
    For eg:  
    `docker container rm -f elegant_ramanujan`
@@ -212,21 +213,23 @@ https://docs.docker.com/get-started/docker_cheatsheet.pdf
 
 https://cheat-sheets.nicwortel.nl/docker-cheat-sheet.pdf
 
-## Create custom image with a Dockerfile
+### Create custom image with a Dockerfile
 To create a Docker image containing your application, you'll typically begin by identifying a **base image** to which you add files and configuration information.
 
 A Dockerfile contains the steps for building a custom Docker image. Follow along this [guide at Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/5-exercise-create-custom-docker-image).
 
-### Step 1: Clone this sample MSLearn repo to your projects folder:
+Also checkout this great blog at [docker.com](https://www.docker.com/blog/9-tips-for-containerizing-your-net-application/) for tips on creating a great image.
+
+#### Step 1: Clone this sample MSLearn repo to your projects folder:
 `Ashishs-MacBook-Pro:RiderProjects ashishkhanal$ git clone https://github.com/MicrosoftDocs/mslearn-hotel-reservation-system.git`
 
-### Step 2: Go into src folder
+#### Step 2: Go into src folder
 `Ashishs-MacBook-Pro:RiderProjects ashishkhanal$ cd mslearn-hotel-reservation-system/src`
 
-### Step 3: Create a Dockerfile
+#### Step 3: Create a Dockerfile
 `Ashishs-MacBook-Pro:src ashishkhanal$ touch Dockerfile`
 
-### Step 4: Open Dockerfile in Vim
+#### Step 4: Open Dockerfile in Vim
 `Ashishs-MacBook-Pro:src ashishkhanal$ vim Dockerfile`
 
 Hit `i` to get into insert (write) mode. Make the following changes:
@@ -271,10 +274,10 @@ ENTRYPOINT ["dotnet", "HotelReservationSystem.dll"]
 The `docker build` command creates a new image by running a Dockerfile.
 `docker build` command **creates a container**, runs commands in it, then commits the changes to a new image.
 
-### Step 5: Save and exit
+#### Step 5: Save and exit
 Hit `Esc` key and type `:` then type `wq` to write and exit the editor.
 
-### Step 6: Build the image
+#### Step 6: Build the image
 This command builds the image and stores it locally.
 ````
 Ashishs-MacBook-Pro:src ashishkhanal$ docker build -t reservationsystem:v1 .
@@ -284,7 +287,7 @@ Ashishs-MacBook-Pro:src ashishkhanal$ docker build -t reservationsystem:v1 .
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8b76c1fe-1071-4542-a076-304de49103a6">
 
-### Step 7: Run the image
+#### Step 7: Run the image
 Give the container a name as `reservations`.
 ````
 Ashishs-MacBook-Pro:src ashishkhanal$ docker run -d -p 8080:80 reservationsystem:v1 --name reservations
@@ -293,10 +296,10 @@ Ashishs-MacBook-Pro:src ashishkhanal$ docker run -d -p 8080:80 reservationsystem
 
 After you're done, remove it: `docker rm reservations`
 
-## Deploy Docker Image to Azure Container Instance
+### Deploy Docker Image to Azure Container Instance
 Follow this [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/7-exercise-deploy-docker-image-to-container-instance).
 
-### Create Azure Container Registry
+#### Create Azure Container Registry
 1. Create a resource group
    
    <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cd2add06-7826-414f-aff5-9f9b951fb9ab">
@@ -312,7 +315,7 @@ Follow this [exercise](https://learn.microsoft.com/en-us/training/modules/intro-
 
 5. Make a note of the Registry name, Login server, Username, and password.
 
-### Tag an Image
+#### Tag an Image
 In short tags are used in order to identify an image. Also [read this](https://stackoverflow.com/q/46327455/8644294) for more info.
 
 You push an image from your local computer to Azure Container Registry by using `docker push` command. Before you push an image, you must create an alias for the image that specifies the repository and tag, that the Azure Container Registry will create (if it doesn't already exist).
@@ -329,7 +332,7 @@ Now check the images again:
 
 <img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/56000c96-c9d5-454e-95d5-3722269b9432">
 
-### Push an Image
+#### Push an Image
 1. Sign into Azure Container Registry using `docker login <login-server>`
    
    <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/58d34abc-3fc7-44bb-9af9-f05a9effc59b">
@@ -342,12 +345,12 @@ Now check the images again:
 Login Issues if you don't use admin user:
 https://stackoverflow.com/q/65316558/8644294
 
-### Verify an Image
+#### Verify an Image
 In the resource menu, under Services, select Repositories. The Repositories pane for your container registry appears.
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/30f8b83b-352c-4d06-86c9-37147d4efd66">
 
-### Run an Image
+#### Run an Image
 1. Create `Container Instances` resource
    
    <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdf548ad-044a-4661-af7b-f9fe8b8e8e7e">
