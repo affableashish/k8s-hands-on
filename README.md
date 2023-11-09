@@ -261,7 +261,7 @@ WORKDIR /app
 ENTRYPOINT ["dotnet", "HotelReservationSystem.dll"]
 
 ````
-
+Explanation of commands used in `Dockerfile`:
 | Command | Action |
 | --- | ----------- |
 | FROM | Downloads the specified image and **creates a new container** based on this image. |
@@ -271,17 +271,17 @@ ENTRYPOINT ["dotnet", "HotelReservationSystem.dll"]
 | EXPOSE | Creates a configuration in the new image that specifies which ports to open when the container runs. If the container is running a web app, it's common to EXPOSE port 80. |
 | ENTRYPOINT | Specifies the operation the container should run when it starts. In this example, it runs the newly built app. You specify the command you want to run and each of its arguments as a string array. |
 
-The `docker build` command creates a new image by running a Dockerfile.
-`docker build` command **creates a container**, runs commands in it, then commits the changes to a new image.
-
 #### Step 5: Save and exit
-Hit `Esc` key and type `:` then type `wq` to write and exit the editor.
+Hit `Esc` key and type `:wq` to save (w as in write) and exit the editor.
 
 #### Step 6: Build the image
 This command builds the image and stores it locally.
 ````
 Ashishs-MacBook-Pro:src ashishkhanal$ docker build -t reservationsystem:v1 .
 ````
+The `docker build` command creates a new image by running a Dockerfile.  
+`docker build` command **creates a container**, runs commands in it, then commits the changes **to a new image**.
+
 `-t` flag specifies the name of the image to be created.
 `.` provides the build context for the source files for the COPY command: the set of files on the host computer needed during the build process. So the first `.` in the COPY is `Ashishs-MacBook-Pro:src ashishkhanal$` which contains following files:
 
@@ -294,25 +294,22 @@ Ashishs-MacBook-Pro:src ashishkhanal$ docker run -d -p 8080:80 reservationsystem
 ````
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f8695714-7ccf-46b4-b28b-219313498d1c">
 
-After you're done, remove it: `docker rm reservations`
+#### Step 8: Remove the image
+After you're done, you can remove it:
+
+`docker rm reservations`
 
 ### Deploy Docker Image to Azure Container Instance
 Follow this [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/7-exercise-deploy-docker-image-to-container-instance).
 
 #### Create Azure Container Registry
-1. Create a resource group
-   
-   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cd2add06-7826-414f-aff5-9f9b951fb9ab">
-
-2. Create container registry
-   
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6031ce23-3884-4d53-b05a-23315a788ca6">
-
+1. Create a resource group  
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cd2add06-7826-414f-aff5-9f9b951fb9ab">
+2. Create container registry  
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6031ce23-3884-4d53-b05a-23315a788ca6">
 3. In the resource menu, under Settings, select Access keys. The Access keys pane for your container registry appears.
-4. Enable the Admin user access switch.
-   
+4. Enable the Admin user access switch.  
    <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8cdcd70e-f32a-407c-a81d-d796a5f354c5">
-
 5. Make a note of the Registry name, Login server, Username, and password.
 
 #### Tag an Image
@@ -326,15 +323,13 @@ Tag the current `reservationsystem` image with the name of our Azure Container R
 ````
 Ashishs-MacBook-Pro:src ashishkhanal$ docker tag reservationsystem:v1 myregistry5.azurecr.io/reservationsystem:latest
 ````
-<img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/51e076ec-f41c-45f6-89a3-b67a1b688310">
+<img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/51e076ec-f41c-45f6-89a3-b67a1b688310">
 
-Now check the images again:
-
+Now check the images again:  
 <img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/56000c96-c9d5-454e-95d5-3722269b9432">
 
 #### Push an Image
-1. Sign into Azure Container Registry using `docker login <login-server>`
-   
+1. Sign into Azure Container Registry using `docker login <login-server>`  
    <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/58d34abc-3fc7-44bb-9af9-f05a9effc59b">
 
 2. Upload an image using `docker push <registry-name>.azurecr.io/reservationsystem:latest`
@@ -351,21 +346,20 @@ In the resource menu, under Services, select Repositories. The Repositories pane
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/30f8b83b-352c-4d06-86c9-37147d4efd66">
 
 #### Run an Image
-1. Create `Container Instances` resource
+1. Create `Container Instances` resource  
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdf548ad-044a-4661-af7b-f9fe8b8e8e7e">
    
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdf548ad-044a-4661-af7b-f9fe8b8e8e7e">
-   
-   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d30a49a5-d6ce-48fe-905d-041e92c75e86">
+   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d30a49a5-d6ce-48fe-905d-041e92c75e86">
    
    On the Advanced tab, set the _Restart Policy_ to _Always_, and leave all the other settings as is.
 
    Hit 'Review + Create' -> 'Create'.
    
-   <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2fe6c799-c71c-4102-9442-f34d3bb02b57">
+   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2fe6c799-c71c-4102-9442-f34d3bb02b57">
 
 2. Navigate to the URL: http://container-hotelsystem-eastus-dev.c7bbehfraef3epdq.eastus.azurecontainer.io/api/reservations/1
    
-   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4215e131-c6c5-4bfa-913c-738434279c69">
+   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4215e131-c6c5-4bfa-913c-738434279c69">
 
 ## Intro to Kubernetes
 Reference: https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/
