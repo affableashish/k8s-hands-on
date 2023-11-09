@@ -117,7 +117,7 @@ Also take a look at [Microsoft Artifact Registry](https://mcr.microsoft.com/en-u
 Go to this site:
 https://hub.docker.com/_/microsoft-dotnet-samples/
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bd9dfe43-2529-4cc3-a5d6-6eefaddcc3de">
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bd9dfe43-2529-4cc3-a5d6-6eefaddcc3de">
 
 And check out the Dockerfile:
 
@@ -159,58 +159,52 @@ Recommended Reading: https://stackoverflow.com/a/47152658/8644294.
 Follow this nice [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/3-exercise-deploy-docker-image-locally). 
 
 1. Pull an image  
-   For eg: `docker pull mcr.microsoft.com/dotnet/samples:aspnetapp`
-
+   For eg:  
+   `docker pull mcr.microsoft.com/dotnet/samples:aspnetapp`  
    When we pull an image, Docker stores it locally and makes it available for running it as containers.
-2. View images
-   
-   For eg: `docker image list`
+3. View images  
+   For eg:  
+   `docker image list`
    | REPOSITORY | TAG | IMAGE ID | CREATED | SIZE |
    | --- | --- | --- | --- | --- |
    | mcr.microsoft.com/dotnet/samples | aspnetapp | 6e2737d83726 | 6 days ago | 263MB |
 
    Notice the repository name.
-
-3. Run a docker container
-   
+4. Run a docker container  
    For eg:
    ````
    // Remember the port mapping format as H:C (Host:Container). Host first!
    docker run -p 8080:80 -d mcr.microsoft.com/dotnet/samples:aspnetapp
    ````
    The command maps port 80 in the container to port 8080 on your computer. So if you visit the page `http://localhost:8080`, you can see the running web app.
-   
-4. View active containers with the `docker ps` command.
-   `ps` means "process status". It's a shortcut for `docker container ls`.
+5. View active containers with the `docker ps` command.  
+   `ps` means "process status". It's a shortcut for `docker container ls`.  
    Use `a` flag if you want to view stopped containers as well.
    
-   Eg:
+   For eg:
    | CONTAINER ID | IMAGE | COMMAND | CREATED | STATUS | PORTS | NAMES |
    | --- | --- | --- | --- | --- | --- | --- |
    | 57b9587583e3 | mcr.microsoft.com/dotnet/core/samples:aspnetapp | "dotnet aspnetapp.dll" | 42 seconds ago | Up 41 seconds | 0.0.0.0:8080->80/tcp | elegant_ramanujan |
    | d27071f3ca27 | mcr.microsoft.com/dotnet/core/samples:aspnetapp | "dotnet aspnetapp.dll" | 5 minutes ago | Up 5 minutes | 0.0.0.0:8081->80/tcp | youthful_heisenberg |
-   
-5. Stop a container
-   
-   For eg: `docker stop elegant_ramanujan`
-   
-6. Restart a stopped container
-   
-   For eg: `docker start elegant_ramanujan`
-   
-7. Remove a container
-   
+6. Stop a container  
+   For eg:  
+   `docker stop elegant_ramanujan`
+7. Restart a stopped container  
+   For eg:  
+   `docker start elegant_ramanujan`
+8. Remove a container  
    Typically once a container is stopped, it should also be removed. Removing a container cleans up any resources it leaves behind. Once you remove a container, any changes made within its image filesystem are permanently lost.
    
-   For eg: `docker rm elegant_ramanujan`
+   For eg:  
+   `docker rm elegant_ramanujan`
 
    You can't remove a container that's running, but you can force a container to be stopped and removed with the `-f` flag. Only use this iff the app inside the container doesn't need to perform a graceful shutdown.
    
-   For eg: `docker container rm -f elegant_ramanujan`
-
-8. Remove docker images
-   
-   For eg: `docker image rm mcr.microsoft.com/dotnet/core/samples:aspnetapp`.
+   For eg:  
+   `docker container rm -f elegant_ramanujan`
+9. Remove docker images  
+   For eg:  
+   `docker image rm mcr.microsoft.com/dotnet/core/samples:aspnetapp`  
    Containers running the image must be terminated before the image can be removed.
 
 ### Docker Commands cheat sheet
