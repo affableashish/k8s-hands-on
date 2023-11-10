@@ -2,8 +2,8 @@
 This repo contains notes from Docker and Kubernetes course at [Microsoft Learn](https://learn.microsoft.com/en-us/training/paths/intro-to-kubernetes-on-azure/) and also [Kubernetes course](https://youtu.be/X48VuDVv0do?si=T1xGQVUEa2ZdTatH) by TechWorld with Nana.
 
 Also check out the following resources:
-1. [9 tips](https://www.docker.com/blog/9-tips-for-containerizing-your-net-application/) for containerizing .NET app.
-2. [video](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5) for ELI5 version of Kubernetes.
+1. [9 tips](https://www.docker.com/blog/9-tips-for-containerizing-your-net-application/) for containerizing .NET apps.
+2. ELI5 version of Kubernetes [video](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5).
 3. Kubernetes [series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) by Andrew Lock.
 4. [Best practices](https://mikehadlow.com/posts/2022-06-24-writing-dotnet-services-for-kubernetes/) using Kubernetes with .NET apps.
 
@@ -160,6 +160,8 @@ It's possible to add writable volumes to a container. A volume represents a file
 Recommended Reading: https://stackoverflow.com/a/47152658/8644294.
 
 ## Docker
+Recommended learning at [Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-docker-containers/).
+
 ### Docker commands
 Follow this nice [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/3-exercise-deploy-docker-image-locally). 
 
