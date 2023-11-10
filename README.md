@@ -160,7 +160,7 @@ It's possible to add writable volumes to a container. A volume represents a file
 Recommended Reading: https://stackoverflow.com/a/47152658/8644294.
 
 ## Docker
-Recommended learning at [Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-docker-containers/).
+This section references training from [Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/).
 
 ### Docker commands
 Follow this nice [exercise](https://learn.microsoft.com/en-us/training/modules/intro-to-containers/3-exercise-deploy-docker-image-locally). 
@@ -530,7 +530,7 @@ The support for many container runtime types is based on the Container Runtime I
 
 The default container runtime in AKS is `containerd`, an industry-standard container runtime.
 
-### Interact with a K8s cluster
+### Interact with a Kubernetes cluster
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2adfddb-e6f5-4bac-ac23-540d381b32a7">
 
 K8s provides a command line tool called `kubectl` to manage your cluster. You use `kubectl` to send commands to the cluster's control plane or fetch information about all K8s objects via the API server.
@@ -562,7 +562,7 @@ Assume that your site uses a database. The website is packaged in the main conta
 
 Because you can potentially create many pods that are running on many nodes, it can be hard to identify them. You can recognize and group pods by using string labels that you specify when you define a pod.
 
-### Lifecycle of Kubernetes Pods
+#### Lifecycle of Kubernetes Pods
 Kubernetes pods have a distinct lifecycle that affects the way you deploy, run, and update pods. You start by submitting the pod YAML manifest to the cluster. After the manifest file is submitted and persisted to the cluster, it defines the desired state of the pod. The scheduler schedules the pod to a healthy node that has enough resources to run the pod.
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/34330559-426b-433f-9790-81c8b0b150e9">
@@ -579,7 +579,7 @@ Pods are kept on a cluster until a controller, the control plane, or a user expl
 
 The cluster doesn't save the pod's state or dynamically assigned configuration. For example, it doesn't save the pod's ID or IP address. This aspect affects how you deploy pods and how you design your apps. For example, you can't rely on preassigned IP addresses for your pods.
 
-### Container states
+#### Container states
 Keep in mind that the phases explained above are a summary of where the pod is in its lifecycle. When you inspect a pod, the cluster uses three states to track your containers inside the pod:
 
 | State | Description |
@@ -591,7 +591,7 @@ Keep in mind that the phases explained above are a summary of where the pod is i
 ### How Kubernetes deployments work
 The drone-tracking app has several components that are deployed separately from each other. It's your job to configure deployments for these components on the cluster.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c955a7b0-f0ea-45e6-b031-d548e70ea8cb">
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c955a7b0-f0ea-45e6-b031-d548e70ea8cb">
 
 #### Pod Deployment options
 There are several options to manage the deployment of pods in a Kubernetes cluster when you're using `kubectl`. The options are:
@@ -631,12 +631,11 @@ Deploying StatefulSet is not easy that's why Databases are often hosted outside 
 
 Everything below Deployment is handled by K8s.
 
-| 👇 Abstraction Layers 👇 |
+| **DEPLOYMENT manages a 👇** |
 | --- |
-| DEPLOYMENT manages a 👇 |
-| REPLICASET manages a 👇 |
-| POD is an abstraction over 👇 |
-| CONTAINER |
+| **REPLICASET manages a 👇** |
+| **POD is an abstraction over 👇** |
+| **CONTAINER** |
 
 Abstraction Layers example:  
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ed9b483e-c722-461d-a89a-c0829c58dac1">
