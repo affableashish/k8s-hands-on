@@ -361,7 +361,7 @@ In the resource menu, under Services, select Repositories. The Repositories pane
    
    <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4215e131-c6c5-4bfa-913c-738434279c69">
 
-## Intro to Kubernetes
+## Kubernetes
 Reference: [Microsoft Learn](https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/) and [this YouTube video](https://youtu.be/X48VuDVv0do?si=UqYr2D-Lv_aL9bXc).
 
 Kubernetes is a portable, extensible open source platform for management and orchestration of containerized workloads.
@@ -369,24 +369,14 @@ Kubernetes is a portable, extensible open source platform for management and orc
 ### Container management
 It is the process of organizing, adding, removing or updating a significant number of containers.
 
-An app has an environment that it relies upon to run.  
-For eg:  
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7bd896d9-78c7-4805-9ea7-e82f384a857e">
-
-Container provides an isolated context in which an app together with its environment can run but those isolated containers often need to be managed and connected to the external world. Shared file systems, networking, scheduling, load balancing and distribution are all challanges.
-
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/871aae6b-1a1e-4907-8b2d-e33699181305">
-
-[Reference](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5).
-
 ### Container Orchestrator
-It is a system that automatically deploys and manages containerized apps. As part of management, it handles scaling dynamic changes in the environment to increase or decrease the number of deployed instances of the app. 
+It is a system that automatically deploys and manages containerized apps. As part of management, it handles scaling dynamic changes in the environment to increase or decrease the number of deployed instances of the app.  
 It also ensures that all deployed container instances are updated when a new version of a service is released.
 
-<img width="750" alt="image" src="https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/media/2-tasks-of-orchestrator.svg">
+<img width="700" alt="image" src="https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/media/2-tasks-of-orchestrator.svg">
 
 ### Kubernetes Benefits
-<img width="650" alt="image" src="https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/media/2-kubernetes-benefits.svg">
+<img width="600" alt="image" src="https://learn.microsoft.com/en-us/training/modules/intro-to-kubernetes/media/2-kubernetes-benefits.svg">
 
 These tasks include:
 1. Self-healing of containers; for example, restarting containers that fail or replacing containers
@@ -413,12 +403,14 @@ Cloud services such as Azure Kubernetes Service (AKS) reduce these challenges by
 ### How Kubernetes Works
 <img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/10663c92-689f-43f3-91e3-40e840ed2132">
 
+Image taken from [here](https://kubernetes.io/docs/concepts/overview/components/).
+
 #### Cluster
 Cluster is a set of computers that you configure to work together and view as a single system. The computers configured in the cluster handle same kind of tasks. For eg, they all host websites, APIs or run compute intensive works.
 
 A cluster uses centralized software that's responsible for scheduling and controlling these tasks.  
 The computers in a cluster that run the tasks are called nodes, and the computers that run the scheduling software are called control planes.  
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4e3a1c69-51da-4695-9c12-a2845f02f168">
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4e3a1c69-51da-4695-9c12-a2845f02f168">
 
 #### Kubernetes Architecture
 You use Kubernetes as the orchestration and cluster software to deploy your apps and respond to changes in compute resource needs.
@@ -426,7 +418,7 @@ You use Kubernetes as the orchestration and cluster software to deploy your apps
 <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e1202f9e-e735-42db-974a-173445306e7c">
 
 A K8s cluster contains at least one main plane and one or more nodes. THe default host OS in K8s is Linux, with default support for Linux based workloads.<br>
-You can also run Microsoft workloads by using Windows Server 2019 or later on cluster nodes. For eg: if you have some app that's written as .NET 4.5, this can run only on nodes that run a Windows Server OS.
+You can also run Microsoft workloads by using Windows Server 2019 or later on cluster nodes. For eg: if you have some app that's written in `.NET 4.5`, this can run only on nodes that run a Windows Server OS.
 
 #### Kubernetes Node
 A node in a K8s cluster is where your compute workloads run. Each node communicates with the control plane via the **API server** to inform it about state changes on the node.
@@ -444,8 +436,8 @@ The following services make up a Kubernetes cluster's control plane:
 4. Controller manager
 5. Cloud controller manager
 
-Test environment -> 1 control plane<br>
-Prod environment -> 3-5 controls planes
+**Test environment** -> 1 control plane  
+**Prod environment** -> 3-5 controls planes
 
 The fact that a control plane runs specific software to maintain the state of the cluster doesn't exclude it from running other compute workloads. However, you usually want to exclude the control plane from running noncritical and user app workloads.
 
@@ -469,27 +461,27 @@ The scheduler is the component that's responsible for the assignment of workload
 For eg:  
 The Kubernetes scheduler does not create new instances of containers. Instead, it’s responsible for determining on which node in the Kubernetes cluster a new pod (which can contain one or more containers) should run.  
 Here’s a simplified version of how it works:
-1. A user or a controller creates a new pod by submitting it to the Kubernetes API server.
+1. A user or a controller schedule a new pod by submitting it to the Kubernetes API server.
 2. The API server adds the new pod to its store of Kubernetes objects and makes it available to the scheduler.
 3. The scheduler watches for newly created pods that have no node assigned. This is what is meant by “monitoring newly created containers”.
 4. For each new pod, the scheduler determines which nodes have enough free resources to run the pod.
 5. The scheduler then ranks each suitable node based on its scheduling algorithm and assigns the pod to the best node.
 6. Once the scheduler has made its decision, it notifies the API server, which in turn notifies the chosen node.
    
-So, the scheduler doesn’t create containers or pods. It simply decides where new pods should run based on the current state of the cluster and the resource requirements of the new pod. The actual creation and management of containers within a pod is handled by the Kubelet on the chosen node.
+So, the scheduler doesn’t create containers or pods. It simply decides where new pods should run based on the current state of the cluster and the resource requirements of the new pod. The actual creation and management of containers within a pod is handled by the `Kubelet` on the chosen node.
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5304b47a-6e3d-42ab-b692-17fe30a55308">
 
 #### Controller manager
 Controller manager launches and monitors the controllers configured for a cluster through the API server. "through the API server" means that the controller manager uses the API server to interact with the K8s objects that the controllers manage.  
 
-1. **Track Object States:**  
+1. Track Object States:  
    Kubernetes uses controllers to track object states in the cluster. Each controller runs in a non-terminating loop, watching and responding to events in the cluster. For example, there are controllers to monitor nodes, containers, and endpoints.
 
-2. **Communicate with the API Server:**  
+2. Communicate with the API Server:  
    The Controller communicates with the API server to determine the object's state. It checks if the current state of an object is different from its desired state.
 
-3. **Ensure Desired State:**  
+3. Ensure Desired State:  
    If the current state of an object is different from its desired state, the controller takes action to ensure the desired state.  
    Suppose that one of three containers running in your cluster stops responding and has died. In this case, a controller decides whether you need to launch new containers to ensure that your apps are always available. If the desired state is to run three containers at any time, then a new container is scheduled to run.
 
@@ -506,13 +498,13 @@ So CCM is essentially a bridge between your K8s cluster and your cloud provider.
 #### Services that run on a node
 There are several services that run on a K8s node to control how workloads run.
 
-<img width="360" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d043a3f-019c-46b8-9a97-f947207a8f9c">
+<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d043a3f-019c-46b8-9a97-f947207a8f9c">
 
 The following services run on the Kubernetes node:
 
-1. **Kubelet**
-2. **Kube-proxy**
-3. **Container runtime**
+1. Kubelet
+2. Kube-proxy
+3. Container runtime
 
 #### Kubelet
 Agent that runs on each node in the cluster and monitors work requests from the API server. It makes sure that the requested unit of work is running and healthy.
@@ -532,7 +524,7 @@ The support for many container runtime types is based on the Container Runtime I
 
 The default container runtime in AKS is `containerd`, an industry-standard container runtime.
 
-#### Interact with a K8s cluster
+### Interact with a K8s cluster
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2adfddb-e6f5-4bac-ac23-540d381b32a7">
 
 K8s provides a command line tool called `kubectl` to manage your cluster. You use `kubectl` to send commands to the cluster's control plane or fetch information about all K8s objects via the API server.
@@ -545,12 +537,10 @@ K8s provides a command line tool called `kubectl` to manage your cluster. You us
 
 You can configure `kubectl` to connect to multiple clusters by providing the correct context as part of the command-line syntax.
 
-#### Kubernetes Pods
-A pod represents a single instance of an app running in K8s. 
+### Kubernetes Pods
+A pod represents a single instance of an app running in K8s.
 
-<img width="424" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c7016ccb-02df-4396-afa1-1c53cd665787">
-
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cad0406a-8b59-4282-b58f-1c973ddd4884">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cad0406a-8b59-4282-b58f-1c973ddd4884">
 
 Unlike in a Docker environment, you can't run containers directly on Kubernetes. You package the container into a Kubernetes object called a pod. A pod is the smallest object that you can create in Kubernetes.
 
@@ -562,12 +552,14 @@ For example, let's say that you want to deploy a website to a Kubernetes cluster
 
 Assume that your site uses a database. The website is packaged in the main container, and the database is packaged in the supporting container. Multiple containers communicate with each other through an environment. The containers include services for a host OS, network stack, kernel namespace, shared memory, and storage volume. The pod is the sandbox environment that provides all of these services to your app. The pod also allows the containers to share its assigned IP address.
 
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c7016ccb-02df-4396-afa1-1c53cd665787">
+
 Because you can potentially create many pods that are running on many nodes, it can be hard to identify them. You can recognize and group pods by using string labels that you specify when you define a pod.
 
-#### Lifecycle of Kubernetes Pods
+### Lifecycle of Kubernetes Pods
 Kubernetes pods have a distinct lifecycle that affects the way you deploy, run, and update pods. You start by submitting the pod YAML manifest to the cluster. After the manifest file is submitted and persisted to the cluster, it defines the desired state of the pod. The scheduler schedules the pod to a healthy node that has enough resources to run the pod.
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/34330559-426b-433f-9790-81c8b0b150e9">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/34330559-426b-433f-9790-81c8b0b150e9">
 
 | Phase | Description |
 | --- | ----------- |
@@ -581,7 +573,7 @@ Pods are kept on a cluster until a controller, the control plane, or a user expl
 
 The cluster doesn't save the pod's state or dynamically assigned configuration. For example, it doesn't save the pod's ID or IP address. This aspect affects how you deploy pods and how you design your apps. For example, you can't rely on preassigned IP addresses for your pods.
 
-#### Container states
+### Container states
 Keep in mind that the phases explained above are a summary of where the pod is in its lifecycle. When you inspect a pod, the cluster uses three states to track your containers inside the pod:
 
 | State | Description |
@@ -593,15 +585,15 @@ Keep in mind that the phases explained above are a summary of where the pod is i
 ### How Kubernetes deployments work
 The drone-tracking app has several components that are deployed separately from each other. It's your job to configure deployments for these components on the cluster.
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c955a7b0-f0ea-45e6-b031-d548e70ea8cb">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c955a7b0-f0ea-45e6-b031-d548e70ea8cb">
 
 #### Pod Deployment options
 There are several options to manage the deployment of pods in a Kubernetes cluster when you're using `kubectl`. The options are:
 
-1. **Pod templates**
-2. **Replication Controllers**
-3. **Replica set**
-4. **Deployments**
+1. Pod templates
+2. Replication Controllers
+3. Replica set
+4. Deployments
 
 You can use any of these four Kubernetes object-type definitions to deploy a pod or pods. These files make use of YAML to describe the intended state of the pod or pods to be deployed.
 
@@ -625,15 +617,20 @@ A deployment creates a management object one level higher than a replica set, an
 
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0a5337f0-ee99-49b4-b565-6c296c3f1e2e">
 
-Databases can't be replicated via deployment because Db have state. If we have clones or replica of the database, they would all need to access the same shared data storage and they you would need some kind of mechanism that manages which pods are currently reading/ writing from/ to that storage in order to avoid data inconsistencies and that mechanism in addition to replicating feature is offered by another K8s component called **StatefulSet**. This component is meant specifically for databases.
+**Note:** Databases can't be replicated via deployment because Db have state. If we have clones or replica of the database, they would all need to access the same shared data storage and they you would need some kind of mechanism that manages which pods are currently reading/ writing from/ to that storage in order to avoid data inconsistencies and that mechanism in addition to replicating feature is offered by another K8s component called **StatefulSet**. This component is meant specifically for databases.
 
 Deploying StatefulSet is not easy that's why Databases are often hosted outside the K8s cluster.
 
-<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3b5c22f4-fc5a-4e9b-b30e-52f67ace66fc">
+**Layers of Abstraction:**
 
-**Layers of Abstraction:**  
-Everything below Deployment is handled by K8s.  
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bad2acfa-45da-4a5a-aea5-aa458da21337">
+Everything below Deployment is handled by K8s.
+
+| Abstraction Layers |
+| --- |
+| DEPLOYMENT manages a ... |
+| REPLICASET manages a ... |
+| POD is an abstraction over ... |
+| CONTAINER |
 
 Eg:  
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ed9b483e-c722-461d-a89a-c0829c58dac1">
