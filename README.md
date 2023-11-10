@@ -1,7 +1,11 @@
 # k8s-hands-on
 This repo contains notes from Docker and Kubernetes course at [Microsoft Learn](https://learn.microsoft.com/en-us/training/paths/intro-to-kubernetes-on-azure/) and also [Kubernetes course](https://youtu.be/X48VuDVv0do?si=T1xGQVUEa2ZdTatH) by TechWorld with Nana.
 
-Also check out this [video](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5) for ELI5 version of Kubernetes.
+Also check out the following resources:
+1. [9 tips](https://www.docker.com/blog/9-tips-for-containerizing-your-net-application/) for containerizing .NET app.
+2. [video](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5) for ELI5 version of Kubernetes.
+3. Kubernetes [series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) by Andrew Lock.
+4. [Best practices](https://mikehadlow.com/posts/2022-06-24-writing-dotnet-services-for-kubernetes/) using Kubernetes with .NET apps.
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
@@ -552,7 +556,7 @@ For example, let's say that you want to deploy a website to a Kubernetes cluster
 
 Assume that your site uses a database. The website is packaged in the main container, and the database is packaged in the supporting container. Multiple containers communicate with each other through an environment. The containers include services for a host OS, network stack, kernel namespace, shared memory, and storage volume. The pod is the sandbox environment that provides all of these services to your app. The pod also allows the containers to share its assigned IP address.
 
-<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c7016ccb-02df-4396-afa1-1c53cd665787">
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c7016ccb-02df-4396-afa1-1c53cd665787">
 
 Because you can potentially create many pods that are running on many nodes, it can be hard to identify them. You can recognize and group pods by using string labels that you specify when you define a pod.
 
@@ -625,16 +629,17 @@ Deploying StatefulSet is not easy that's why Databases are often hosted outside 
 
 Everything below Deployment is handled by K8s.
 
-| Abstraction Layers |
+| 👇 Abstraction Layers 👇 |
 | --- |
-| DEPLOYMENT manages a ... |
-| REPLICASET manages a ... |
-| POD is an abstraction over ... |
+| DEPLOYMENT manages a 👇 |
+| REPLICASET manages a 👇 |
+| POD is an abstraction over 👇 |
 | CONTAINER |
 
-Eg:  
+Abstraction Layers example:  
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ed9b483e-c722-461d-a89a-c0829c58dac1">
 
+**Deployment Scenario example:**
 Assume that you have five instances of your app deployed in your cluster. There are five pods running version 1.0.0 of your app.
 
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/80697bac-8828-40bb-8ac5-e05b9f52f3ff">
@@ -658,14 +663,14 @@ Kubernetes has specific requirements about how you configure networking and stor
 
 For example, each of the services in the drone-tracking app has specific requirements for user access, inter-process network access, and data storage. Now, take a look at these aspects of a Kubernetes cluster and how they affect the deployment of apps.
 
-#### Kubernetes networking
+### Kubernetes networking
 Assume you have a cluster with one control plane and two nodes. When you add nodes to Kubernetes, an IP address is automatically assigned to each node from an internal private network range. For example, assume that your local network range is `192.168.1.0/24`.
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a3894369-3f70-4240-9346-1e88d7771a3f">
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a3894369-3f70-4240-9346-1e88d7771a3f">
 
 Each pod that you deploy gets assigned an IP from a pool of IP addresses. For example, assume that your configuration uses the 10.32.0.0/12 network range, as the following image shows.
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bb814554-897a-457e-9c8d-4d959afe57b9">
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bb814554-897a-457e-9c8d-4d959afe57b9">
 
 By default, the pods and nodes can't communicate with each other by using different IP address ranges.
 
@@ -683,21 +688,22 @@ Cloud providers also provide their own networking solutions. For example, Azure 
 
 ---
 
-##### Explanation on `192.168.1.0/24`
+#### Explanation on `192.168.1.0/24`
 Imagine you live in a big apartment building. This building is like your network. Each apartment in the building is like an IP address - it’s a specific location in the network.
 
 The building has 32 floors (8bits.8bits.8bits.8bits) but 24 floors are used to identify the building (network) itself. The remaining 8 floors (bits) are used for the apartments (hosts) within that building (network). 2^8 = 256 IP addresses.
 
 In Computer Networks language, `192.168.1.0/24` represents a subnet with a netmask of `255.255.255.0`. This means that the subnet can provide up 256 IP addresses, ranging from `192.168.1.0` to `192.168.1.255`.  
-However, in practice, the first address of a subnet (192.168.1.0 in this case) is reserved for the network address, and the last address (192.168.1.255) is reserved for the broadcast address. Therefore, there are typically 254 usable IP addresses (192.168.1.1 through 192.168.1.254) for hosts in this subnet.
+However, in practice, the first address of a subnet (192.168.1.0 in this case) is reserved for the network address, and the last address (`192.168.1.255`) is reserved for the broadcast address.  
+Therefore, there are typically 254 usable IP addresses (`192.168.1.1` through `192.168.1.254`) for hosts in this subnet.
 
-##### Explanation on `10.32.0.0/12`
+#### Explanation on `10.32.0.0/12`
 Keep 12 bits to identify the network and use 20 bits for the hosts.  
 So first octet (8 bits) = 10. We want to figure out last 4 bits of the second octet because that's what's used for the hosts.  
 2^4 = 16, so that's what's needed to be added to `.32` to find max in second octet. 32 + 15 (0-15 is 16) = 47.  
 So the IP range is: `10.32.0.0` to `10.47.255.255`.
 
-#### Kubernetes services
+### Kubernetes services
 A K8s service is a K8s object that provides stable networking for pods. A Kubernetes service enables communication between nodes, pods, and users of your app, both internal and external, to the cluster.
 
 Service also provides load balancing.
@@ -706,29 +712,29 @@ Service also provides load balancing.
 
 To make your app accessible through the browser, you have to create an external service. External service opens communication from external sources into your cluster.
 
-#### Kubernetes Ingress
+### Kubernetes Ingress
 The request goes to the Ingress which forwards it to the Service.
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/12cc8886-4592-41f3-a543-280e286fafbc">
 
-#### Group Pods
+### Group Pods using Selector
 Managing pods by IP address isn't practical. Pod IP addresses change as controllers re-create them, and you might have any number of pods running.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d200b5cc-9adf-4472-9389-07bbd55323ef">
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d200b5cc-9adf-4472-9389-07bbd55323ef">
 
 A service object allows you to target and manage specific pods in your cluster by using selector labels. You set the selector label in a service definition to match the pod label defined in the pod's definition file.
 
-For example, assume that you have many running pods. Only a few of these pods are on the front end, and you want to set a LoadBalancer service that targets only the front-end pods. You can apply your service to expose these pods by referencing the pod label as a selector value in the service's definition file. The service groups only the pods that match the label. If a pod is removed and re-created, the new pod is automatically added to the service group through its matching label.
+For example, assume that you have many running pods. Only a few of these pods are on the front end, and you want to set a LoadBalancer service that targets only the front-end pods. You can apply your service to expose these pods by referencing the pod label as a selector value in the `drone-front-end-service` service's definition file. The service groups only the pods that match the label. If a pod is removed and re-created, the new pod is automatically added to the service group through its matching label.
 
-#### ConfigMap
+### ConfigMap
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f1f1f3c4-285e-4d01-9996-0a9412a2c2f3">
 
-#### Secrets
+### Secrets
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f355abc5-222e-4ff8-9ebe-f1c80a230b43">
 
-#### Kubernetes storage
+### Kubernetes storage
 Kubernetes uses the same storage volume concept that you find when using Docker. Docker volumes are less managed than the Kubernetes volumes, because Docker volume lifetimes aren't managed. The Kubernetes volume's lifetime is an explicit lifetime that matches the pod's lifetime. This lifetime match means a volume outlives the containers that run in the pod. However, if the pod is removed, so is the volume.
 
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1bcdf8e2-dbe4-4775-8381-943fb1932eef">
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1bcdf8e2-dbe4-4775-8381-943fb1932eef">
 
 Kubernetes provides options to provision persistent storage with the use of PersistentVolumes. You can also request specific storage for pods by using PersistentVolumeClaims.
 
@@ -736,7 +742,7 @@ Keep both of these options in mind when you're deploying app components that req
 
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0b2bf7c7-d4e3-4c4f-868b-a8fe89b4c3fa">
 
-#### Cloud integration considerations
+### Cloud integration considerations
 Kubernetes doesn't provide any of the following services:
 
 1. **Middleware**
