@@ -1683,7 +1683,7 @@ By using selectors which are labels of pods.
 <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f449dc1d-2fbb-4aba-b1b9-c0d9feb2186c">
 
 **Which port to forward request to?**  
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3cb110d9-424d-4988-a028-e3cbc6cf920e">
+<img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3cb110d9-424d-4988-a028-e3cbc6cf920e">
 
 When we create the service, it will find all the pods that match the selector (1), so these pods will become **endpoints** of the service.
 When service gets a request, it will pick one of those pod replicas randomly beause it's a load balancer and it will send the request it received to that specific pod on a port defined by `targetPort` attribute (2).
@@ -1694,11 +1694,11 @@ When we create a service, K8s creates an endpoints object that has the same name
 <img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6f335791-f1c7-4877-a1e6-9d7d52bb7136">
 
 **Multi-Port Services:**  
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f04cb733-52ad-43d1-a835-499867807101">
+<img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f04cb733-52ad-43d1-a835-499867807101">
 
 When you have multiple ports defined in a service, you have to name them.
 
-<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/32f013d4-2240-461d-a0c5-829478b9e1c0">
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/32f013d4-2240-461d-a0c5-829478b9e1c0">
 
 #### Headless Services
 Useful in scenario like:
@@ -1714,7 +1714,7 @@ To create a headless service, set clusterIP to none.
 
 We have these 2 services alongside each other. ClusterIP one will handle load balanced requests, Headless one will handle data synchronization requests.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ae95e98b-5227-4a7d-a7af-4a2e5f7925fe">
+<img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ae95e98b-5227-4a7d-a7af-4a2e5f7925fe">
 
 #### NodePort Services
 Recall that ClusterIP is only accessible within the cluster so no external traffic can directly address the cluster IP service.
@@ -1756,7 +1756,7 @@ The YAML file looks like this:
 <img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0e41ac26-8297-4c25-8881-59b261b37261">
 
 It works like this:  
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c717755a-24ad-4a2d-98bb-39b9391906d1">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c717755a-24ad-4a2d-98bb-39b9391906d1">
 
 NodePort is the port that is open on the worker node but it's not directly accessible externally but only through the load balancer. 
 So the entry point becomes the load balancer first and it can then direct the traffic to node port on the worker node and the cluster IP, the internal service.
