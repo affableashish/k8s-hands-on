@@ -1348,11 +1348,11 @@ You need an implementation for Ingress which is called Ingress Controller.
 
 Install an ingress controller which is basically a pod or a set of pods which run on your node in your K8s cluster.
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6edf9cb0-bbf1-4539-aee7-383903e7a45b">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6edf9cb0-bbf1-4539-aee7-383903e7a45b">
 
 #### Ingress Controller
 1. Evaluates all the rules defined in the cluster.  
-   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b6e2ba98-c58b-4999-b773-2e87c3ac8705">
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b6e2ba98-c58b-4999-b773-2e87c3ac8705">
 2. Manages redirections.
 3. Entrypoint to cluster.
 4. Many third-party implementations.
@@ -1436,12 +1436,12 @@ For this, all you have to do is create an internal service with the name `defaul
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/85c7e0b0-aaf9-4f8d-9cba-c497f64599c5">
 
 #### Multiple paths for same host
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6d78b75f-bb8a-44c0-b4e8-bc6111e88214">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6d78b75f-bb8a-44c0-b4e8-bc6111e88214">
 
 #### Multiple sub-domains or domains
 You can also have multiple hosts with 1 path. Each host represents a subdomain.
 
-<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0e61b6e-ab95-4335-8215-64a18fb42727">
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0e61b6e-ab95-4335-8215-64a18fb42727">
 
 #### Configuring TLS certificate - https
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bd5a0a9f-7165-4030-96c6-a4217aee484c">
