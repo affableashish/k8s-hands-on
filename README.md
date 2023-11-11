@@ -640,7 +640,9 @@ Everything below Deployment is handled by K8s.
 Abstraction Layers example:  
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ed9b483e-c722-461d-a89a-c0829c58dac1">
 
-**Deployment Scenario example:**
+---
+
+**Example:**  
 Assume that you have five instances of your app deployed in your cluster. There are five pods running version 1.0.0 of your app.
 
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/80697bac-8828-40bb-8ac5-e05b9f52f3ff">
@@ -701,10 +703,10 @@ Therefore, there are typically 254 usable IP addresses (`192.168.1.1` through `1
 #### Explanation on `10.32.0.0/12`
 Keep 12 bits to identify the network and use 20 bits for the hosts.  
 So first octet (8 bits) = 10. We want to figure out last 4 bits of the second octet because that's what's used for the hosts.  
-2^4 = 16, so that's what's needed to be added to `.32` to find max in second octet. 32 + 15 (0-15 is 16) = 47.  
+2^4 = 16, so that's what's needed to be added to `.32` to find max in second octet. 32 + 15 (0-15 is 16 when 0 is included) = 47.  
 So the IP range is: `10.32.0.0` to `10.47.255.255`.
 
-### Kubernetes services
+### Kubernetes Services
 A K8s service is a K8s object that provides stable networking for pods. A Kubernetes service enables communication between nodes, pods, and users of your app, both internal and external, to the cluster.
 
 Service also provides load balancing.
@@ -713,9 +715,15 @@ Service also provides load balancing.
 
 To make your app accessible through the browser, you have to create an external service. External service opens communication from external sources into your cluster.
 
+In the example above, you can't access `db-service` from outside the cluster because it's an internal service.
+
 ### Kubernetes Ingress
 The request goes to the Ingress which forwards it to the Service.
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/12cc8886-4592-41f3-a543-280e286fafbc">
+
+Notice how the way you access the app using Ingress (_https://my-app.com_) differs from using External Service (_http://124.89.101.2:8080_). [Reference](https://youtu.be/X48VuDVv0do?si=lGg7EqqRyhqnqDcH&t=613).
+
+This is explained in more detail in its own section below.
 
 ### Group Pods using Selector
 Managing pods by IP address isn't practical. Pod IP addresses change as controllers re-create them, and you might have any number of pods running.
@@ -741,16 +749,16 @@ Kubernetes provides options to provision persistent storage with the use of Pers
 
 Keep both of these options in mind when you're deploying app components that require persisted storage, like message queues and databases.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0b2bf7c7-d4e3-4c4f-868b-a8fe89b4c3fa">
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0b2bf7c7-d4e3-4c4f-868b-a8fe89b4c3fa">
 
 ### Cloud integration considerations
 Kubernetes doesn't provide any of the following services:
 
-1. **Middleware**
-2. **Data-processing frameworks**
-3. **Databases**
-4. **Caches**
-5. **Cluster storage systems**
+1. Middleware
+2. Data-processing frameworks
+3. Databases
+4. Caches
+5. Cluster storage systems
 
 In this drone-tracking solution, there are three services that provide middleware functionality: a NoSQL database, an in-memory cache service, and a message queue.
 
@@ -762,28 +770,30 @@ Take a look at [this](https://learn.microsoft.com/en-us/training/modules/intro-t
 #### Install MicroK8s
 To run MicroK8s on macOS, use Multipass. Multipass is a lightweight VM manager for Linux, Windows, and macOS.
 
-1. `brew install --cask multipass`  
-   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d0cc10e-02c3-4dc2-99c1-ff9bf2cc2438">
-
+1. `brew install --cask multipass`
+   
+   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d0cc10e-02c3-4dc2-99c1-ff9bf2cc2438">
 2. Run the multipass launch command to configure and run the microk8s-vm image.  
-   `multipass launch --name microk8s-vm --memory 4G --disk 40G`  
+   `multipass launch --name microk8s-vm --memory 4G --disk 40G`
+   
    <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d934b92e-55dd-4385-9eb2-8fd0e9b27882">
-
 3. Enter into the VM instance  
-   `multipass shell microk8s-vm`  
+   `multipass shell microk8s-vm`
+   
    <img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f1ea5e32-1096-49ea-b61f-17d02880df03">
+   
    At this point, you can access the Ubuntu VM to host your cluster. You still have to install MicroK8s.  
-
 4. Install the MicroK8s snap app.  
-   `sudo snap install microk8s --classic`  
+   `sudo snap install microk8s --classic`
+   
    <img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6ae3c2ca-5c8f-42c3-a398-04991edf4220">
 
 #### Prepare the cluster
 1. Check the status of the installation  
-   `sudo microk8s.status --wait-ready`  
+   `sudo microk8s.status --wait-ready`
+   
    <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6fdf15b9-11de-4457-86af-0f92613f3105">
-
-2. Enable the 3 services
+2. Enable the 3 services  
    `sudo microk8s.enable dashboard registry` (`dns` was already enabled for me)
    
    | Add on | Purpose |
@@ -798,25 +808,29 @@ Recall from earlier that a Kubernetes cluster is composed of control planes and 
 MicroK8s provides a version of `kubectl` that you can use to interact with your new Kubernetes cluster. This copy of `kubectl` allows you to have a parallel installation of another system-wide `kubectl` instance without affecting its functionality.
 
 1. Run the `snap alias` command to alias `microk8s.kubectl` to `kubectl`. This simplifies usage.  
-   `sudo snap alias microk8s.kubectl kubectl`  
+   `sudo snap alias microk8s.kubectl kubectl`
+   
    <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdc075da-38d7-4b3e-ba9f-22eac0cf5dad">
-
-2. Check the nodes running in your cluster  
+2. Check the nodes running in your cluster.
+   
    You know that MicroK8s is a single-node cluster installation, so you expect to see only one node. Keep in mind, though, that this node is both the control plane and a worker node in the cluster.
 
-   `sudo kubectl get nodes`  
+   `sudo kubectl get nodes`
+   
    <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6af17180-5be2-423b-9b46-b00e6690d72c">  
    The ready state indicates that the control plane might schedule workloads on this node.
    
    You can get more information for the specific resource that's requested. For example, let's assume that you need to find the IP address of the node.
 
-   `sudo kubectl get nodes -o wide`  
+   `sudo kubectl get nodes -o wide`
+   
    <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/657069fb-c280-4ed4-afd1-89072b37919b">
-
-3. Explore the services running on your cluster  
+3. Explore the services running on your cluster
+   
    `sudo kubectl get services -o wide`
 
-    <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5de59576-5892-4e5a-b4da-32448cd84f35">     
+    <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5de59576-5892-4e5a-b4da-32448cd84f35">
+    
     Notice that only one service is listed. You installed add-ons on the cluster earlier, and you'd expect to see these services as well. The reason for the single service listing is that Kubernetes uses a concept called namespaces to logically divide a cluster into multiple virtual clusters.
 
     To fetch all services in all namespaces, pass the `--all-namespaces` parameter:
@@ -833,45 +847,55 @@ Because you haven't covered these files in detail, you run kubectl to directly p
 
 Even though the use of `kubectl` is handy, using manifest files is a best practice. Manifest files allow you to roll forward or roll back deployments with ease in your cluster. These files also help document the configuration of a cluster.
 
-1. **Create deployment**  
-   Specify the name of the deployment and the container imahe to create a single instance of the pod.  
+1. Create deployment
+   
+   Specify the name of the deployment and the container imahe to create a single instance of the pod.
+   
    `sudo kubectl create deployment nginxdeploy --image=nginx`
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/465372c3-3d3a-4333-9541-9653f6ed0d3b">
-
-2. **View deployments**  
+   
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/465372c3-3d3a-4333-9541-9653f6ed0d3b">
+2. View deployments
+   
    <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/aae09952-8ea0-44e3-97a8-e26323549ee0">
-
-3. **View Pods**  
-   The deployment from earlier created a pod. View it.  
-   `sudo kubectl get pods`  
+3. View Pods
+   
+   The deployment from earlier created a pod. View it.
+   
+   `sudo kubectl get pods`
+   
    <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/313d83fd-1872-4695-9774-76a5deb90be0">  
    Notice the name of the pod is generated using the deployment name I gave earlier.
 
 #### Test the website installation
-1. **Find the address of the pod**  
-   `sudo kubectl get pods -o wide`  
-   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a8fe7f88-f81b-4a9a-ae8a-ef3e345ed74e">
+1. Find the address of the pod
+   
+   `sudo kubectl get pods -o wide`
+   
+   <img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a8fe7f88-f81b-4a9a-ae8a-ef3e345ed74e">
 
    Notice that the command returns both the IP address of the pod and the node name on which the workload is scheduled.
-
-2. **Access the website**  
-   `wget 10.1.254.73`  
+2. Access the website
+   
+   `wget 10.1.254.73`
+   
    <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/473b0a7e-4931-4363-b597-dc9f2675892a">
 
 #### Scale the webserver deployment on a cluster
 To scale the number of replicas in your deployment, run the `kubectl scale` command. You specify the number of replicas you need and the name of the deployment.
 
-1. **Scale NGINX pods to 3**  
-   `sudo kubectl scale --replicas=3 deployments/nginxdeploy`  
-   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c2ca06bb-0597-4072-9b70-5abe18c4801d">
-
-2. **Check the pods**  
+1. Scale NGINX pods to 3
+   
+   `sudo kubectl scale --replicas=3 deployments/nginxdeploy`
+    
+   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c2ca06bb-0597-4072-9b70-5abe18c4801d">
+2. Check the pods
+   
    <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/36e1b878-4250-4a63-9541-3411a38ae583">
 
 You'd need to apply several more configurations to the cluster to effectively expose your website as a public-facing website. Examples include installing a load balancer and mapping node IP addresses. This type of configuration forms part of advanced aspects that you'll explore in the future.
 
-### When to use and not use K8s
-#### Use K8s
+### When to use and not use Kubernetes
+#### Use Kubernetes
 You want to use Kubernetes when your company:  
 1. Develops apps as microservices.
 2. Develops apps as cloud-native applications.
@@ -879,63 +903,77 @@ You want to use Kubernetes when your company:
 4. Updates containers at scale.
 5. Requires centralized container networking and storage management.
 
-#### Don't use K8s
+#### Don't use Kubernetes
 For example, the effort in containerization and deployment of a monolithic app might be more than the benefits of running the app in Kubernetes. A monolithic architecture can't easily use features such as individual component scaling or updates.
 
 ### Uninstall MicroK8s
 Before uninstall:  
-<img width="100" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48d515fe-2e7c-4e36-b324-8c39876d9ac0">
+<img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48d515fe-2e7c-4e36-b324-8c39876d9ac0">
 
-1. **Remove add ons from the cluster**  
+1. Remove add ons from the cluster
+   
    `sudo microk8s.disable dashboard dns registry`
-
-2. **Remove MicroK8s from the VM**  
+2. Remove MicroK8s from the VM
+   
    `sudo snap remove microk8s`
-
-3. **Exit the VM**  
-   `exit`  
+3. Exit the VM
+   
+   `exit`
+   
    <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2add3d14-da0d-4dea-beba-fa0ce5a92312">
-
-4. **Stop the VM**  
+4. Stop the VM
+   
    `multipass stop microk8s-vm`
-
-5. **Delete and purge the VM instance**  
-   `multipass delete microk8s-vm`
-   `multipass purge`
+5. Delete and purge the VM instance
+   
+   ````
+   multipass delete microk8s-vm
+   multipass purge
+   ````
 
 After uninstall:  
-<img width="100" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5fe17dad-8cd3-45ec-ac17-980b00ac126d">
+<img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5fe17dad-8cd3-45ec-ac17-980b00ac126d">
 
 ---
 
-Nana's K8s course...
----
+## Nana's Kubernetes course
+[Reference](https://youtu.be/X48VuDVv0do?si=LBqvoUujADAQHj_n).
 
-### Other `kubectl` commands
-1. Get Logs from Pod  
-   `kubectl logs [pd name]`  
-
-2. Describe Pod  
-   `kubectl describe pod [pod name]`
-
-3. Debugging by getting into the pod and get the terminal (bash for eg.) from in there  
-   `kubectl exec -it [pod name] -- bin/bash`
-   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/789efdfc-1d77-4bfe-8392-24b433c70c98">
-
-3. Delete Pods  
-   `kubectl delete deployment [name]`  
+### More `kubectl` commands
+1. Get Logs from Pod
+   ````
+   kubectl logs [pd name]
+   ````
+2. Describe Pod
+   ````
+   kubectl describe pod [pod name]
+   ````
+3. Debugging by getting into the pod and get the terminal (bash for eg.) from in there
+   ````
+   kubectl exec -it [pod name] -- bin/bash
+   ````
+   
+   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/789efdfc-1d77-4bfe-8392-24b433c70c98">
+4. Delete Pods
+   ````
+   kubectl delete deployment [name]
+   ````
+   
    <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b549874e-87a1-4fd6-ba1e-fc2625d0e5d8">
-
-4. Using config files to do deployments  
-   `kubectl apply -f [some-config-file.yaml]`
-   The first `spec` is for deployment and the second `spec` is for pods.  `template` is the blueprint for the pods.  
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/624db0b7-1660-49e2-9dd2-056f6ed9b962">
+5. Using config files to do deployments
+   ````
+   kubectl apply -f [some-config-file.yaml]
+   ````
+   
+   The first `spec` is for deployment and the second `spec` is for pods.  `template` is the blueprint for the pods.
+   
+   <img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/624db0b7-1660-49e2-9dd2-056f6ed9b962">
 
 **Summary:**  
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/847d015b-1085-459f-94d5-22b7f48c3559">  
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/54533231-60fe-4f3f-98c9-504bb5ad2d71">
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/847d015b-1085-459f-94d5-22b7f48c3559">  
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/54533231-60fe-4f3f-98c9-504bb5ad2d71">
 
-### K8s YAML config file
+### Kubernetes YAML config file
 YAML is a human friendly data serialization standard for all programming languages.  
 Its syntax uses strict indentation.  
 Best practice is to store config file with your code (or have a separate repo for config files).
@@ -946,7 +984,7 @@ Each configuration file has 3 parts:
 1. Metadata
 2. Specification
 3. Status (This part is automatically generated and added by K8s)  
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/333a0dc3-e0a7-4879-b857-5b0c679679c5">
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/333a0dc3-e0a7-4879-b857-5b0c679679c5">
 
    K8s gets status data from `etcd` database.
    `etcd` holds the current status of any K8s component.
@@ -960,42 +998,47 @@ Each configuration file has 3 parts:
 1. Connecting Deployment to Pods  
    Way for deployment to know which Pods belong to it.
    
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/eaa3face-37d5-4149-8963-00b5b08b2549">
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/eaa3face-37d5-4149-8963-00b5b08b2549">
 
-   Pods get the label through the template blueprint.
+   Pods get the label through the template blueprint.  
    Then we tell the deployment to connect or to match all the labels `app: nginx`.
 
 2. Connecting Services to Deployments  
    Way for service to know which Pods belong to it.
    
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5ae2b2a1-f84b-48db-bf8a-25be3247c6c2">
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5ae2b2a1-f84b-48db-bf8a-25be3247c6c2">
 
-   Example:
+   Example:  
    Service has `spec:ports` configuration and deployment has `spec:template:spec:containers:ports` configuration:  
    <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8fcb98bd-fc49-4acc-93b3-970148742ed8">
 
 #### Ports in Service and Pod
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fbcaa9c7-61a1-498c-864f-0f71af2d10e6">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fbcaa9c7-61a1-498c-864f-0f71af2d10e6">
 
 #### Example
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/21ec293e-4579-44d5-907e-acff811b436b">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/21ec293e-4579-44d5-907e-acff811b436b">
 
 #### View the status of the deployment generated by K8s from `etcd` and compare it to original
-`kubectl get deployment nginx-deployment -o yaml > nginx-deployment-result.yaml`
+````
+kubectl get deployment nginx-deployment -o yaml > nginx-deployment-result.yaml
+````
 
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a7aea357-a4f9-4ab1-a81e-c470a5dc3060">
 
 #### Delete the deployment and service
-`kubectl delete -f nginx-deployment.yaml`  
-`kubectl delete -f nginx-service.yaml`
+````
+kubectl delete -f nginx-deployment.yaml  
+kubectl delete -f nginx-service.yaml
+````
 
 ### Elaborate [example](https://youtu.be/X48VuDVv0do?si=-WTbSOZ04U-VLaCJ&t=4576)
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c0420032-d53b-4a61-8fab-65de95579945">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c0420032-d53b-4a61-8fab-65de95579945">
 
 #### Create MongoDb deployment
 Create secret first before you run deployment. Secret is created in the section that immediately follows this one.
-
-`mongodb-deployment.yaml`
+````
+mongodb-deployment.yaml
+````
 
 ````
 # This file will get checked into app's Git Repo, so don't put secret value of settings like MONGO_INITDB_ROOT_USERNAME
@@ -1037,13 +1080,15 @@ spec:
 ````
 
 Create Deployment:
-
-`[~]$ kubectl apply -f mongodb-deployment.yaml`  
+````
+[~]$ kubectl apply -f mongodb-deployment.yaml
+````
 
 #### Create secret (this will live in K8s, not in repo)
 Create secret file:
-
-`mongodb-secret.yaml`
+````
+mongodb-secret.yaml
+````
 
 ````
 apiVersion: v1
@@ -1062,17 +1107,20 @@ data:
 ````
 
 Create Secret:
-
-`[~]$ cd k8s-config/`  
-`[~]$ ls`  
-`mongodb-deployment.yaml      mongo.yaml`  
-`[~]$ kubectl apply -f mongodb-secret.yaml`  
-`[~]$ secret/mongodb-secret created`  
+````
+[~]$ cd k8s-config/
+[~]$ ls
+mongodb-deployment.yaml      mongo.yaml
+[~]$ kubectl apply -f mongodb-secret.yaml
+[~]$ secret/mongodb-secret created
+````
 
 `k8s-config` is just a folder on your local computer.
 
-You can view secrets with command:  
-`kubectl get secret`
+You can view secrets with command:
+````
+kubectl get secret
+````
 
 #### Create MongoDb Internal Service
 <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/79eee145-8f9f-4e20-b663-5313a7c25661">
@@ -1098,24 +1146,32 @@ spec:
 ````
 
 Create Service:
+````
+[~]$ kubectl apply -f mongodb-deployment.yaml
+deployment.apps/mongodb-deployment unchanged
+service/mongodb-service created
+````
 
-`[~]$ kubectl apply -f mongodb-deployment.yaml`  
-`deployment.apps/mongodb-deployment unchanged`  
-`service/mongodb-service created`  
+To check that the service is attached to the correct pod:
+````
+kubectl describe service mongodb-service
+````
 
-To check that the service is attached to the correct pod:  
-`kubectl describe service mongodb-service`  
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1ef6b94c-27cc-42ea-a4bd-69835d7011cc">
 
-<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1ef6b94c-27cc-42ea-a4bd-69835d7011cc">  
-That's the POD IP address and 27017 is the port where the application inside the Pod is listening.
+That's the POD IP address and `27017` is the port where the application inside the Pod is listening.
 
-Check that IP on the Pod by running:  
-`kubectl get pod -o wide`  
+Check that IP on the Pod by running:
+````
+kubectl get pod -o wide
+````
 
 #### View all components created so far
-`kubectl get all | grep mongodb`
+````
+kubectl get all | grep mongodb
+````
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b6c20141-e2ed-4712-80d1-05dc73912828">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b6c20141-e2ed-4712-80d1-05dc73912828">
 
 #### Create External configuration to put Db url for MongoDb
 `mongodb-configmap.yaml`
@@ -1130,8 +1186,10 @@ data:
   database_url: mongodb-service
 ````
 
-Create config map:  
-`kubectl apply -f mongodb-configmap.yaml`
+Create config map:
+````
+kubectl apply -f mongodb-configmap.yaml
+````
 
 #### Create MongoExpress deployment
 Use config from here: https://hub.docker.com/_/mongo-express
@@ -1184,8 +1242,10 @@ spec:
               key: database_url
 ````
 
-Create deployment:  
-`kubectl apply -f mongoexpress-deployment.yaml`
+Create deployment:
+````
+kubectl apply -f mongoexpress-deployment.yaml
+````
 
 #### Create MongoExpress External Service
 To access mongoexpress from the browser.
@@ -1213,8 +1273,10 @@ spec:
       nodePort: 30000
 ````
 
-Create external service:  
-`kubectl apply -f mongoexpress-deployment.yaml`
+Create external service:
+````
+kubectl apply -f mongoexpress-deployment.yaml
+````
 
 Check it out:  
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ac0b67c1-2c53-4300-b776-ca515fbf6815">
@@ -1223,30 +1285,31 @@ Internal Service or Cluster IP is DEFAULT.
 LoadBalancer is also assigned an External IP.
 
 #### Give a URL to external service in minikube
-`minikube service mongo-express-service`
+````
+minikube service mongo-express-service
+````
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/884d849b-96a5-409f-87d4-37e48eb82ce8">
 
 ### Namespace
 Way to organize resources.
 
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/dfdf89d7-9a93-49e4-9eff-0f1902c487fd">
-
 You can put your object/ resource into some namespace in the .yaml configuration file.  
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6b58171f-c4a1-4863-91f4-80f5b7812987">
+<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6b58171f-c4a1-4863-91f4-80f5b7812987">
 
-**Why?**  
-1. To group resources into different namespaces.
+**Why?**
+
+1. To group resources into different namespaces.  
    <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/699c0798-624e-4374-8fe5-18af861fef02">
 
 2. Use same cluster by different teams.  
    <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6d2809d6-83b0-49cd-aceb-dc40f09f4e17">
 
 3. Resource sharing: Staging and Development.  
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5da2c1b1-931e-4796-b972-570a517ef9a2">
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5da2c1b1-931e-4796-b972-570a517ef9a2">
 
 4. Set access and resource limits.  
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/80a7b5cb-fbbb-4f24-9aa6-9575d4944bc9">
+   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/80a7b5cb-fbbb-4f24-9aa6-9575d4944bc9">
 
 You **can access** service in another Namespace:
 
@@ -1256,16 +1319,16 @@ You **can't access** most resources from another namespace.
 For eg: Each namespace must define its own ConfigMap, Secret etc.
 
 There are some components that can't live inside a namespace.  
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0a224443-b673-45b4-829e-b49a7749c7de">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0a224443-b673-45b4-829e-b49a7749c7de">
 
 ### Ingress
 To make an app accessible through the browser, you can use external service or ingress.
 
 External Service looks like below. It uses http protocol and IP address:port of the node which is ok for testing but not good for final product.  
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f43a4b47-8075-4ef3-bb91-269b7239b503">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f43a4b47-8075-4ef3-bb91-269b7239b503">
 
 Ingress makes it better:  
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/08c8836d-d372-4c37-888a-80a9cb875635">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/08c8836d-d372-4c37-888a-80a9cb875635">
 
 One thing to note is that the `http` attribute under `rules` doesn't correspond to http protocol in the browser.  
 This just means that the incoming request gets forwarded to internal service.
@@ -1275,10 +1338,10 @@ This just means that the incoming request gets forwarded to internal service.
 #### Ingress and internal service configuration
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/88972574-7f1d-426f-8caa-b4df5b6065d8">
 
-In the `host: myapp.com`, `myapp.com` must be a valid domain address.
+In the `host: myapp.com`, `myapp.com` must be a valid domain address.  
 You should map domain name to Node's IP address, which is the entrypoint. 
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f23b89da-c00e-451f-9ff5-686cc5c47764">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f23b89da-c00e-451f-9ff5-686cc5c47764">
 
 #### How to configure ingress in your cluster
 You need an implementation for Ingress which is called Ingress Controller.
@@ -1290,7 +1353,6 @@ Install an ingress controller which is basically a pod or a set of pods which ru
 #### Ingress Controller
 1. Evaluates all the rules defined in the cluster.  
    <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b6e2ba98-c58b-4999-b773-2e87c3ac8705">
-
 2. Manages redirections.
 3. Entrypoint to cluster.
 4. Many third-party implementations.
@@ -1298,22 +1360,25 @@ Install an ingress controller which is basically a pod or a set of pods which ru
 If you're running your K8s cluster on some cloud environment, you'll already have a cloud load balancer.
 External requests will first hit the load balancer and that will redirect the request to Ingress Controller. 
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8228d68-cadd-4970-b66c-510223223ca8">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8228d68-cadd-4970-b66c-510223223ca8">
 
 But if you're deploying your K8s cluster on a bare-metal, you'll have to configure some kind of entrypoint yourself. That entrypoint can be either inside of your cluster or outside as a separate server.  
 For eg: An external Proxy Server shown below.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8499ad31-76a4-41e1-ae5d-0924cef3b327">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8499ad31-76a4-41e1-ae5d-0924cef3b327">
 
 #### Install Ingress Controller in Minikube
-`minikube addons enable ingress`
+````
+minikube addons enable ingress
+````
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d27794bd-aedc-4e65-906e-b914881c8c71">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d27794bd-aedc-4e65-906e-b914881c8c71">
 
 With 1 simple command, I can have Nginx ingress controller pod setup.
 
 #### Create Ingress rule for K8s dashboard
-`kubectl get ns` just lists all the namespaces in your current K8s context.  
+`kubectl get ns` just lists all the namespaces in your current K8s context.
+
 <img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/74d046fb-ed95-4daf-8198-7cea9f592ae3">
 
 `kubectl get all -n kubernetes-dashboard` shows all the components in kubernetes-dashboard.  
@@ -1371,7 +1436,7 @@ For this, all you have to do is create an internal service with the name `defaul
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/85c7e0b0-aaf9-4f8d-9cba-c497f64599c5">
 
 #### Multiple paths for same host
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6d78b75f-bb8a-44c0-b4e8-bc6111e88214">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6d78b75f-bb8a-44c0-b4e8-bc6111e88214">
 
 #### Multiple sub-domains or domains
 You can also have multiple hosts with 1 path. Each host represents a subdomain.
@@ -1398,7 +1463,7 @@ If I wanted to do this myself, I'd have to take care of the following components
 4. Secret: For secret data
 5. Services
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/9e221f9d-e32f-43b1-94c6-7aaae9f8a1af">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/9e221f9d-e32f-43b1-94c6-7aaae9f8a1af">
 
 If I had to do this manually, it'd be tedious.  
 But since something like Elasticsearch is a standard deployment, someone already created the YAML files required for those deployments, packaged them up and made them available in repositories so other people could use them.
@@ -1424,7 +1489,9 @@ The values come from `values.yaml` file.
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f248feaf-2c03-41c2-a705-797405a1c787">
 
 #### Values injection into template files
-`helm install --values=my-values.yaml <chartname>`
+````
+helm install --values=my-values.yaml <chartname>
+````
 
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/039605b5-2e17-4e06-850f-17445683f955">
 
@@ -1432,16 +1499,18 @@ The values come from `values.yaml` file.
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0d3f594-f21a-4b81-a733-b5318a3c695d">
 
 #### Helm chart structure
-<img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/124b26be-9dae-4b47-9e93-e162c474195f">
+<img width="150" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/124b26be-9dae-4b47-9e93-e162c474195f">
 
-1. mychart folder: Name of the chart.
-2. Chart.yaml: Meta info about the chart. For eg: name, version, dependencies etc.
-3. values.yaml: Values for the template files.
-4. charts folder: Chart dependencies. For eg: If this chart depends on other charts.
-5. templates folder: Actual template files.
+1. `mychart` folder: Name of the chart.
+2. `Chart.yaml`: Meta info about the chart. For eg: name, version, dependencies etc.
+3. `values.yaml`: Values for the template files.
+4. `charts` folder: Chart dependencies. For eg: If this chart depends on other charts.
+5. `templates` folder: Actual template files.
 
-Install chart using the command:  
-`helm install <chartname>`
+Install chart using the command:
+````
+helm install <chartname>
+````
 
 #### Helm version 3 got rid of Tiller for good reasons
 
@@ -1451,8 +1520,9 @@ Persist data in K8s using following ways:
 2. Persistent Volume Claim
 3. Storage Class
 
-Let's say you have an app with a Db.  
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/69fa3fb5-0cdc-42f3-9fbd-4a4637765c3b">
+Let's say you have an app with a Db.
+
+<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/69fa3fb5-0cdc-42f3-9fbd-4a4637765c3b">
 
 If you make changes to the db and restart the `mysql` pod, the data gets lost because K8s doesn't provide data persistence out of the box.
 
@@ -1460,27 +1530,27 @@ If you make changes to the db and restart the `mysql` pod, the data gets lost be
 1. We need a storage that doesn't depend on the pod lifecycle.  
    <img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7584ed59-ff6d-475b-b705-cffb41323a3d">
 2. Storage must be available on all nodes.  
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/94987239-4ba4-46e5-a2c9-56c3f6db9c4b">
+   <img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/94987239-4ba4-46e5-a2c9-56c3f6db9c4b">
 3. Storage needs to survive even if cluster crashes.
 
 #### Persistent Volume
 1. Cluster resource.
 2. Created via YAML file.
 3. Needs actual physical storage.  
-   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e65c8cf7-7d25-47e0-a3c8-e9307869243f">
-4. Example that uses Google cloud:
+   <img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e65c8cf7-7d25-47e0-a3c8-e9307869243f">
+4. Example that uses Google cloud:  
    <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/af252f0c-4df7-45d3-90e3-5aec28e68ae4">
-5. They are NOT namespaced.
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ebc1eea6-1336-4c6d-b8ef-bb85f45f2356">
+5. They are NOT namespaced.  
+   <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ebc1eea6-1336-4c6d-b8ef-bb85f45f2356">
 
 #### Persistent Volume Claim
 Application has to claim the Persistent volume.
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1a383fc1-829c-4ea6-acc8-8ff59232e688">
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1a383fc1-829c-4ea6-acc8-8ff59232e688">
 
 In other words, PVC specifies claims about a volume with storage size, access mode etc. and whichever persistent volume matches those claims will be used for the application.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2bd62e8-f5d4-40ae-aa48-1673ae95f8b3">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2bd62e8-f5d4-40ae-aa48-1673ae95f8b3">
 
 Note: PVClaims must exist in the same namespace as the pod.
 
@@ -1488,7 +1558,7 @@ You use that claim in the Pods configuration like so:
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fee3ae01-a2e6-48f0-a149-ae3f9823df03">
 
 **Mounting volume:**  
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4d860872-729b-41e2-ad93-4c4ecde0411c">
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4d860872-729b-41e2-ad93-4c4ecde0411c">
 
 #### Different volume types in a Pod
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/df181cc9-b598-48f9-b87b-8700650c4b50">
@@ -1511,12 +1581,12 @@ Flow:
 ### StatefulSet
 Stateful vs Stateless apps
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c58b7dc3-befe-436c-8bbf-0796aa3567d4">
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c58b7dc3-befe-436c-8bbf-0796aa3567d4">
 
 #### Deployment vs StatefulSet
 **Deployment:**
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e43dcd7d-baf8-4d56-9584-d89475c879ac">
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e43dcd7d-baf8-4d56-9584-d89475c879ac">
 
 When you delete one, one of those pods can be deleted randomly. 
 
@@ -1528,40 +1598,41 @@ When you delete one, one of those pods can be deleted randomly.
 
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1e3c1181-a506-41c4-8746-6fecee9048b4">
 
-Let's say `ID-2` pod goes down and created again. Even when it's created newly this time, it'll have the same Id of `ID-2`.
+Let's say `ID-2` pod goes down and gets created again. Even when it's created newly this time, it'll have the same Id of `ID-2`.
 
 #### Scaling Db apps
 Only let one instance to write data to prevent data inconsistencies.
 
-Let's say you add `mysql-3` instance.  
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/284d1af5-84ba-48cd-bae7-9328cf9b15a6">
+Let's say you add `mysql-3` instance.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/284d1af5-84ba-48cd-bae7-9328cf9b15a6">
 
 The workers continuously synchronize data.  
 PV means Persistent volume.
 
 #### Pod state 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/036fb5c8-bcb1-4fa2-9f66-5a38383a0b93">
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/036fb5c8-bcb1-4fa2-9f66-5a38383a0b93">
 
 Pod state is stored in its storage. When a pod dies and it gets replaced, the persistent pod identifiers make sure that the storage volume gets reattached to the replacement pod.
 
 #### Pod Identity
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/344b5add-a958-45f7-9efd-7dd07905c50b">
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/344b5add-a958-45f7-9efd-7dd07905c50b">
 
 For eg: StatefulSet with 3 replica:
 1. mysql-0 : Master
 2. mysql-1 : Worker
 3. mysql-2 : Worker
 
-Next pod is only created if previois one is up and running.  
+Next pod is only created if previous one is up and running.  
 Deletion in reverse order, starting from the last one.
 
 #### Pod Endpoints
 Each pod in a stateful set gets it own DNS endpoint from a service.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8cb0d78d-8e29-483d-b471-ebf6d66b1199">
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8cb0d78d-8e29-483d-b471-ebf6d66b1199">
 
 2 characteristics:  
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a4bbcbc5-21cb-4494-aa64-2aa766578a99">
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a4bbcbc5-21cb-4494-aa64-2aa766578a99">
 
 #### It's complex so just use cloud db services.
 Stateful apps are not perfect for containerized apps, stateless are.
@@ -1570,7 +1641,7 @@ Stateful apps are not perfect for containerized apps, stateless are.
 Pods in K8s are destroyed frequently, so it's not practical to reach them using their ip addresses.
 Services address this problem by providing a stable IP address even when the pod dies.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f677caad-fd51-47eb-b1cd-943194ddd6c2">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f677caad-fd51-47eb-b1cd-943194ddd6c2">
 
 **Different Services:**
 1. ClusterIP Services
@@ -1583,11 +1654,12 @@ Services address this problem by providing a stable IP address even when the pod
 #### ClusterIP Services
 This is a default type, so when you create a service and don't specify the type, this is what you'll get.
 
-<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c87f3b55-c180-4008-a9a8-a79ab1b299a9">
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c87f3b55-c180-4008-a9a8-a79ab1b299a9">
 
 For eg:  
-Let's say we have deployed our microservice app in our cluster. Let's say this pod contains the app container and a sidecar container that collects logs from the app and sends it to some log store. The deployment yaml file looks like this:  
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ee490118-8260-400e-b21a-7a20c0e78557">
+Let's say we have deployed our microservice app in our cluster. Let's say this pod contains the app container and a sidecar container that collects logs from the app and sends it to some log store. The deployment yaml file looks like this:
+
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ee490118-8260-400e-b21a-7a20c0e78557">
 
 **Pod gets an IP address from a range that is assigned to a Node.**
 
@@ -1599,18 +1671,19 @@ Let's say you access the app through the browser:
 
 The ingress rule and app service yaml contents look like this:
 
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8fa1242c-a1f5-485a-b81c-baaf5101cf80">  
-As you can see, the ingress forwards to port 3200 where the service is, and the service forwards to port 3000 in the container where the app is running.
+<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8fa1242c-a1f5-485a-b81c-baaf5101cf80">  
 
-The Service port is arbitrary while targetPort is not. targetPort has to match the port where container inside the pod is listening at.
+As you can see, the ingress forwards to port `3200` where the service is, and the service forwards to port `3000` in the container where the app is running.
+
+The `servicePort` is arbitrary while `targetPort` is not. `targetPort` has to match the port where container inside the pod is listening at.
 
 **Which pods to forward request to?**  
 By using selectors which are labels of pods.
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f449dc1d-2fbb-4aba-b1b9-c0d9feb2186c">
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f449dc1d-2fbb-4aba-b1b9-c0d9feb2186c">
 
 **Which port to forward request to?**  
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3cb110d9-424d-4988-a028-e3cbc6cf920e">
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3cb110d9-424d-4988-a028-e3cbc6cf920e">
 
 When we create the service, it will find all the pods that match the selector (1), so these pods will become **endpoints** of the service.
 When service gets a request, it will pick one of those pod replicas randomly beause it's a load balancer and it will send the request it received to that specific pod on a port defined by `targetPort` attribute (2).
@@ -1618,14 +1691,14 @@ When service gets a request, it will pick one of those pod replicas randomly bea
 **Service Endpoints:**  
 When we create a service, K8s creates an endpoints object that has the same name as the service and it will use the endpoints object to keep track of which pods are members/ endpoints of the service.
 
-<img width="380" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6f335791-f1c7-4877-a1e6-9d7d52bb7136">
+<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6f335791-f1c7-4877-a1e6-9d7d52bb7136">
 
 **Multi-Port Services:**  
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f04cb733-52ad-43d1-a835-499867807101">
 
 When you have multiple ports defined in a service, you have to name them.
 
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/32f013d4-2240-461d-a0c5-829478b9e1c0">
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/32f013d4-2240-461d-a0c5-829478b9e1c0">
 
 #### Headless Services
 Useful in scenario like:
@@ -1635,7 +1708,8 @@ Useful in scenario like:
 
 **Use case:** Stateful applications, like databases where Pod replicas aren't identical.
 
-To create a headless service, set clusterIP to none.  
+To create a headless service, set clusterIP to none.
+
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48b67607-a0fb-4652-a069-7150e9b88233">
 
 We have these 2 services alongside each other. ClusterIP one will handle load balanced requests, Headless one will handle data synchronization requests.
@@ -1643,7 +1717,7 @@ We have these 2 services alongside each other. ClusterIP one will handle load ba
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ae95e98b-5227-4a7d-a7af-4a2e5f7925fe">
 
 #### NodePort Services
-Recall that CLusterIP is only accessible within the cluster so no external traffic can directly address the cluster IP service.
+Recall that ClusterIP is only accessible within the cluster so no external traffic can directly address the cluster IP service.
 The node port service however makes the external traffic accessible on static or fixed port on each worker node.
 
 So in this case, instead of a browser request coming through the Ingress, it can directly come to the worker node at the port that the service specification defines.
@@ -1654,16 +1728,18 @@ Whenever we create a node port service, a cluster ip service to which the node p
 
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ec3c57fc-2628-4cb9-82b7-5a69fb8f7f0a">
 
-The nodePort value has a predefined range of 30000 to 32767.
+The nodePort value has a predefined range of `30000 - 32767`.  
 Here you can reach the app at `172.90.1.2:30008`.
 
-**View the service:**  
+**View the service:**
+
 The node port has the cluster IP address and for that IP address, it also has the port open where the service is accessible at.  
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/941eb8bd-0a3b-44cf-b3f4-7cfe7ed4aa47">
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/941eb8bd-0a3b-44cf-b3f4-7cfe7ed4aa47">
 
 **Service spans all the worker nodes:**  
+
 Service is able to handle a request coming on any of the worker nodes and then forward it to one of the pod replicas. Like `172.90.1.1:30008` or `172.90.1.2:30008` or `172.90.1.3:30008`. This type of service exposure is not secure.  
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4ea4d459-2053-4784-8eb6-713b9936d3ef">
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4ea4d459-2053-4784-8eb6-713b9936d3ef">
 
 Don't use it for external connection. Use it only for testing.
 
@@ -1674,19 +1750,19 @@ A service becomes accessible externally through a cloud provider's load balancer
 
 LoadBalancer service is an extension of NodePort service.  
 NodePort service is an extension of ClusterIP service.  
-So whenever we create LoadBalancer service, NodePort and ClusterIP service are created automatically.
+So whenever we create LoadBalancer service, NodePort and ClusterIP services are created automatically.
 
 The YAML file looks like this:  
-<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0e41ac26-8297-4c25-8881-59b261b37261">
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0e41ac26-8297-4c25-8881-59b261b37261">
 
 It works like this:  
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c717755a-24ad-4a2d-98bb-39b9391906d1">
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c717755a-24ad-4a2d-98bb-39b9391906d1">
 
-NodePort is the port that open on the worker node but it's not directly accessible externally but only through the load balancer. 
+NodePort is the port that is open on the worker node but it's not directly accessible externally but only through the load balancer. 
 So the entry point becomes the load balancer first and it can then direct the traffic to node port on the worker node and the cluster IP, the internal service.
 
 The load balancer service looks like this:  
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4706aeb2-8daf-4364-a820-ede12058f9c9">
+<img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4706aeb2-8daf-4364-a820-ede12058f9c9">
 
 Configure Ingress or LoadBalancer for production environments.
 
