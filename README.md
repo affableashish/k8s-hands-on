@@ -7,8 +7,113 @@ Also check out the following resources:
 3. Kubernetes [series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) by Andrew Lock.
 4. [Best practices](https://mikehadlow.com/posts/2022-06-24-writing-dotnet-services-for-kubernetes/) using Kubernetes with .NET apps.
 
-## Hands On
-For our example app, we have a web app and a worker service.
+## Hands On Example
+For this section, I'm following along Andrew Lock's [excellent series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) on Kubernetes.
+
+As for theoretical aspect of Kubernetes, read the section after this one below.
+
+### Create the projects
+#### Clone this repo
+#### Add a solution file using terminal
+<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/753af618-7cd5-4453-a993-28df78a8b90d">
+
+Now open the solution.
+
+#### Add a web api project to solution
+1. Right Click Solution -> Add New Project -> Project name: `TestApp.Api`, Type: `Web API`
+
+2. Add health check to it using guide [here](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-8.0).  
+   Check out the code to see how I implemented liveness and readiness checks.
+
+3. Navigate to health check url  
+   <img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/89c9c6be-b7c2-4816-90f5-ae5c360c7ab7">
+
+4. Add an endpoint to expose environment info. I added a struct to return environment info. Check out to see how it's implemented.  
+   For eg: This is what's returned when I run it in my Mac in Debug mode:  
+   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/62f764d0-92c9-4f59-8562-cf4f95fb4376">
+
+   You can see that `memoryUsage` is 0 probably because `EnvironmentInfo` is written to extract this info when the app runs in Ubuntu. But I'm on a mac.
+
+#### Add a console app
+This app will run migrations.
+
+#### Add a service which is an empty web app
+This is an empty web app. This app will run long running tasks using Background services. It easily could have been just a `Worker Service` but I kept it as a web app just so it's easier to expose health check endpoints.
+
+<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5ff01df1-5772-4a9c-b948-12f1eddfc603">
+
+Just has bare minimum code.
+
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b0a337a4-9583-46b9-8e22-ef757d42b498">
+
+We **won't expose** public HTTP endpoints for this app.
+
+### Add Dockerfile to all 3 projects
+Add Dockerfile by following this [guide](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/building-net-docker-images?view=aspnetcore-8.0).
+
+Check out these **EXCELLENT** samples: https://github.com/dotnet/dotnet-docker/tree/main/samples/aspnetapp
+
+Learn about Chiseled containers [here](https://andrewlock.net/exploring-the-dotnet-8-preview-updates-to-docker-images-in-dotnet-8/#support-for-chiseled-containers).
+
+### Create default helm chart
+#### Install helm chart
+Follow instructions here: https://helm.sh/docs/intro/install/
+
+I used Homebrew to install it in my Mac
+````
+brew install helm
+````
+
+#### Create a new chart
+Add a folder at the solution level named `charts`.
+
+Go into the folder and create a new chart called `test-app`.
+
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1227ce3e-fd6d-421f-835b-968f43f32059">
+
+Remove templates folder  
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a013c80f-20fa-476d-84de-d5dc55a6d752">
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/16a2267b-030e-4ed4-9896-83a130b5547f">
+
+Now go into `charts` folder and create charts for TestApp.Api and TestApp.Service
+````
+helm create test-app-api # Create a sub-chart for the API
+helm create test-app-service # Create a sub-chart for the service
+````
+
+Remove these files for sub charts
+````
+rm test-app-api/.helmignore test-app-api/values.yaml
+rm test-app-service/.helmignore test-app-service/values.yaml
+````
+
+Also remove these files for sub charts
+````
+rm test-app-api/templates/hpa.yaml test-app-api/templates/serviceaccount.yaml
+rm test-app-service/templates/hpa.yaml test-app-service/templates/serviceaccount.yaml
+rm -r test-app-api/templates/tests test-app-service/templates/tests
+````
+
+Now the folder structure looks like this:  
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/734efd04-e753-469e-889c-e2a53f4f3889">
+
+This structure treats projects in this solution to be microservices that are deployed at the same time.
+So this solution is a "microservice" here.
+
+If you change a sub-chart, you have to bump the version number of that **and** the top level chart. Annoying though!
+
+We use top level `values.yaml` to share config with the sub charts as well.
+
+**Tip:** Don't include . in your chart names, and use lower case. It just makes everything easier.
+
+About this `nindent`, you can figure out the indentation number by sitting where you want the text to sit and going left. 
+For eg: I had to hit left arrow 8 times until I reached the start of this line, so indent value is 8 here.
+
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ac01cde6-d0a4-4fa6-9c5c-f3af01de47ae">
+
+
+
+
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
