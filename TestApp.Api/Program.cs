@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using TestApp.Api;
+using TestApp.Api.Health;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +77,9 @@ app.MapHealthChecks("/healthz/random", new HealthCheckOptions
     // Only health checks with tag of "random" would run
     Predicate = healthCheck => healthCheck.Tags.Contains("random")
 });
+
+// Get environment info
+app.MapGet("/environment", () => new EnvironmentInfo());
 // I added this 👆
 
 app.Run();

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace TestApp.Api;
+namespace TestApp.Api.Health;
 
 //https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-8.0#create-health-checks
 public class RandomHealthCheck : IHealthCheck

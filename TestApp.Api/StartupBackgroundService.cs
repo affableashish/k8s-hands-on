@@ -1,3 +1,5 @@
+using TestApp.Api.Health;
+
 namespace TestApp.Api;
 
 public class StartupBackgroundService(StartupHealthCheck healthCheck) : BackgroundService

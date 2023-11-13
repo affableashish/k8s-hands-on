@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace TestApp.Api;
+namespace TestApp.Api.Health;
 
 public class StartupHealthCheck : IHealthCheck
 {

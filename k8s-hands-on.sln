@@ -7,6 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp.Api", "TestApp.Api\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp.Cli", "TestApp.Cli\TestApp.Cli.csproj", "{E5E72E7D-5EA2-4BE4-9F1B-957C1110DF67}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp.Service", "TestApp.Service\TestApp.Service.csproj", "{1A0A5714-6953-4D6F-B420-0D69CF472F49}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dockerfiles", "Dockerfiles", "{A52ADA7A-11F2-40CA-B135-6EC0B2DAFF0F}"
+	ProjectSection(SolutionItems) = preProject
+		TestApp.Api.Dockerfile = TestApp.Api.Dockerfile
+		TestApp.Cli.Dockerfile = TestApp.Cli.Dockerfile
+		TestApp.Service.Dockerfile = TestApp.Service.Dockerfile
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +33,9 @@ Global
 		{E5E72E7D-5EA2-4BE4-9F1B-957C1110DF67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5E72E7D-5EA2-4BE4-9F1B-957C1110DF67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5E72E7D-5EA2-4BE4-9F1B-957C1110DF67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A0A5714-6953-4D6F-B420-0D69CF472F49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A0A5714-6953-4D6F-B420-0D69CF472F49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A0A5714-6953-4D6F-B420-0D69CF472F49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A0A5714-6953-4D6F-B420-0D69CF472F49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
