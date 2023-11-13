@@ -7,6 +7,9 @@ Also check out the following resources:
 3. Kubernetes [series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) by Andrew Lock.
 4. [Best practices](https://mikehadlow.com/posts/2022-06-24-writing-dotnet-services-for-kubernetes/) using Kubernetes with .NET apps.
 
+## Hands On
+For our example app, we have a web app and a worker service.
+
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
 
@@ -1790,6 +1793,38 @@ Malai Mama le CLEARLY bhannu bhako thyo "Aama le Washing machine pathaidincham" 
 Maile aba kasko kura pattyaune? Malai yesari ghumayera kura gareko man pardaina.
 
 Ye baba, timle kura nabujheko ho ki nabujhe jasto gareko ho?
+
+---
+
+Ma timlai fact kura bhanchu, asti maile bhanda ris ma kura bigare.
+Kura ke ho bhanda malai thaha thyo Ritu le 13 Pro Max man garichan bhanera. Ani maile phone haruko price herda 12 Pro Max ra 13 Pro max ma $200 ko difference dekhe ani maile soche ki aba teti difference le 7-8 barsa chalaune phone, sochekai khalko chalaun na bhanera maile extra kharcha gare, ani earphone ko kura ma pani aba 7-8 barsa chalaune kura ke taar hallayera hidne khalko dinu bhanera airpods nai kine.
+
+Yo bela samma malai aru kura ko kei matlab thiyena, ani maile sune Bhauju le bhaneko hola sayed: "Grishma ko side bata Syangja bata kei diyenan bhanne kura ako cha" bhanera. Yo sunesi malai timle Mama sita tetro kura gareko, timle bhaneu hola jasto lagyo ani ali ris pani uthyo kina yesto paat kura garirakheko hola bhanera.
+Ani malai ke bhayo bhanda "thikai cha, aba ramro phone didai chu sali harlai tyo dekhesi ramro manchau hola" bhanne soche, asti risako bela ma maile naramrari bhane. Tesko lagi I'm sorry.
+
+Ani timle mero khutta ma uviyera socha na, malai Mama le phone garera timle sappai ghar ko kura sunako feel bhako cha, Bhauju sita kei diyenan bhanne suneko and so on sunda maile tei phone ko kura ma answer diye bhanne jasto bhako thyo.
+Aba yo kura lai positively liu, maile sali harlai maya garerai tetro paisa kharcha gareko ho, answer dina bhanera maile jo pai tei lai paisa kharcha gardina. Yeslai positvely lina saknu parcha.
+
+---
+
+As a husband, maile afno wife lai ramro sita guide garne mero responsibility ho, so I'm saying this: Timi Bardibaas gayera PCL padne kura waste of time, money and effort ho. Maile Prakash (usko sali PCL ho), Suman dai ani aru dherai nurse haru sita bujheko tyo PCL garera US ma Nurse huna ekdamai time lagcha re. PCL 3 years ani license 1 year ani NCLEX exam pass garnu parcha. PCL sakayesi Nepal ma tyo license pass garna 1 year jasto lagcha re, timle tyo pass garna sakenau bhane ke garne, kinaki tyo pass garena bhane US ma tyo degree useless huncha? Kaile samma Nepal basera try garchau tyo license exam? Ani yeha ayera tyo NCLEX pass garna ni garo nai huncha re. PCL ani license exam ani NCLEX sabai garda 5 barsa lagcha re, tara 3 years ma ta timro US processing pani huna sakcha. Ani tyo extra 2 years ni tadha basne? Ani yeha ayesi feri Bachelor's padnu paryo so arko 4 years. Yo garda timle Bachelor's Nurse banna 9-10 barsa lagcha. 
+Timi 25 bhayeu, timi Bachelor's Nurse banda 34-35 years old hunchau, ani hamle chora chori kaile paune? Nursing padda chora chori paune bhaneko impossible jastai ho, dukha huncha re. Ma Nepal ako bela kaile sangai basne, kaile ghumna jane?
+Ma timro lagi Nepal auda timi Bardibaas basda tadha bhayincha, distance aucha. 
+Ani yesto jhamela garera padesi ni feri dukha nai cha job garna thalesi. Mero bhanai ke bhanda Nursing ma aba 9-10 years kharcha garera aune outcome worth it nai chaina. Yo bhanda dherai thorai time ma dherai ramro outcome aune aru nai fields chan.
+Aba yesto huda hudai ni kina PCL padne ta? Ekfera ramro sita socha ta.
+
+Baru KTM gayera kei napadera baschau bhane ni basa yettikai, tara Bardibaas gayera PCL chai napada, please.
+
+
+
+
+
+Prakash ani da
+
+
+
+harlai kei diyenan bhandai thye bhanera Grishma
+
 Maile timro bhagwan ko kasam Sali harlai "ke testo taar wala paat chij dinu" bhanera Airpods kineko ho. Dekhaune bhanne mero secondary kura ho. Main kura ramro saman use garun bhanne ho, secondary kura ramro diyechan bhanera sabai le sochun bhanera ho.
 Yeti jabo kura ma kina niu khojchau ho? Yellai positively lina sakdainau? "La tani mero husband ko family le ke-ke diyenan bhanne sunecha, teivara ramro chij kinera kura katne haru lai dekhauna khojeko raicha" bhanera liu na. Kina yo kura ma masita fight garnu paryo ra?
 
