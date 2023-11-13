@@ -11,13 +11,53 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp.Service", "TestApp.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{A52ADA7A-11F2-40CA-B135-6EC0B2DAFF0F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helm", "Helm", "{16372D0F-F636-4F85-B0C1-BB7BF392829B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helmcharts", "Helmcharts", "{16372D0F-F636-4F85-B0C1-BB7BF392829B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dockerfiles", "Dockerfiles", "{136DBCB4-D626-4D87-ADC4-263F50EB7C35}"
 	ProjectSection(SolutionItems) = preProject
 		TestApp.Api.Dockerfile = TestApp.Api.Dockerfile
 		TestApp.Cli.Dockerfile = TestApp.Cli.Dockerfile
 		TestApp.Service.Dockerfile = TestApp.Service.Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app", "test-app", "{0FBABF6E-4409-46C0-894E-24A9BA1FDD8D}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\Chart.yaml = charts\test-app\Chart.yaml
+		charts\test-app\values.yaml = charts\test-app\values.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "charts", "charts", "{0094C2DA-D0D1-460F-BB6F-9FE59D46DD3C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app-api", "test-app-api", "{4CF27903-3BA2-4D25-B291-9ACE9AFAE6DE}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\charts\test-app-api\Chart.yaml = charts\test-app\charts\test-app-api\Chart.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app-service", "test-app-service", "{AFED07A9-56B3-488E-ABF6-63E4725587F3}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\charts\test-app-service\Chart.yaml = charts\test-app\charts\test-app-service\Chart.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "charts", "charts", "{C317511A-E8EC-4A2B-B417-0B7B1BA254D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "charts", "charts", "{C47F0748-AC71-4E2F-AE27-5A6D1138DC72}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{742E26EB-B791-4622-9C30-429A79060C7F}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\charts\test-app-api\templates\deployment.yaml = charts\test-app\charts\test-app-api\templates\deployment.yaml
+		charts\test-app\charts\test-app-api\templates\NOTES.txt = charts\test-app\charts\test-app-api\templates\NOTES.txt
+		charts\test-app\charts\test-app-api\templates\ingress.yaml = charts\test-app\charts\test-app-api\templates\ingress.yaml
+		charts\test-app\charts\test-app-api\templates\service.yaml = charts\test-app\charts\test-app-api\templates\service.yaml
+		charts\test-app\charts\test-app-api\templates\_helpers.tpl = charts\test-app\charts\test-app-api\templates\_helpers.tpl
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{2216268A-4DD6-4C01-A6EE-4755A75736DF}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\charts\test-app-service\templates\deployment.yaml = charts\test-app\charts\test-app-service\templates\deployment.yaml
+		charts\test-app\charts\test-app-service\templates\NOTES.txt = charts\test-app\charts\test-app-service\templates\NOTES.txt
+		charts\test-app\charts\test-app-service\templates\ingress.yaml = charts\test-app\charts\test-app-service\templates\ingress.yaml
+		charts\test-app\charts\test-app-service\templates\service.yaml = charts\test-app\charts\test-app-service\templates\service.yaml
+		charts\test-app\charts\test-app-service\templates\_helpers.tpl = charts\test-app\charts\test-app-service\templates\_helpers.tpl
 	EndProjectSection
 EndProject
 Global
@@ -45,5 +85,13 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{16372D0F-F636-4F85-B0C1-BB7BF392829B} = {A52ADA7A-11F2-40CA-B135-6EC0B2DAFF0F}
 		{136DBCB4-D626-4D87-ADC4-263F50EB7C35} = {A52ADA7A-11F2-40CA-B135-6EC0B2DAFF0F}
+		{0FBABF6E-4409-46C0-894E-24A9BA1FDD8D} = {16372D0F-F636-4F85-B0C1-BB7BF392829B}
+		{0094C2DA-D0D1-460F-BB6F-9FE59D46DD3C} = {0FBABF6E-4409-46C0-894E-24A9BA1FDD8D}
+		{4CF27903-3BA2-4D25-B291-9ACE9AFAE6DE} = {0094C2DA-D0D1-460F-BB6F-9FE59D46DD3C}
+		{AFED07A9-56B3-488E-ABF6-63E4725587F3} = {0094C2DA-D0D1-460F-BB6F-9FE59D46DD3C}
+		{C317511A-E8EC-4A2B-B417-0B7B1BA254D0} = {4CF27903-3BA2-4D25-B291-9ACE9AFAE6DE}
+		{C47F0748-AC71-4E2F-AE27-5A6D1138DC72} = {AFED07A9-56B3-488E-ABF6-63E4725587F3}
+		{742E26EB-B791-4622-9C30-429A79060C7F} = {4CF27903-3BA2-4D25-B291-9ACE9AFAE6DE}
+		{2216268A-4DD6-4C01-A6EE-4755A75736DF} = {AFED07A9-56B3-488E-ABF6-63E4725587F3}
 	EndGlobalSection
 EndGlobal
