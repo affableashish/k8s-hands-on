@@ -53,6 +53,8 @@ app.MapGet("/weatherforecast", () =>
     .WithOpenApi();
 
 // I added this 👇
+// ADD health checks after all your endpoints like "weatherforecast" here
+
 // The liveness check
 app.MapHealthChecks("/healthz/live", new HealthCheckOptions
 {
