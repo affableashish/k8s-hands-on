@@ -55,6 +55,40 @@ Check out these **EXCELLENT** samples: https://github.com/dotnet/dotnet-docker/t
 
 Learn about Chiseled containers [here](https://andrewlock.net/exploring-the-dotnet-8-preview-updates-to-docker-images-in-dotnet-8/#support-for-chiseled-containers).
 
+### Create images
+Go to the directory where the Dockerfile is in the terminal and run these commands to create the images.
+
+````
+docker build -f TestApp.Api.Dockerfile -t akhanal/test-app-api:0.1.0 .
+docker build -f TestApp.Service.Dockerfile -t akhanal/test-app-service:0.1.0 .
+````
+
+The last parameter `.` is the build context. This means that the `.` used in the Dockerfile refers to `.` parameter which is current directory.
+
+For eg:  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/70d37a34-5d61-4123-b303-8180dae572a1">
+
+Here `.` in "./TestApp.Api/TestApp.Api.csproj" in Dockerfile just means the directory given by the build context parameter.
+
+View the created images:
+````
+docker images "akhanal/*"
+````
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1dadd287-f4e0-4c92-8e68-bdc0a42cf6fb">
+
+### Test out the image
+Remove the `http` profile from `launchSettings.json` file.  
+And run this:
+````
+docker run --rm -it -p 8000:8080 -e ASPNETCORE_ENVIRONMENT=Development akhanal/test-app-api:0.1.0
+````
+<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8f52aa03-ea27-4681-ad22-b5c1ff11de12">
+
+The container only exposes `http` here.  
+To expose `https`, we need to add certificate.
+
+[Reference](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/building-net-docker-images?view=aspnetcore-8.0).
+
 ### Create default helm chart
 #### Install helm chart
 Follow instructions here: https://helm.sh/docs/intro/install/
@@ -109,10 +143,213 @@ We use top level `values.yaml` to share config with the sub charts as well.
 About this `nindent`, you can figure out the indentation number by sitting where you want the text to sit and going left. 
 For eg: I had to hit left arrow 8 times until I reached the start of this line, so indent value is 8 here.
 
-<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ac01cde6-d0a4-4fa6-9c5c-f3af01de47ae">
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ac01cde6-d0a4-4fa6-9c5c-f3af01de47ae">
+
+In Helm, the `{{- with .Values.imagePullSecrets }}` statement is a control structure that sets the context to `.Values.imagePullSecrets`. The `-` character in `{{- with` is used to trim whitespace.
+
+The `imagePullSecrets:` line specifies any image pull secrets that may be required to pull the container images.
+
+The `{{- toYaml . | nindent 8 }}` line is doing two things:
+1. `toYaml .` is converting the current context (which is `.Values.imagePullSecrets` due to the `with` statement) to YAML.
+2. `nindent 8` is indenting the resulting YAML by 8 spaces.
+
+The `{{- end }}` statement ends the with block.
+
+So, this whole block is checking if `.Values.imagePullSecrets` is set, and if it is, it’s adding an `imagePullSecrets` field to the Pod spec with the value of `.Values.imagePullSecrets`, converted to YAML and indented by 8 spaces.
+
+For example, if your `values.yaml` file contained:
+````
+imagePullSecrets:
+  - name: myregistrykey
+````
+Then the resulting spec would be:
+````
+    spec:
+      imagePullSecrets:
+        - name: myregistrykey
+````
+If `values.yaml` doesn't contain that, `imagePullSecrets` won't appear in the resulting `spec`.
+
+#### Update the chart for my apps
+You **only** have to update the config. So update `values.yaml` like so:
+````
+test-app-api: 
+  replicaCount: 1
+
+  image:
+    repository: akhanal/test-app-api
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    # We'll set a tag at deploy time
+    tag: ""
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  ingress:
+    enabled: true
+    # className: ""
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: "/"
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+        paths:
+        - path: "/my-test-app"
+    # tls: [ ]
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  autoscaling:
+    enabled: false
+    # minReplicas: 1
+    # maxReplicas: 5
+    # targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+  
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: false
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  podAnnotations: {}
+  podLabels: {}
+  
+test-app-service: 
+  replicaCount: 1
+  
+  image:
+    repository: akhanal/test-app-service
+    pullPolicy: IfNotPresent
+    # We'll set a tag at deploy time
+    tag: ""
+    
+  service:
+    type: ClusterIP
+    port: 80
+    
+  ingress:
+    enabled: false
+    
+  autoscaling:
+    enabled: false
+
+  serviceAccount:
+    create: false
+````
+
+I didn't specify the image tag as I'll specify that at deploy time.
+
+Other fields are self explanatory.
+
+Now you have a chart for your app. You can package it up and push it to a chart repository if you want.
+
+#### Update hosts file
+First find the address of your local Kubernetes cluster.
+
+````
+kubectl get nodes -o wide
+````
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/902a2efd-7f64-41a5-b6ca-5f1a15f3f518">
+
+Grab the internal IP address from above, and use that to add an entry to hosts file.
+
+````
+sudo vim /etc/hosts
+````
+
+Enter the server IP address at the bottom of the hosts file, followed by a space, and then the domain name.
+````
+192.168.65.3 chart-example.local
+````
+Save and exit with `:wq`.
+
+Verify your changes with
+````
+cat /etc/hosts
+````
+
+### Deploying to Kubernetes
+#### Install Kubernetes
+Make sure you have docker desktop installed and enable Kubernetes on it.
+
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8eae263-6f83-4b67-a915-a509a7093de5">
+
+#### Enable Kubernetes dashboard
+Follow instructions [here](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/).
+
+````
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+````
+You can enable access to the Dashboard using the kubectl command-line tool, by running the following command:
+````
+kubectl proxy
+````
+Kubectl will make Dashboard available at:  
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+Now read this [blog post](https://andrewlock.net/running-kubernetes-and-the-dashboard-with-docker-desktop/) to disable the login prompt.
+Or if you want to create a user to login, follow this [tutorial](https://medium.com/@dijin123/kubernetes-and-the-ui-dashboard-with-docker-desktop-5ad4799b3b61).
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ca3a9481-7f06-4927-9704-bf2e81d29879">
+
+Now run `kubectl proxy` and go to the dashboard url, and hit "Skip" on the login screen.
+
+At this point, you'll only be able to view default namespace and see a bunch of errors in the notification.
+
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bffd1281-0bf5-471b-a05c-3b11a561bf2d">
+
+The fix for that is giving `cluster-admin` role to `system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard` user like so:
+````
+$ kubectl delete clusterrolebinding serviceaccount-cluster-admin
+$ kubectl create clusterrolebinding serviceaccount-cluster-admin --clusterrole=cluster-admin --user=system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard
+````
+
+Now restart `kubectl proxy` and refresh the browser.
+
+#### Deploy helm chart
+Now go to `charts/test-app` folder in terminal (because we have `Chart.yaml` there) and run the following command:
+
+This creates (or upgrades an existing release) using the name `test-app-release`.
+````
+helm upgrade --install test-app-release . \
+--namespace=local \
+--set test-app-api.image.tag="0.1.0" \
+--set test-app-service.image.tag="0.1.0" \
+--create-namespace \
+--debug \
+--dry-run
+````
+When writing a command over multiple lines, make sure there's no space after the backslash and before the newline.
+
+Specifies that everytthing should be created in the `local` namespace of Kubernetes cluster.
+
+`--dry-run` means we don't actually install anything. Instead, Helm shows you the manifests that would be generated, so you can check everything looks correct.
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f672c329-b00f-4133-bfc9-6651bfe37930">
+
+Now run the above command without the `--dry-run` flag which will deploy the chart to Kubernetes cluster.  
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/571ba762-7c77-4efe-b3b0-aba53de63115">
+
+The deployed resources will look like this:  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5a937a43-dafa-4b01-979d-f3d198465052">
+
+Check out the pods:  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f136f42c-e34d-456d-96d6-b351279f2dd5">
 
 
 
+---
 
 
 ## Microservices
