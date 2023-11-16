@@ -37,17 +37,18 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
+            - name: api-http-port # This name is referenced in service.yaml
+              containerPort: 8080
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /healthz/live
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /healthz/ready
               port: http
+            initialDelaySeconds: 20
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

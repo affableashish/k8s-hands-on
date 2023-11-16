@@ -15,7 +15,7 @@ test-app-api:
   service:
     type: ClusterIP
     port: 80
-
+      
   ingress:
     enabled: true
     # className: ""
@@ -39,7 +39,7 @@ test-app-api:
     # maxReplicas: 5
     # targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
-  
+
   serviceAccount:
     # Specifies whether a service account should be created
     create: false
@@ -67,7 +67,7 @@ test-app-service:
   service:
     type: ClusterIP
     port: 80
-
+      
   ingress:
     enabled: false
 
