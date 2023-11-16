@@ -1,7 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /source
 
-COPY "./TestApp.Api/TestApp.Api.csproj" .
 COPY "./TestApp.Service/TestApp.Service.csproj" .
 RUN dotnet restore
 
