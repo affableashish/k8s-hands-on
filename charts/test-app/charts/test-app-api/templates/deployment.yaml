@@ -37,7 +37,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: api-http-port # This name is referenced in service.yaml
+            - name: http # This name is referenced in service.yaml
               containerPort: 8080
               protocol: TCP
           livenessProbe:

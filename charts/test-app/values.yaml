@@ -18,15 +18,14 @@ test-app-api:
       
   ingress:
     enabled: true
-    # className: ""
+    className: nginx
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: "/"
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
     hosts:
       - host: chart-example.local
         paths:
-          - path: "/my-test-app"
+          - path: /my-test-app(/|$)(.*)
             pathType: ImplementationSpecific
     # tls: [ ]
       #  - secretName: chart-example-tls
