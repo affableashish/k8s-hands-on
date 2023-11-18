@@ -254,33 +254,7 @@ Other fields are self explanatory.
 
 Now you have a chart for your app. You can package it up and push it to a chart repository if you want.
 
-#### Update hosts file
-First find the address of your local Kubernetes cluster.
-
-````
-kubectl get nodes -o wide
-````
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/902a2efd-7f64-41a5-b6ca-5f1a15f3f518">
-
-Grab the internal IP address from above, and use that to add an entry to hosts file.
-
-````
-sudo vim /etc/hosts
-````
-
-Enter the server IP address at the bottom of the hosts file, followed by a space, and then the domain name.
-````
-192.168.65.3 chart-example.local
-````
-Save and exit with `:wq`.
-
-Verify your changes with
-````
-cat /etc/hosts
-````
-
-### Deploying to Kubernetes
-#### Install Kubernetes
+### Install Kubernetes
 Make sure you have docker desktop installed and enable Kubernetes on it.
 
 <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8eae263-6f83-4b67-a915-a509a7093de5">
@@ -317,7 +291,150 @@ $ kubectl create clusterrolebinding serviceaccount-cluster-admin --clusterrole=c
 
 Now restart `kubectl proxy` and refresh the browser.
 
-#### Deploy helm chart
+#### Update hosts file
+First find the address of your local Kubernetes cluster.
+
+````
+kubectl get nodes -o wide
+````
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/902a2efd-7f64-41a5-b6ca-5f1a15f3f518">
+
+Grab the internal IP address from above, and use that to add an entry to hosts file.
+
+````
+sudo vim /etc/hosts
+````
+
+Enter the server IP address at the bottom of the hosts file, followed by a space, and then the domain name.
+````
+192.168.65.3 chart-example.local
+````
+Save and exit with `:wq`.
+
+Verify your changes with
+````
+cat /etc/hosts
+````
+
+### Install Ingress controller
+Follow instructions [here](https://kubernetes.github.io/ingress-nginx/deploy/#docker-desktop) for Docker Desktop Kubernetes environment.
+
+````
+helm upgrade --install ingress-nginx ingress-nginx \
+  --repo https://kubernetes.github.io/ingress-nginx \
+  --namespace ingress-nginx --create-namespace
+````
+
+kubectl get pods --namespace=ingress-nginx -o wide
+
+
+kubectl get pods -n ingress-nginx
+
+kubectl -n ingress-nginx get pod -o wide
+
+kubectl describe ingress test-app-release-test-app-api -n kubernetes-dashboard
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-app-release-test-app-api
+  labels:
+    helm.sh/chart: test-app-api-0.1.0
+    app.kubernetes.io/name: test-app-api
+    app.kubernetes.io/instance: test-app-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: test-app-api
+    app.kubernetes.io/instance: test-app-release
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app-release-test-app-api
+  labels:
+    helm.sh/chart: test-app-api-0.1.0
+    app.kubernetes.io/name: test-app-api
+    app.kubernetes.io/instance: test-app-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: test-app-api
+      app.kubernetes.io/instance: test-app-release
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: test-app-api-0.1.0
+        app.kubernetes.io/name: test-app-api
+        app.kubernetes.io/instance: test-app-release
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: default
+      securityContext:
+        null
+      containers:
+        - name: test-app-api
+          securityContext:
+            {}
+          image: "akhanal/test-app-api:0.1.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http # This name is referenced in service.yaml
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: http
+            initialDelaySeconds: 20
+          resources:
+            null
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-app-release-test-app-api
+  labels:
+    helm.sh/chart: test-app-api-0.1.0
+    app.kubernetes.io/name: test-app-api
+    app.kubernetes.io/instance: test-app-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: "chart-example.local"
+      http:
+        paths:
+          - path: /my-test-app
+            pathType: Prefix
+            backend:
+              service:
+                name: test-app-release-test-app-api
+                port:
+                  number: 80
+
+
+
+### Deploying to Kubernetes
 Now go to `charts/test-app` folder in terminal (because we have `Chart.yaml` there) and run the following command:
 
 This creates (or upgrades an existing release) using the name `test-app-release`.
@@ -344,8 +461,37 @@ Now run the above command without the `--dry-run` flag which will deploy the cha
 The deployed resources will look like this:  
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5a937a43-dafa-4b01-979d-f3d198465052">
 
-Check out the pods:  
+### Troubleshooting restarting pods
+Check out the pods.
+
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f136f42c-e34d-456d-96d6-b351279f2dd5">
+
+You can see that they haven't been able to get ready and have already restarted many times.
+
+Check out the reason why the Pods were restarted so often by looking at Pod's events:
+````
+kubectl get event -n local --field-selector involvedObject.name=test-app-release-test-app-api-97757b99b-ppx9g
+````
+
+<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/725e1728-bb47-4e09-be34-74718f0b99e9">
+
+We can see that the containers were restarted because the readiness probe failed.
+
+Or you can view this info in the Kubernetes dashboard:  
+<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f93701c1-868d-48c0-84f9-721bbcdf9847">
+
+The issue here is that it's trying to hit the wrong port (i.e. 80). The port the container has started can be viewed from the logs as well:
+
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3b212aa1-2ccf-4a33-8ef4-0b6cc5a91de4">
+
+To fix this, we have to update `containerPort` in `deployment.yaml`:  
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/88021838-1741-4c00-b020-52ac4f024475">
+
+
+
+
+
+
 
 
 
@@ -2110,104 +2256,3 @@ The load balancer service looks like this:
 <img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4706aeb2-8daf-4364-a820-ede12058f9c9">
 
 Configure Ingress or LoadBalancer for production environments.
-
-----
-
-Malai tyo bela samma thaha thiyena ki bhauju le mero relationship ramro banauna help garnu huncha ki nai bhanera teivara maile bhauju lai fully trust gareko thye. Tara jaba bhauju le ni timlai uchaleko dekhe ani tespachi maile bhauju ko sabai kura sunna hudaina jasto lagyo.
-
-Malai ta timi sita matra haina sabai sita fully honest huna man lagcha, biswas garne nagarne timro icchya.
-
-Malai bhauju ko yestai kura le ho sabai kura sunna hudaina bhanne lageko.
-
-Ho kinaki timi atti nai closed minded chau ni ta. "Maile suneko kura matra thik ho, mero husband le bhaneko kura sab galat ho" bhanne mentality cha ni ta timro.
-
-Malai bhane myth, misconception, suneko kura etc. haru ma fact khojna man lagcha, research garna man lagcha, bujhna man lagcha, tara timlai chai afno husband bahek aru le bhaneko sab thik ho, afule kei pani dimakh launa hudaina bhanne khalko mentality cha ni ta.
-
-Khai yo audio ma ke bhanna khojeko maile ramro sita bujhina. Ma ta bhanchu je kura ma ni afno dimakh lagauna parcha, kei kura logical nalage internet ma search garnu parcha, ani conclusion nikalne ho afaile.
-
-Bhauju le aba regular salt bhanda pink salt ramro bhanera kun uncle sita ke reason le bhannu bhayo malai thaha chaina, tyo bela timle sodheko bhaye hunthyo ali ramro sita bhauju lai ni sidhai. Mero research anusar chai Pink salt ma hune mineral ko amount yeti thorai huncha ki telle health ma kei affect nai gardina, ra tesma iodine nahune karan le tyo use garnu healthy hudaina bhanne ho. Maile tyo kura kunai doctor le sunayera bhaneko haina, afai research garera thaha bhayeko kura ho.
-Ra Bhauju Nutritionist pani hoina, teivara Bhauju ko kura or kunai pani doctor ko nutrition related kura blindly sunnu ramro hoina.
-Kasaiko kura ma ni blind faith rakhnu bhaneko murkhata ho. 
-
-Yo kura ma sorry, ki timle bhana ki Aama le bhannu huncha. Yesma Mama le bhanne kei kura chaina.
-Yeha ris uthne kura ke ma cha bhanda timle or Aama le kailei pani galti own nagareko bhayera ho.
-Malai Mama le CLEARLY bhannu bhako thyo "Aama le Washing machine pathaidincham" bhaneko ho bhanera tara Aama le testo bhaneko chaina bhannu bhayo.
-Maile aba kasko kura pattyaune? Malai yesari ghumayera kura gareko man pardaina.
-
-Ye baba, timle kura nabujheko ho ki nabujhe jasto gareko ho?
-
----
-
-Ma timlai fact kura bhanchu, asti maile bhanda ris ma kura bigare.
-Kura ke ho bhanda malai thaha thyo Ritu le 13 Pro Max man garichan bhanera. Ani maile phone haruko price herda 12 Pro Max ra 13 Pro max ma $200 ko difference dekhe ani maile soche ki aba teti difference le 7-8 barsa chalaune phone, sochekai khalko chalaun na bhanera maile extra kharcha gare, ani earphone ko kura ma pani aba 7-8 barsa chalaune kura ke taar hallayera hidne khalko dinu bhanera airpods nai kine.
-
-Yo bela samma malai aru kura ko kei matlab thiyena, ani maile sune Bhauju le bhaneko hola sayed: "Grishma ko side bata Syangja bata kei diyenan bhanne kura ako cha" bhanera. Yo sunesi malai timle Mama sita tetro kura gareko, timle bhaneu hola jasto lagyo ani ali ris pani uthyo kina yesto paat kura garirakheko hola bhanera.
-Ani malai ke bhayo bhanda "thikai cha, aba ramro phone didai chu sali harlai tyo dekhesi ramro manchau hola" bhanne soche, asti risako bela ma maile naramrari bhane. Tesko lagi I'm sorry.
-
-Ani timle mero khutta ma uviyera socha na, malai Mama le phone garera timle sappai ghar ko kura sunako feel bhako cha, Bhauju sita kei diyenan bhanne suneko and so on sunda maile tei phone ko kura ma answer diye bhanne jasto bhako thyo.
-Aba yo kura lai positively liu, maile sali harlai maya garerai tetro paisa kharcha gareko ho, answer dina bhanera maile jo pai tei lai paisa kharcha gardina. Yeslai positvely lina saknu parcha.
-
----
-
-As a husband, maile afno wife lai ramro sita guide garne mero responsibility ho, so I'm saying this: Timi Bardibaas gayera PCL padne kura waste of time, money and effort ho. Maile Prakash (usko sali PCL ho), Suman dai ani aru dherai nurse haru sita bujheko tyo PCL garera US ma Nurse huna ekdamai time lagcha re. PCL 3 years ani license 1 year ani NCLEX exam pass garnu parcha. PCL sakayesi Nepal ma tyo license pass garna 1 year jasto lagcha re, timle tyo pass garna sakenau bhane ke garne, kinaki tyo pass garena bhane US ma tyo degree useless huncha? Kaile samma Nepal basera try garchau tyo license exam? Ani yeha ayera tyo NCLEX pass garna ni garo nai huncha re. PCL ani license exam ani NCLEX sabai garda 5 barsa lagcha re, tara 3 years ma ta timro US processing pani huna sakcha. Ani tyo extra 2 years ni tadha basne? Ani yeha ayesi feri Bachelor's padnu paryo so arko 4 years. Yo garda timle Bachelor's Nurse banna 9-10 barsa lagcha. 
-Timi 25 bhayeu, timi Bachelor's Nurse banda 34-35 years old hunchau, ani hamle chora chori kaile paune? Nursing padda chora chori paune bhaneko impossible jastai ho, dukha huncha re. Ma Nepal ako bela kaile sangai basne, kaile ghumna jane?
-Ma timro lagi Nepal auda timi Bardibaas basda tadha bhayincha, distance aucha. 
-Ani yesto jhamela garera padesi ni feri dukha nai cha job garna thalesi. Mero bhanai ke bhanda Nursing ma aba 9-10 years kharcha garera aune outcome worth it nai chaina. Yo bhanda dherai thorai time ma dherai ramro outcome aune aru nai fields chan.
-Aba yesto huda hudai ni kina PCL padne ta? Ekfera ramro sita socha ta.
-
-Baru KTM gayera kei napadera baschau bhane ni basa yettikai, tara Bardibaas gayera PCL chai napada, please.
-
-
-
-
-
-Prakash ani da
-
-
-
-harlai kei diyenan bhandai thye bhanera Grishma
-
-Maile timro bhagwan ko kasam Sali harlai "ke testo taar wala paat chij dinu" bhanera Airpods kineko ho. Dekhaune bhanne mero secondary kura ho. Main kura ramro saman use garun bhanne ho, secondary kura ramro diyechan bhanera sabai le sochun bhanera ho.
-Yeti jabo kura ma kina niu khojchau ho? Yellai positively lina sakdainau? "La tani mero husband ko family le ke-ke diyenan bhanne sunecha, teivara ramro chij kinera kura katne haru lai dekhauna khojeko raicha" bhanera liu na. Kina yo kura ma masita fight garnu paryo ra?
-
-Ho straight kura garda of course help huncha tara hamro problem ke cha bhanda timi honest huna sakdainau, timi bhaneko manna sakdainau, timi maile bhaneko kei kura sunna pani ready chainau ani kasari ramro huncha relationship?
-Maile bhaneko mana, suna, ani honest bhau ta, I promise everything will get better.
-Tyo timlai chitta bujhdaina bhane ma pani timi jastai kura lai 100 fera batarera, jhut bolera basum ta? I don't know how that would help us.
-
-Malai thaha thiyena manche haru timi jasto dimkah sadkeko hunchan bhanne teivara tyo kura ma maile ramro sita dhyan nadinu mero galti ho.
-Spiritual bhanne nonsense liyera je pani "mero bhagwan - mero bhagwan" bhanera basne, afule chai kei mihinet nagarne, chahine kura ma alchi matra garna khojne, khali japera basne, afno dimakh kei pani use nagarne, yesto closed minded chau bhanne kura maile dhyan dinu parne thyo, maile diyina, teha mero galti bhayo
-
-Tyo bela fact bhanna sajilo thyo, ma koi thiyina tyo bela. Tara aba husband-wife bhayesi fact bhanna bhanda ghumauna thik lagcha timlai.
-
-Maile tyo bhaneko kina bhanda I was frustrated ki timi mero kura kailei sunna, bujhna ready nabhayeko dekhera ho.
-Yettikai niu khojeu tyo bela: "Thulmommy lai bhanera nalyauna bhanchu" bhanera. Tyo bela maile ke clear gareko bhanda: yedi timle yo kura ma malai jabaf dina ko lagi Thulmommy lai bhaneu bhane you don't respect me one bit, teivara malai lagyo ki mero wife le mero kura kei pani sundina, respect pani gardina bhane yo relationship ko ke kaam bhanera, we'll be done bhaneko.
-Aile farkera herda, that was a little too much. Maile teso bhanna hunthena ris ko jhok ma, I'm sorry.
-
-Yeha problem ke bhairako cha bhanda you don't respect me or this relationship more than your preconception and your ego.
-Timle maile bhaneko kura lai kailei pani seriously liyeko chainau, maile je bhane pani baal hanchau or negatively linchau or 100 fera ghumayera tarchau. Ani malai chitta bujhdaina ani maile ego dekhaye bhanne huncha.
-Maile timlai aile samma nachahine kura ke ma pressure gareko chu?
-Maile bhaneko timlai: timle yo Spirituality, ISKCON ma je je sikeu yo kura haru ma dherai jhut, propaganda cha, yo kura haru follow garna blind faith chahincha, blind faith bhaneko closed mindedness ho, yelle manche lai ekohoro banaucha, illogical banaucha, irrational banaucha teivara yo kura choda, baru ramro sita pada, ramro sita khau, afno body ko take care gara, ghar ma mommy le bhaneko suna, mana bhaneko ho.
-Yesma naramro chai maile ke bhane? Ho maile risayera bhane hola tyo mero mistake ho (I'm sorry), tara timle tei kura sunne ho, manne ho bhane yeha ke issue cha? Yeha issue ayeko timle malai na trust garchau, na maile bhaneko sunchau, ani maile je bhaneni ego dekhaye jasto huncha.
-
-ISKCON ka manche le bhaneko kura ma chai blind faith rakhna parcha bhanne timi, tara mero kura ma chai reasonable faith pani narakhne, ani kasari huncha? Ani dosh jati chai sabai mero?
-
-Yo relationship chalna malai timro faith chaiyeko cha, dina sakchau? Dherai haina 3 months maile bhaneko kura sabbai suna, mero kura lai seriously liu, malai positively liu, honest bhau, ghar ko kura duniya sita nagara, straight kura gara, maile bhaneko mana. 3 months tetti gardeu, afai positive change aucha. Aile timle malai afno manche jasto ni gardainau, malai trust garne bhanne kura ta tadha ko kura bhayo.
-
-
-Yeso afai bichar gara, yo sansar bhagwan le design gareko jasto nai dekhidaina.
-
-Yeti dherai evil cha sansar ma, yeti dherai pain and suffering cha. Cancer jasto rog lagera manche marchan, din ma sana sana bachcha hajaurau-hajar morchan tadpi-tadpi. "Existence is pain" bata mukti dina mareko hola ni bhanera bhanchau hola, tara bhagwan jasto maya ko khani le kosailai pida diyi-diyi exist garayera marnu bhanda ta exist nai nabanauna parne haina ra? For eg: Kunai bakhra (goat) lai janmayera, manche le katera khanu bhanda ta tyo bakhra najanmeko bhaye pida hunthena ni. Ani purba juni ko paap ko faal bhanera bhanlau, bhagwan jasto daya ko khani le purba juni ma paap garyo bhane arko juni ma tadi-tadpi marnu parcha bhanne thaha huda hudai kina afno sristi lai paap garne khalko banaunu bhayo hola ta? Present past future dekhne bhagwan le jani jani afno sristi lai paap garayera ako juni ma sajaya diyeko jasto bhayena ra logically sochda?
-
-Ani Spirituality bhaneko state of mind ho, hamro mind yeti powerful cha ki kunai kura dherai sochyo bhane tesko illusion nai banaidincha.
-Malai asti yo "Israel-Gaza" war ma bachcha haru lai bomb haneko dekhera yeti naramro lageko thyo ani maile yeti soche ki ma powerful bhako bhaye tyo war ma gayera ladthye, tyo bachcha haru lai bachauthye bhanera ani tyo sochda sochda maile room ma tyo war bhako thau ko tank gadi ko awaj suneko. Tei bhaye jastari suneko. Kassam. 
-Teivayera yesta kura haru bhaneko sabai mind ko khel ho. Yesto kura lai dherai seriously liyo bhane mind nai weak bhaidincha.
-
-Aba timlai universe ko origin, ani humans ko origin ma ekdam interest cha bhane Cosmology ra Theoretical Physics ko books haru kindimla, tyo pada ani khowledge pauchau. "Sabai bhagwan le banako" bhanne soch chai ekdam alchi soch ho, testo soch le kailei pani truth bhetinna, progress hudaina. 
-Ra maile pade anusar, bujhe anusar, dekhe anusar yo sansar bhagawan le banayeko jasto chai dekhidaina kinaki bhagwan le banayeko sansar yo bhanda dherai peaceful, beautiful hunthyo ra bhagwan le afno sristi lai at least afno roop dekhaunu hunthyo. Tara aile ko bhagwan lai lukamari kheldai fursad chaina, paapi haru le bachcha haru lai bomb haneka chan ani tiniharu nai khusi chan, tiniharu nai dhani chan, tiniharukai family ramro cha.
-
-
-
-
-
-
-
