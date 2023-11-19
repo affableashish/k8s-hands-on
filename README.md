@@ -224,7 +224,6 @@ A pod will be deployed which you can check:
 ````
 kubectl -n ingress-nginx get pod -o yaml
 ````
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/aa93cbb2-4c4a-40d5-8e09-a95c9b4fe3e0">
 
 The information you need from this controller is `ingressClassName` which you'll put it in your `values.yaml` file, which will eventually make it to `ingress.yaml` file.
 
@@ -295,52 +294,6 @@ Recall that aspnetcore apps now [run on port 8080 by default](https://andrewlock
             # My container has startup time (simulated) of 15 seconds, so I want readiness probe to run only after 20 seconds.
             initialDelaySeconds: 20
 ````
-
-### Install your app now
-Before you install it, check how the manifest looks like using `--dry-run` flag.
-
-
-kubectl get pods -n ingress-nginx
-
-kubectl describe ingress test-app-release-test-app-api -n kubernetes-dashboard
-
-
-#### Update hosts file
-First find the address of your local Kubernetes cluster.
-
-Chances are that if you've installed Kubernetes through Docker desktop, it'd have already updated the hosts file.
-
-Check it using `cat /etc/hosts` by checking the `hosts` file.
-
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cd4e1f47-0f3e-48f3-8973-b2eab84b96d9">
-
-
-
-````
-kubectl get nodes -o wide
-````
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/902a2efd-7f64-41a5-b6ca-5f1a15f3f518">
-
-Grab the internal IP address from above, and use that to add an entry to hosts file.
-
-````
-sudo vim /etc/hosts
-````
-
-Enter the server IP address at the bottom of the hosts file, followed by a space, and then the domain name.
-````
-192.168.65.3 chart-example.local
-````
-Save and exit with `:wq`.
-
-Verify your changes with
-````
-cat /etc/hosts
-````
-
-
-
-----
 
 ### Deploying to Kubernetes
 Now go to `charts/test-app` folder in terminal (because we have `Chart.yaml` there) and run the following command:
@@ -472,10 +425,46 @@ Now run the above command without the `--dry-run` flag which will deploy the cha
 The deployed resources will look like this:  
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5a937a43-dafa-4b01-979d-f3d198465052">
 
-### Troubleshooting restarting pods
+### Update hosts file
+Check the ingress you deployed to see what address was assigned to your host because you'll be using that address to update your hosts file.
+````
+kubectl get ingress -n local
+````
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4dbed22d-9601-41e1-8d3b-b1890a49ccdc">
+
+Also seen in controller logs:
+````
+W1119 05:14:31.194021       7 controller.go:1214] Service "local/test-app-release-test-app-api" does not have any active Endpoint.
+I1119 05:15:19.437846       7 status.go:304] "updating Ingress status" namespace="local" ingress="test-app-release-test-app-api" currentValue=null newValue=[{"hostname":"localhost"}]
+````
+
+Now add this mapping to hosts file.
+
+````
+sudo vim /etc/hosts
+````
+
+Enter the server IP address at the bottom of the hosts file, followed by a space, and then the domain name.
+
+<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d98b2441-9a0d-4f08-a4ad-f2f75386e99b">
+
+Save and exit with `:wq`.
+
+Verify your changes with
+````
+cat /etc/hosts
+````
+
+Now, you should be able to reach the app using:  
+http://chart-example.local/my-test-app/weatherforecast
+
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0d04a8b-48ce-4a82-8bf9-2773320690b6">
+
+### Troubleshooting pods restarting (only here for learning exercise, the issue is not present in the example app in this repo)
 Check out the pods.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f136f42c-e34d-456d-96d6-b351279f2dd5">
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f136f42c-e34d-456d-96d6-b351279f2dd5">
 
 You can see that they haven't been able to get ready and have already restarted many times.
 
@@ -488,26 +477,86 @@ kubectl get event -n local --field-selector involvedObject.name=test-app-release
 
 We can see that the containers were restarted because the readiness probe failed.
 
-Or you can view this info in the Kubernetes dashboard:  
+Or you can view this info in the Kubernetes dashboard:
+
 <img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f93701c1-868d-48c0-84f9-721bbcdf9847">
 
-The issue here is that it's trying to hit the wrong port (i.e. 80). The port the container has started can be viewed from the logs as well:
+The issue here is that it's trying to hit the wrong port (i.e. 80). Recall that the aspnet core apps use 8080 port by default. 
+
+The port the container has started on (8080) can be viewed from the pod logs as well:
 
 <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3b212aa1-2ccf-4a33-8ef4-0b6cc5a91de4">
 
-To fix this, we have to update `containerPort` in `deployment.yaml`:  
+To fix this, we have to update `containerPort` in `deployment.yaml`:
+
 <img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/88021838-1741-4c00-b020-52ac4f024475">
 
+### Troubleshooting Ingress not working (only here for learning exercise, the issue is not present in the example app in this repo)
+#### Issue 1: `chart-example.local` hostname doesn't get an address
+````
+kubectl get ingress -n local
+````
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d70bf0d5-5499-4b0c-be14-872a4b0975fa">
 
+When this happens, you don't know what address is assigned by ingress controller for the host name, so you won't be able to add this entry to your hosts file.
 
+Jump into logs of Ingress controller from the K8s dashboard.
 
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8b97e23-7de5-4d31-a7f4-17a30f6524b4">
 
+This is the error seen in the logs:
+````
+"Ignoring ingress because of error while validating ingress class" ingress="local/test-app-release-test-app-api" error="ingress does not contain a valid IngressClass"
+````
 
+Change this:
+````
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+````
+to this:
+````
+  ingress:
+    enabled: true
+    # Find the classname of your controller by running this command: `kubectl get ingressclasses` or find it through K8s dashboard
+    className: nginx
+````
 
+Summary: The fix is to remove the `ingress.class` annotation and add ingress `className`.
 
+#### Issue 2: The service always returns 404
+Navigating to the url: http://chart-example.local/my-test-app/weatherforecast returns 404. This is a 404 returned by the app (not the nginx controller), so you can see that the app is reachable. This should tell you that the issue is in routing.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/03d7e7c9-3783-4da3-af96-43b2f505bcb6">
+
+Change the rewrite target from this:
+````
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: "/"
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: "/my-test-app"
+            pathType: ImplementationSpecific
+````
+to this:
+````
+    annotations:
+      # Reference: https://kubernetes.github.io/ingress-nginx/examples/rewrite/
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /my-test-app(/|$)(.*)
+            pathType: ImplementationSpecific
+````
+
+[Reference](https://kubernetes.github.io/ingress-nginx/examples/rewrite/)
 
 ---
-
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
