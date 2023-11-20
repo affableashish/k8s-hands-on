@@ -41,6 +41,9 @@ public readonly struct EnvironmentInfo
     public string OSArchitecture => RuntimeInformation.OSArchitecture.ToString();
     public string User => Environment.UserName;
     public int ProcessorCount => Environment.ProcessorCount;
+    // This is set in values.yaml which which makes it to deployment.yaml
+    public string? PodIpAddress => Environment.GetEnvironmentVariable("Runtime__PodIpAddress");
+    public string? AspNetCoreEnvironment => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     public string HostName => Dns.GetHostName();
     
     private static long GetBestValue(string[] paths)

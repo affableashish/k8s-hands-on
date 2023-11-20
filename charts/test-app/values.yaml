@@ -1,6 +1,15 @@
 # Default values for test-app.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+global: 
+  # Dynamic values
+  # Environment variables shared between all the pods, populated with valueFrom: fieldRef
+  envValuesFrom:
+    Runtime__PodIpAddress: status.podIP # A dynamic variable, set when the pod is provisioned
+  # Static values
+  env:
+    "ASPNETCORE_ENVIRONMENT": "Development"
+    "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
 
 test-app-api: 
   replicaCount: 1
@@ -11,15 +20,20 @@ test-app-api:
     # Overrides the image tag whose default is the chart appVersion.
     # We'll set a tag at deploy time
     tag: ""
-
+  # If the same env variable is defined in the global scope, the variable in specific scope (like the one below) wins.
+  env:
+    "ASPNETCORE_ENVIRONMENT": ""
+    
   service:
     type: ClusterIP
     port: 80
       
   ingress:
     enabled: true
+    # Find the classname of your controller by running this command: `kubectl get ingressclasses` or find it through K8s dashboard
     className: nginx
     annotations:
+      # Reference: https://kubernetes.github.io/ingress-nginx/examples/rewrite/
       nginx.ingress.kubernetes.io/use-regex: "true"
       nginx.ingress.kubernetes.io/rewrite-target: /$2
     hosts:
@@ -27,29 +41,13 @@ test-app-api:
         paths:
           - path: /my-test-app(/|$)(.*)
             pathType: ImplementationSpecific
-    # tls: [ ]
-      #  - secretName: chart-example-tls
-      #    hosts:
-      #      - chart-example.local
 
   autoscaling:
     enabled: false
-    # minReplicas: 1
-    # maxReplicas: 5
-    # targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
 
   serviceAccount:
     # Specifies whether a service account should be created
     create: false
-
-  securityContext: {}
-    # capabilities:
-    #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
-    # runAsNonRoot: true
-    # runAsUser: 1000
 
   podAnnotations: {}
   podLabels: {}

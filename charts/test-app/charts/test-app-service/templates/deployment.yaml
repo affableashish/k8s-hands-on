@@ -36,6 +36,20 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          # Dynamic environment values
+          {{ range $k, $v := .Values.global.envValuesFrom }}
+          - name: {{ $k | quote }}
+            valueFrom:
+              fieldRef:
+                fieldPath: {{ $v | quote }}
+          {{- end }}
+          # Static environment variables
+          {{- $env := merge (.Values.env | default dict) (.Values.global.env | default dict) -}} # Static values merged together with global values taking non-priority if specific env values are provided.
+          {{ range $k, $v := $env }}
+          - name: {{ $k | quote }}
+            value: {{ $v | quote }}
+          {{- end }}
           ports:
             - name: http
               containerPort: 8080
