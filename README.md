@@ -87,10 +87,49 @@ docker run --rm -it -p 8000:8080 -e ASPNETCORE_ENVIRONMENT=Development akhanal/t
 The container only exposes `http` here.  
 To expose `https`, we need to add certificate.
 
+One thing to note here is that [aspnetcore apps from .NET 8 use port 8080 port by default](https://andrewlock.net/exploring-the-dotnet-8-preview-updates-to-docker-images-in-dotnet-8/#asp-net-core-apps-now-use-port-8080-by-default).
+
 [Reference](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/building-net-docker-images?view=aspnetcore-8.0).
 
-### Create default helm chart
-#### Install helm chart
+### Install Kubernetes
+Make sure you have docker desktop installed and enable Kubernetes on it.
+
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8eae263-6f83-4b67-a915-a509a7093de5">
+
+#### Enable Kubernetes dashboard
+Follow instructions [here](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/).
+
+````
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+````
+You can enable access to the Dashboard using the kubectl command-line tool, by running the following command:
+````
+kubectl proxy
+````
+Kubectl will make Dashboard available at:  
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+Now read this [blog post](https://andrewlock.net/running-kubernetes-and-the-dashboard-with-docker-desktop/) to disable the login prompt.
+Or if you want to create a user to login, follow this [tutorial](https://medium.com/@dijin123/kubernetes-and-the-ui-dashboard-with-docker-desktop-5ad4799b3b61).
+
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ca3a9481-7f06-4927-9704-bf2e81d29879">
+
+Now run `kubectl proxy` and go to the dashboard url, and hit "Skip" on the login screen.
+
+#### Fix permission issues
+At this point, you'll only be able to view default namespace and see a bunch of errors in the notification.
+
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bffd1281-0bf5-471b-a05c-3b11a561bf2d">
+
+The fix for that is giving `cluster-admin` role to `system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard` user like so:
+````
+$ kubectl delete clusterrolebinding serviceaccount-cluster-admin
+$ kubectl create clusterrolebinding serviceaccount-cluster-admin --clusterrole=cluster-admin --user=system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard
+````
+
+Now restart `kubectl proxy` and refresh the browser.
+
+### Install helm chart
 Follow instructions here: https://helm.sh/docs/intro/install/
 
 I used Homebrew to install it in my Mac
@@ -98,7 +137,7 @@ I used Homebrew to install it in my Mac
 brew install helm
 ````
 
-#### Create a new chart
+### Create helm chart
 Add a folder at the solution level named `charts`.
 
 Go into the folder and create a new chart called `test-app`.
@@ -128,7 +167,8 @@ rm test-app-service/templates/hpa.yaml test-app-service/templates/serviceaccount
 rm -r test-app-api/templates/tests test-app-service/templates/tests
 ````
 
-Now the folder structure looks like this:  
+Now the folder structure looks like this:
+
 <img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/734efd04-e753-469e-889c-e2a53f4f3889">
 
 This structure treats projects in this solution to be microservices that are deployed at the same time.
@@ -138,12 +178,13 @@ If you change a sub-chart, you have to bump the version number of that **and** t
 
 We use top level `values.yaml` to share config with the sub charts as well.
 
-**Tip:** Don't include . in your chart names, and use lower case. It just makes everything easier.
+**Tip:** Don't include `.` in your chart names, and use lower case. It just makes everything easier.
 
-About this `nindent`, you can figure out the indentation number by sitting where you want the text to sit and going left. 
-For eg: I had to hit left arrow 8 times until I reached the start of this line, so indent value is 8 here.
-
+#### Looking around the templates
 <img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ac01cde6-d0a4-4fa6-9c5c-f3af01de47ae">
+
+(About this `nindent`, you can figure out the indentation number by sitting where you want the text to sit, and going left. 
+For eg: I had to hit left arrow 8 times until I reached the start of this line, so indent value is 8 here.)
 
 In Helm, the `{{- with .Values.imagePullSecrets }}` statement is a control structure that sets the context to `.Values.imagePullSecrets`. The `-` character in `{{- with` is used to trim whitespace.
 
@@ -157,7 +198,7 @@ The `{{- end }}` statement ends the with block.
 
 So, this whole block is checking if `.Values.imagePullSecrets` is set, and if it is, it’s adding an `imagePullSecrets` field to the Pod spec with the value of `.Values.imagePullSecrets`, converted to YAML and indented by 8 spaces.
 
-For example, if your `values.yaml` file contained:
+For example, if your `values.yaml` file contains:
 ````
 imagePullSecrets:
   - name: myregistrykey
@@ -170,8 +211,33 @@ Then the resulting spec would be:
 ````
 If `values.yaml` doesn't contain that, `imagePullSecrets` won't appear in the resulting `spec`.
 
-#### Update the chart for my apps
-You **only** have to update the config. So update `values.yaml` like so:
+### Install Ingress controller
+Follow instructions [here](https://kubernetes.github.io/ingress-nginx/deploy/#docker-desktop) for Docker Desktop Kubernetes environment.
+
+````
+helm upgrade --install ingress-nginx ingress-nginx \
+  --repo https://kubernetes.github.io/ingress-nginx \
+  --namespace ingress-nginx --create-namespace
+````
+
+A pod will be deployed which you can check:
+````
+kubectl -n ingress-nginx get pod -o yaml
+````
+
+The information you need from this controller is `ingressClassName` which you'll put it in your `values.yaml` file, which will eventually make it to `ingress.yaml` file.
+
+Find the `ingressClassName` of your controller by either running this command: `kubectl get ingressclasses` or finding it through K8s dashboard.
+
+Command way:  
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0b83d35c-91fa-4b16-9a71-3cb1ef87b877">
+
+Dashboard way:  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2fd777e8-6b6b-4944-94c5-e5041764ce7f">
+
+### Update the chart for my apps
+#### Update `values.yaml`
+The config for `test-app-api` looks like below (not showing the config for `test-app-service` here. Check out the code to see the whole thing):
 ````
 test-app-api: 
   replicaCount: 1
@@ -186,155 +252,71 @@ test-app-api:
   service:
     type: ClusterIP
     port: 80
-
+      
   ingress:
     enabled: true
-    # className: ""
+    # How to find this value is explained in section right above.
+    className: nginx
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: "/"
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+      # Reference: https://kubernetes.github.io/ingress-nginx/examples/rewrite/
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
     hosts:
       - host: chart-example.local
         paths:
-        - path: "/my-test-app"
-    # tls: [ ]
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
+          - path: /my-test-app(/|$)(.*)
+            pathType: ImplementationSpecific
 
-  autoscaling:
-    enabled: false
-    # minReplicas: 1
-    # maxReplicas: 5
-    # targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
-  
-  serviceAccount:
-    # Specifies whether a service account should be created
-    create: false
-
-  securityContext: {}
-    # capabilities:
-    #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
-    # runAsNonRoot: true
-    # runAsUser: 1000
-
-  podAnnotations: {}
-  podLabels: {}
-  
-test-app-service: 
-  replicaCount: 1
-  
-  image:
-    repository: akhanal/test-app-service
-    pullPolicy: IfNotPresent
-    # We'll set a tag at deploy time
-    tag: ""
-    
-  service:
-    type: ClusterIP
-    port: 80
-    
-  ingress:
-    enabled: false
-    
   autoscaling:
     enabled: false
 
   serviceAccount:
+    # Specifies whether a service account should be created
     create: false
 ````
-
 I didn't specify the image tag as I'll specify that at deploy time.
 
-Other fields are self explanatory.
+#### Update container port in `deployment.yaml`
+Recall that aspnetcore apps now [run on port 8080 by default](https://andrewlock.net/exploring-the-dotnet-8-preview-updates-to-docker-images-in-dotnet-8/#asp-net-core-apps-now-use-port-8080-by-default). So we have to update the container port in `deployment.yaml` file.
 
-Now you have a chart for your app. You can package it up and push it to a chart repository if you want.
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d9e4fedd-f954-4777-b824-0cb654a49e6f">
 
-### Install Kubernetes
-Make sure you have docker desktop installed and enable Kubernetes on it.
-
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8eae263-6f83-4b67-a915-a509a7093de5">
-
-#### Enable Kubernetes dashboard
-Follow instructions [here](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/).
-
+#### Update liveness and readiness checks in `deployment.yaml`
 ````
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-````
-You can enable access to the Dashboard using the kubectl command-line tool, by running the following command:
-````
-kubectl proxy
-````
-Kubectl will make Dashboard available at:  
-http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-
-Now read this [blog post](https://andrewlock.net/running-kubernetes-and-the-dashboard-with-docker-desktop/) to disable the login prompt.
-Or if you want to create a user to login, follow this [tutorial](https://medium.com/@dijin123/kubernetes-and-the-ui-dashboard-with-docker-desktop-5ad4799b3b61).
-
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ca3a9481-7f06-4927-9704-bf2e81d29879">
-
-Now run `kubectl proxy` and go to the dashboard url, and hit "Skip" on the login screen.
-
-At this point, you'll only be able to view default namespace and see a bunch of errors in the notification.
-
-<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bffd1281-0bf5-471b-a05c-3b11a561bf2d">
-
-The fix for that is giving `cluster-admin` role to `system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard` user like so:
-````
-$ kubectl delete clusterrolebinding serviceaccount-cluster-admin
-$ kubectl create clusterrolebinding serviceaccount-cluster-admin --clusterrole=cluster-admin --user=system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: http
+            # My container has startup time (simulated) of 15 seconds, so I want readiness probe to run only after 20 seconds.
+            initialDelaySeconds: 20
 ````
 
-Now restart `kubectl proxy` and refresh the browser.
+### Deploying to Kubernetes
+Now go to `charts/test-app` folder in terminal (because we have `Chart.yaml` there) and run the following command:
 
-#### Update hosts file
-First find the address of your local Kubernetes cluster.
-
+This creates (or upgrades an existing release) using the name `test-app-release`.
 ````
-kubectl get nodes -o wide
+helm upgrade --install test-app-release . \
+--namespace=local \
+--set test-app-api.image.tag="0.1.0" \
+--set test-app-service.image.tag="0.1.0" \
+--create-namespace \
+--debug \
+--dry-run
 ````
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/902a2efd-7f64-41a5-b6ca-5f1a15f3f518">
+(When writing a command over multiple lines, make sure there's no space after the backslash and before the newline.)
 
-Grab the internal IP address from above, and use that to add an entry to hosts file.
+Specifies that everytthing should be created in the `local` namespace of Kubernetes cluster.
 
+`--dry-run` means we don't actually install anything. Instead, Helm shows you the manifests that would be generated, so you can check everything looks correct.
+
+This is the manifest that gets created for `test-app-api` which shows the creation of `Service`, `Deployment` and `Ingress`:
 ````
-sudo vim /etc/hosts
-````
-
-Enter the server IP address at the bottom of the hosts file, followed by a space, and then the domain name.
-````
-192.168.65.3 chart-example.local
-````
-Save and exit with `:wq`.
-
-Verify your changes with
-````
-cat /etc/hosts
-````
-
-### Install Ingress controller
-Follow instructions [here](https://kubernetes.github.io/ingress-nginx/deploy/#docker-desktop) for Docker Desktop Kubernetes environment.
-
-````
-helm upgrade --install ingress-nginx ingress-nginx \
-  --repo https://kubernetes.github.io/ingress-nginx \
-  --namespace ingress-nginx --create-namespace
-````
-
-kubectl get pods --namespace=ingress-nginx -o wide
-
-
-kubectl get pods -n ingress-nginx
-
-kubectl -n ingress-nginx get pod -o wide
-
-kubectl describe ingress test-app-release-test-app-api -n kubernetes-dashboard
-
-
+# Source: test-app/charts/test-app-api/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -356,6 +338,7 @@ spec:
     app.kubernetes.io/name: test-app-api
     app.kubernetes.io/instance: test-app-release
 ---
+# Source: test-app/charts/test-app-api/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -387,7 +370,7 @@ spec:
       containers:
         - name: test-app-api
           securityContext:
-            {}
+            null
           image: "akhanal/test-app-api:0.1.0"
           imagePullPolicy: IfNotPresent
           ports:
@@ -402,10 +385,12 @@ spec:
             httpGet:
               path: /healthz/ready
               port: http
+            # My container has startup time (simulated) of 15 seconds, so I want readiness probe to run only after 20 seconds.
             initialDelaySeconds: 20
           resources:
             null
 ---
+# Source: test-app/charts/test-app-api/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -417,43 +402,22 @@ metadata:
     app.kubernetes.io/version: "1.16.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
+  ingressClassName: nginx
   rules:
     - host: "chart-example.local"
       http:
         paths:
-          - path: /my-test-app
-            pathType: Prefix
+          - path: /my-test-app(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: test-app-release-test-app-api
                 port:
                   number: 80
-
-
-
-### Deploying to Kubernetes
-Now go to `charts/test-app` folder in terminal (because we have `Chart.yaml` there) and run the following command:
-
-This creates (or upgrades an existing release) using the name `test-app-release`.
 ````
-helm upgrade --install test-app-release . \
---namespace=local \
---set test-app-api.image.tag="0.1.0" \
---set test-app-service.image.tag="0.1.0" \
---create-namespace \
---debug \
---dry-run
-````
-When writing a command over multiple lines, make sure there's no space after the backslash and before the newline.
-
-Specifies that everytthing should be created in the `local` namespace of Kubernetes cluster.
-
-`--dry-run` means we don't actually install anything. Instead, Helm shows you the manifests that would be generated, so you can check everything looks correct.
-
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f672c329-b00f-4133-bfc9-6651bfe37930">
 
 Now run the above command without the `--dry-run` flag which will deploy the chart to Kubernetes cluster.  
 <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/571ba762-7c77-4efe-b3b0-aba53de63115">
@@ -461,10 +425,46 @@ Now run the above command without the `--dry-run` flag which will deploy the cha
 The deployed resources will look like this:  
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5a937a43-dafa-4b01-979d-f3d198465052">
 
-### Troubleshooting restarting pods
+### Update hosts file
+Check the ingress you deployed to see what address was assigned to your host because you'll be using that address to update your hosts file.
+````
+kubectl get ingress -n local
+````
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4dbed22d-9601-41e1-8d3b-b1890a49ccdc">
+
+Also seen in controller logs:
+````
+W1119 05:14:31.194021       7 controller.go:1214] Service "local/test-app-release-test-app-api" does not have any active Endpoint.
+I1119 05:15:19.437846       7 status.go:304] "updating Ingress status" namespace="local" ingress="test-app-release-test-app-api" currentValue=null newValue=[{"hostname":"localhost"}]
+````
+
+Now add this mapping to hosts file.
+
+````
+sudo vim /etc/hosts
+````
+
+Enter the server IP address at the bottom of the hosts file, followed by a space, and then the domain name.
+
+<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d98b2441-9a0d-4f08-a4ad-f2f75386e99b">
+
+Save and exit with `:wq`.
+
+Verify your changes with
+````
+cat /etc/hosts
+````
+
+Now, you should be able to reach the app using:  
+http://chart-example.local/my-test-app/weatherforecast
+
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0d04a8b-48ce-4a82-8bf9-2773320690b6">
+
+### Troubleshooting pods restarting (only here for learning exercise, the issue is not present in the example app in this repo)
 Check out the pods.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f136f42c-e34d-456d-96d6-b351279f2dd5">
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f136f42c-e34d-456d-96d6-b351279f2dd5">
 
 You can see that they haven't been able to get ready and have already restarted many times.
 
@@ -477,26 +477,86 @@ kubectl get event -n local --field-selector involvedObject.name=test-app-release
 
 We can see that the containers were restarted because the readiness probe failed.
 
-Or you can view this info in the Kubernetes dashboard:  
+Or you can view this info in the Kubernetes dashboard:
+
 <img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f93701c1-868d-48c0-84f9-721bbcdf9847">
 
-The issue here is that it's trying to hit the wrong port (i.e. 80). The port the container has started can be viewed from the logs as well:
+The issue here is that it's trying to hit the wrong port (i.e. 80). Recall that the aspnet core apps use 8080 port by default. 
+
+The port the container has started on (8080) can be viewed from the pod logs as well:
 
 <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3b212aa1-2ccf-4a33-8ef4-0b6cc5a91de4">
 
-To fix this, we have to update `containerPort` in `deployment.yaml`:  
+To fix this, we have to update `containerPort` in `deployment.yaml`:
+
 <img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/88021838-1741-4c00-b020-52ac4f024475">
 
+### Troubleshooting Ingress not working (only here for learning exercise, the issue is not present in the example app in this repo)
+#### Issue 1: `chart-example.local` hostname doesn't get an address
+````
+kubectl get ingress -n local
+````
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d70bf0d5-5499-4b0c-be14-872a4b0975fa">
 
+When this happens, you don't know what address is assigned by ingress controller for the host name, so you won't be able to add this entry to your hosts file.
 
+Jump into logs of Ingress controller from the K8s dashboard.
 
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8b97e23-7de5-4d31-a7f4-17a30f6524b4">
 
+This is the error seen in the logs:
+````
+"Ignoring ingress because of error while validating ingress class" ingress="local/test-app-release-test-app-api" error="ingress does not contain a valid IngressClass"
+````
 
+Change this:
+````
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+````
+to this:
+````
+  ingress:
+    enabled: true
+    # Find the classname of your controller by running this command: `kubectl get ingressclasses` or find it through K8s dashboard
+    className: nginx
+````
 
+Summary: The fix is to remove the `ingress.class` annotation and add ingress `className`.
 
+#### Issue 2: The service always returns 404
+Navigating to the url: http://chart-example.local/my-test-app/weatherforecast returns 404. This is a 404 returned by the app (not the nginx controller), so you can see that the app is reachable. This should tell you that the issue is in routing.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/03d7e7c9-3783-4da3-af96-43b2f505bcb6">
+
+Change the rewrite target from this:
+````
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: "/"
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: "/my-test-app"
+            pathType: ImplementationSpecific
+````
+to this:
+````
+    annotations:
+      # Reference: https://kubernetes.github.io/ingress-nginx/examples/rewrite/
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /my-test-app(/|$)(.*)
+            pathType: ImplementationSpecific
+````
+
+[Reference](https://kubernetes.github.io/ingress-nginx/examples/rewrite/)
 
 ---
-
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
