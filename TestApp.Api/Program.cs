@@ -56,6 +56,13 @@ app.MapGet("/weatherforecast", () =>
 // I added this 👇
 // ADD health checks after all your endpoints like "weatherforecast" here
 
+// The startup check
+app.MapHealthChecks("/healthz/startup", new HealthCheckOptions
+{
+    // Only health checks with tag of "startup" would run
+    Predicate = healthCheck => healthCheck.Tags.Contains("startup")
+});
+
 // The liveness check
 app.MapHealthChecks("/healthz/live", new HealthCheckOptions
 {
@@ -67,8 +74,9 @@ app.MapHealthChecks("/healthz/live", new HealthCheckOptions
 // The readiness check
 app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
 {
-    // Only health checks with tag of "startup" would run
-    Predicate = healthCheck => healthCheck.Tags.Contains("startup")
+    // This readiness check filters out all health checks by returning false,
+    // so no health checks would run for this endpoint
+    Predicate = _ => false
 });
 
 // The random check

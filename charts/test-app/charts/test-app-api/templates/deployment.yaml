@@ -62,8 +62,14 @@ spec:
             httpGet:
               path: /healthz/ready
               port: http
-            # My container has startup time (simulated) of 15 seconds, so I want readiness probe to run only after 20 seconds.
-            initialDelaySeconds: 20
+          startupProbe:
+            httpGet:
+              port: 8080
+              path: /healthz/startup
+            failureThreshold: 10 # Probe should be tried 10 times before failing
+            periodSeconds: 10 # Wait period of 10 seconds between checks
+            # My container has startup time (simulated) of 15 seconds, so I want startup probe to run only after 16 seconds.
+            initialDelaySeconds: 16
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

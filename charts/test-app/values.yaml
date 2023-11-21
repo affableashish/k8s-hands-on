@@ -4,8 +4,10 @@
 global: 
   # Dynamic values
   # Environment variables shared between all the pods, populated with valueFrom: fieldRef
+  # Reference: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
   envValuesFrom:
     Runtime__PodIpAddress: status.podIP # A dynamic variable, set when the pod is provisioned
+    Runtime__HostIpAddress: status.hostIP
   # Static values
   env:
     "ASPNETCORE_ENVIRONMENT": "Development"

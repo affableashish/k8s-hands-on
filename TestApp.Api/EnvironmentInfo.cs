@@ -43,6 +43,7 @@ public readonly struct EnvironmentInfo
     public int ProcessorCount => Environment.ProcessorCount;
     // This is set in values.yaml which which makes it to deployment.yaml
     public string? PodIpAddress => Environment.GetEnvironmentVariable("Runtime__PodIpAddress");
+    public string? HostIpAddress => Environment.GetEnvironmentVariable("Runtime__HostIpAddress");
     public string? AspNetCoreEnvironment => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     public string HostName => Dns.GetHostName();
     
