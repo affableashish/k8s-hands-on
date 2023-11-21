@@ -64,7 +64,7 @@ spec:
               port: http
           startupProbe:
             httpGet:
-              port: 8080
+              port: http
               path: /healthz/startup
             failureThreshold: 10 # Probe should be tried 10 times before failing
             periodSeconds: 10 # Wait period of 10 seconds between checks

@@ -60,6 +60,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\test-app\charts\test-app-service\templates\_helpers.tpl = charts\test-app\charts\test-app-service\templates\_helpers.tpl
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app-cli", "test-app-cli", "{B4183FCF-DBF6-4619-A252-6F868D56F9FA}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\charts\test-app-cli\Chart.yaml = charts\test-app\charts\test-app-cli\Chart.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{5D5A3E5D-97E2-4415-9324-94BE9D0D9D08}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\charts\test-app-cli\templates\_helpers.tpl = charts\test-app\charts\test-app-cli\templates\_helpers.tpl
+		charts\test-app\charts\test-app-cli\templates\job.yaml = charts\test-app\charts\test-app-cli\templates\job.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,5 +104,7 @@ Global
 		{C47F0748-AC71-4E2F-AE27-5A6D1138DC72} = {AFED07A9-56B3-488E-ABF6-63E4725587F3}
 		{742E26EB-B791-4622-9C30-429A79060C7F} = {4CF27903-3BA2-4D25-B291-9ACE9AFAE6DE}
 		{2216268A-4DD6-4C01-A6EE-4755A75736DF} = {AFED07A9-56B3-488E-ABF6-63E4725587F3}
+		{B4183FCF-DBF6-4619-A252-6F868D56F9FA} = {0094C2DA-D0D1-460F-BB6F-9FE59D46DD3C}
+		{5D5A3E5D-97E2-4415-9324-94BE9D0D9D08} = {B4183FCF-DBF6-4619-A252-6F868D56F9FA}
 	EndGlobalSection
 EndGlobal

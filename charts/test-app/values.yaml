@@ -53,7 +53,17 @@ test-app-api:
 
   podAnnotations: {}
   podLabels: {}
-  
+
+test-app-cli:
+  image:
+    repository: akhanal/test-app-cli
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  job:
+    # Should the job be rescheduled on the same node if it fails, or just stopped
+    restartPolicy: Never
+    
 test-app-service: 
   replicaCount: 1
   

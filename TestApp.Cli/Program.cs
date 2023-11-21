@@ -4,9 +4,14 @@ if (args.Length > 0 && args[0] == "say-hello")
 {
     Console.WriteLine("Hello, World!");
 }
-else
+else if (args.Length > 0 && args[0] == "migrate-database")
 {
     Console.WriteLine("Running migrations...");
-    await Task.Delay(30_000);//  Thread.Sleep(30_000);
+    Thread.Sleep(30_000);
+    //await Task.Delay(30_000);//  Thread.Sleep(30_000);
     Console.WriteLine("Migrations complete!");
+}
+else
+{
+    Console.WriteLine("Nothing to do brah!");
 }

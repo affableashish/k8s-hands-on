@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "test-app-cli.fullname" . }}-{{ .Release.Revision }} # Revision ensures that a new migration job is created on every install/upgrade of the chart.
+  labels:
+    {{- include "test-app-cli.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 1 # Indicates the number of times a job should be retried if it fails
+  template:
+    metadata:
+      labels:
+        {{- include "test-app-cli.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: {{ .Values.job.restartPolicy }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "dotnet" ]
+          args: [ "TestApp.Cli.dll", "migrate-database" ]
+          env:
+          # Dynamic environment values
+          {{ range $k, $v := .Values.global.envValuesFrom }}
+            - name: {{ $k | quote }}
+              valueFrom:
+                fieldRef:
+                  fieldPath: {{ $v | quote }}
+          {{- end }}
+          # Static environment variables
+          {{- $env := merge (.Values.env | default dict) (.Values.global.env | default dict) -}} # Static values merged together with global values taking non-priority if specific env values are provided.
+          {{ range $k, $v := $env }}
+            - name: {{ $k | quote }}
+              value: {{ $v | quote }}
+          {{- end }}
