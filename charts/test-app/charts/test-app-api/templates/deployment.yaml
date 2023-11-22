@@ -32,7 +32,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: "{{ .Chart.Name }}-init" # test-app-api-init will be the name of this container
-          image: "groundnuty/k8s-wait-for:v1.7"
+          image: "groundnuty/k8s-wait-for:v2.0"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           # For eg: WAIT for a "job" with a name of "test-app-release-test-app-cli-1"
           args:

@@ -7,7 +7,6 @@ if (args.Length > 0 && args[0] == "say-hello")
 else if (args.Length > 0 && args[0] == "migrate-database")
 {
     Console.WriteLine("Running migrations...");
-    //Thread.Sleep(30_000);
     await Task.Delay(30_000);//  Thread.Sleep(30_000);
     Console.WriteLine("Migrations complete!");
 }
