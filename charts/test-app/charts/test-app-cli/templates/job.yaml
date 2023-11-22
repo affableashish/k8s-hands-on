@@ -1,6 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
+  # For eg: test-app-release - test-app-cli - 1
   name: {{ include "test-app-cli.fullname" . }}-{{ .Release.Revision }} # Revision ensures that a new migration job is created on every install/upgrade of the chart.
   labels:
     {{- include "test-app-cli.labels" . | nindent 4 }}
@@ -16,8 +17,9 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: [ "dotnet" ]
-          args: [ "TestApp.Cli.dll", "migrate-database" ]
+          # command: [ "dotnet" ] # Overrides the ENTRYPOINT instruction in Dockerfile
+          # args: [ "TestApp.Cli.dll", "migrate-database" ] # Overrides the CMD instruction in Dockerfile
+          args: [ "migrate-database" ] # Only want to override the CMD instruction, so omitting the command field and only specifying the args field.
           env:
           # Dynamic environment values
           {{ range $k, $v := .Values.global.envValuesFrom }}
