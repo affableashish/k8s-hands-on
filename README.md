@@ -38,7 +38,7 @@ Now open the solution.
 This app will run migrations.
 
 #### Add a service which is an empty web app
-This is an empty web app. This app will run long running tasks using Background services. It easily could have been just a `Worker Service` but I kept it as a web app just so it's easier to expose health check endpoints.
+This is an empty web app. This app will run long running tasks using Background services, for eg: handling messages from event queue using something like NServiceBus or MassTransit. It easily could have been just a `Worker Service` but I kept it as a web app just so it's easier to expose health check endpoints.
 
 <img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5ff01df1-5772-4a9c-b948-12f1eddfc603">
 
@@ -61,6 +61,7 @@ Go to the directory where the Dockerfile is in the terminal and run these comman
 ````
 docker build -f TestApp.Api.Dockerfile -t akhanal/test-app-api:0.1.0 .
 docker build -f TestApp.Service.Dockerfile -t akhanal/test-app-service:0.1.0 .
+docker build -f TestApp.Cli.Dockerfile -t akhanal/test-app-cli:0.1.0 .
 ````
 
 The last parameter `.` is the build context. This means that the `.` used in the Dockerfile refers to `.` parameter which is current directory.
@@ -235,6 +236,33 @@ Command way:
 Dashboard way:  
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2fd777e8-6b6b-4944-94c5-e5041764ce7f">
 
+### Liveness, Readiness and Startup probes
+[Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-6-adding-health-checks-with-liveness-readiness-and-startup-probes/)
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a12ffa29-4da0-4356-9b27-69293ac3a28d">
+
+#### Startup Probe
+The first probe to run is the startup probe.
+As soon as the startup probe succeeds once it never runs again for the lifetime of that container. If the startup probe never succeeds, Kubernetes will eventually kill the container, and restart the pod.
+
+#### Liveness Probe
+The liveness probe is what you might expect—it indicates whether the container is alive or not. If a container fails its liveness probe, Kubernetes will kill the pod and restart another.
+
+Liveness probes happen continually through the lifetime of your app.
+
+#### Readiness Probe
+Readiness probes indicate whether your application is ready to handle requests. It could be that your application is alive, but that it just can't handle HTTP traffic. In that case, Kubernetes won't kill the container, but it will stop sending it requests. In practical terms, that means the pod is removed from an associated service's "pool" of pods that are handling requests, by marking the pod as "Unready".
+
+Readiness probes happen continually through the lifetime of your app, exactly the same as for liveness probes.
+
+### Types of health checks
+- **Smart** probes typically aim to verify the application is working correctly, that it can service requests, and that it can connect to its dependencies (a database, message queue, or other API, for example).
+- **Dumb** health checks typically only indicate the application has not crashed. They don't check that the application can connect to its dependencies, and often only exercise the most basic requirements of the application itself i.e. can they respond to an HTTP request.
+
+#### Use smart startup probes
+#### Use dumb liveness probes to avoid cascading failures
+#### Use dumb readiness probes
+
 ### Update the chart for my apps
 #### Update `values.yaml`
 The config for `test-app-api` looks like below (not showing the config for `test-app-service` here. Check out the code to see the whole thing):
@@ -281,19 +309,7 @@ Recall that aspnetcore apps now [run on port 8080 by default](https://andrewlock
 
 <img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d9e4fedd-f954-4777-b824-0cb654a49e6f">
 
-#### Update liveness and readiness checks in `deployment.yaml`
-````
-          livenessProbe:
-            httpGet:
-              path: /healthz/live
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /healthz/ready
-              port: http
-            # My container has startup time (simulated) of 15 seconds, so I want readiness probe to run only after 20 seconds.
-            initialDelaySeconds: 20
-````
+#### Update startup, liveness and readiness checks in `deployment.yaml`
 
 ### Deploying to Kubernetes
 Now go to `charts/test-app` folder in terminal (because we have `Chart.yaml` there) and run the following command:
@@ -556,7 +572,179 @@ to this:
 
 [Reference](https://kubernetes.github.io/ingress-nginx/examples/rewrite/)
 
----
+### Configure aspnetcore apps to work with proxy servers and load balancers
+[Reference](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-8.0)
+
+- When HTTPS requests are proxied over HTTP, the original scheme (HTTPS) is lost and must be forwarded in a header. This is SSL/ TLS offloading.
+- Because an app receives a request from the proxy and not its true source on the Internet or corporate network, the originating client IP address must also be forwarded in a header.
+
+Forwarded headers middleware is enabled by setting an environment variable.
+````
+ASPNETCORE_FORWARDEDHEADERS_ENABLED = true
+````
+
+### Setting environment variables
+[Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-5-setting-environment-variables-in-a-helm-chart/)
+
+Environment variables are set in `deployment.yaml` file.   
+Rather than hardcoding values and mappings in `deployment.yaml` file, it's better to use Helm's templating capabilities to extract this into configuration. 
+
+`deployment.yaml`
+````
+env:
+{{ range $k, $v := .Values.global.envValuesFrom }} # dynamic values
+  - name: {{ $k | quote }}
+    valueFrom:
+      fieldRef:
+        fieldPath: {{ $v | quote }}
+{{- end }}
+
+{{- $env := merge (.Values.env | default dict) (.Values.global.env | default dict) -}} # static values, merged together
+{{ range $k, $v := $env }}
+  - name: {{ $k | quote }}
+    value: {{ $v | quote }}
+{{- end }}
+````
+
+`values.yaml`
+````
+global:
+  # Dynamic values
+  # Environment variables shared between all the pods, populated with valueFrom: fieldRef
+  # Reference: https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
+  envValuesFrom:
+    Runtime__IpAddress: status.podIP
+
+  # Static values
+  env: 
+    "ASPNETCORE_ENVIRONMENT": "Staging"
+    "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true"
+````
+
+Note that I've used the double underscore `__` in the environment variable name. The translates to a "section" in ASP.NET Core's configuration, so this would set the configuration value `Runtime:IpAdress` to the pod's IP address.
+
+At install time, we can override these values if we like.
+````
+helm upgrade --install my-test-app-release . \
+  --namespace=local \
+  --set test-app-api.image.tag="0.1.0" \
+  --set test-app-service.image.tag="0.1.0" \
+  --set global.env.ASPNETCORE_ENVIRONMENT="Development" \          # global value
+  --set test-app-api.env.ASPNETCORE_ENVIRONMENT="Staging"  # sub-chart value
+````
+I can view my environment variables!
+
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/130a4266-84f5-480d-ac18-41a24f6dffcc">
+
+### Running database migrations
+[Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-7-running-database-migrations/)
+
+Use Kubernetes Jobs and Init containers.
+
+#### Jobs
+A Kubernetes job executes one or more pods to completion, optionally retrying if the pod indicates it failed, and then completes when the pod exits gracefully.
+We can create a job that executes a simple .NET core console app, optionally retrying to handle transient network issues.
+
+Now go into `charts` folder and create a new chart for `TestApp.Cli`. I was wondering if helm had a different command for jobs, but [looks like it doesn't](https://stackoverflow.com/q/69837824/8644294). So, I went down the path of creating a chart for an app and removing things I didn't need.
+````
+helm create test-app-cli #Create a sub-chart for the Cli
+````
+
+Remove these files for `test-app-cli` sub chart
+````
+rm test-app-cli/.helmignore test-app-cli/values.yaml
+rm test-app-cli/templates/hpa.yaml test-app-cli/templates/serviceaccount.yaml
+rm test-app-cli/templates/ingress.yaml test-app-cli/templates/NOTES.txt
+rm test-app-cli/templates/service.yaml test-app-cli/templates/deployment.yaml
+rm -r test-app-cli/templates/tests
+rm -r test-app-cli/charts
+````
+
+Add a new file to `test-app-cli/templates/job.yaml`.
+
+Start off with this, and create a Job resource:  
+<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cd25bf36-6273-4704-aff7-c5d913d996d2">
+
+Or just copy an example of a job from the Kubernetes docs [site](https://kubernetes.io/docs/concepts/workloads/controllers/job/).
+
+And edit the file to look like this:
+````
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "test-app-cli.fullname" . }}-{{ .Release.Revision }}
+  labels:
+    {{- include "test-app-cli.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        {{- include "test-app-cli.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: {{ .Values.job.restartPolicy }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "dotnet" ]
+          args: [ "TestApp.Cli.dll", "migrate-database" ]
+          env:
+          # Dynamic environment values
+          {{ range $k, $v := .Values.global.envValuesFrom }}
+            - name: {{ $k | quote }}
+              valueFrom:
+                fieldRef:
+                  fieldPath: {{ $v | quote }}
+          {{- end }}
+          # Static environment variables
+          {{- $env := merge (.Values.env | default dict) (.Values.global.env | default dict) -}} # Static values merged together with global values taking non-priority if specific env values are provided.
+          {{ range $k, $v := $env }}
+            - name: {{ $k | quote }}
+              value: {{ $v | quote }}
+          {{- end }}
+````
+
+Now pass the config values from top level `values.yaml`
+````
+test-app-cli:
+  image:
+    repository: akhanal/test-app-cli # Make sure that you have docker image of the Cli project
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  job:
+    # Should the job be rescheduled on the same node if it fails, or just stopped
+    restartPolicy: Never
+````
+
+Test the job
+````
+helm upgrade --install test-app-release . --namespace=local --set test-app-cli.image.tag="0.1.0" --set test-app-api.image.tag="0.1.0" --set test-app-service.image.tag="0.1.0"
+````
+
+Check it out in the dashboard:
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/694b33a0-193b-43c5-8270-96162e1a91f1">
+
+Also view the logs:
+
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ab63ad54-4fea-4306-857c-f5b7f20552fe">
+
+Note that we haven't implemented init containers yet, so our application pods will immediately start handling requests **without** waiting for the job to finish.
+
+#### Init Container (like a sidecar)
+You can include init containers in a pod. When Kubernetes deploys a pod, it executes all the init containers first. Only once all of those containers have exited gracefully (i.e. not crashed) will the main container be executed. They're often used for downloading or configuring pre-requisites required by the main container. That keeps your container application focused on it's one job, instead of having to configure its environment too.
+
+#### Combining jobs and init containers
+Use init containers to delay the main app from starting until a Kubernetes job has finished executing migrations.
+
+<img width="750" alt="image" src="https://andrewlock.net/content/images/2020/jobs-and-init-containers.svg">
+
+
+
+
+
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
