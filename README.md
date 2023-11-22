@@ -733,18 +733,82 @@ Also view the logs:
 
 Note that we haven't implemented init containers yet, so our application pods will immediately start handling requests **without** waiting for the job to finish.
 
-#### Init Container (like a sidecar)
-You can include init containers in a pod. When Kubernetes deploys a pod, it executes all the init containers first. Only once all of those containers have exited gracefully (i.e. not crashed) will the main container be executed. They're often used for downloading or configuring pre-requisites required by the main container. That keeps your container application focused on it's one job, instead of having to configure its environment too.
+#### Use Init Containers to delay container startup
+Init containers are a special type of container in a pod. When Kubernetes deploys a pod, it runs all the init containers first. Only once all of those containers have exited gracefully will the main containers be executed. Init containers are often used for downloading or configuring pre-requisites required by the main container. That keeps your container application focused on it's one job, instead of having to configure it's environment too.
 
-#### Combining jobs and init containers
-Use init containers to delay the main app from starting until a Kubernetes job has finished executing migrations.
+In this case, we're going to use init containers to watch the status of the migration job. The init container will sleep while the migration job is running (or if it crashes), blocking the start of our main application container. Only when the job completes successfully will the init containers exit, allowing the main container to start.
 
-<img width="750" alt="image" src="https://andrewlock.net/content/images/2020/jobs-and-init-containers.svg">
+We can use a Docker container containing the _k8s-wait-for_ script, and include it as an init container in all our application deployments.
 
+Add this to a section before containers in `test-app-cli` and `test-app-service`
+````
+      initContainers:
+        - name: "{{ .Chart.Name }}-init" # test-app-api-init will be the name of this container
+          image: "groundnuty/k8s-wait-for:v2.0"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # WAIT for a "job" with a name of "test-app-release-test-app-cli-1"
+          args:
+            - "job"
+            - "{{ .Release.Name }}-test-app-cli-{{ .Release.Revision }}" # This is the name defined in job.yaml -> metadata:name
+      containers:
+        - name: {{ .Chart.Name }}
+        # Other config here
+````
 
+Now deploy the app
+````
+helm upgrade --install test-app-release . --namespace=local --set test-app-cli.image.tag="0.1.0" --set test-app-api.image.tag="0.1.0" --set test-app-service.image.tag="0.1.0"
+````
 
+**This is what's happening here:**
 
+The Kubernetes job runs a single container that executes the database migrations as part of the Helm Chart installation. Meanwhile, init containers in the main application pods prevent the application containers from starting. Once the job completes, the init containers exit, and the new application containers can start.
 
+<img width="450" alt="image" src="https://andrewlock.net/content/images/2020/jobs-and-init-containers.svg">
+
+#### Troubleshooting init container failing
+This is the error seen right after deployment:  
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8ccf7e5f-34c5-4110-b54a-85a04681de18">
+
+Now let's check init container logs by going into Pod -> clicking Logs -> selecting init container.
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2818d40-1995-49d0-9aa6-ba7d90331fda">
+
+Or you can use `kubectl` to get the container logs. For eg:
+````
+kubectl logs test-app-release-test-app-api-d75cfd5c9-jmrjw -c test-app-api-init -n local
+````
+This shows the error we're facing.
+````
+Error from server (Forbidden): jobs.batch "test-app-release-test-app-cli-1" is forbidden: User "system:serviceaccount:local:default" cannot get resource "jobs" in API group "batch" in the namespace "local"
+````
+
+This means the pod lacks the permissions to perform `kubectl get` query. [Reference](https://github.com/groundnuty/k8s-wait-for#troubleshooting).
+
+The fix for this is to create a role that has permission to read jobs, and bind that role to the `default` service account (`local:default`) in the `local` namespace. The `--serviceaccount` flag should be in the format `<namespace>:<serviceaccount>`.
+
+1. Create the Role
+   ````
+   kubectl create role job-reader --verb=get --verb=list --verb=watch --resource=jobs --namespace=local
+   ````
+2. Create the RoleBinding
+   ````
+   # This role binding allows "local:default" service account to read jobs in the "local" namespace.
+   # You need to already have a role named "job-reader" in that namespace.
+   kubectl create rolebinding read-jobs --role=job-reader --serviceaccount=local:default --namespace=local
+   ````
+<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/43859dc3-dcd7-4507-afe7-58524a34fb2a">
+
+This fixes the problem!
+
+#### Test init container working 🎉
+When the `cli` job is running, the status of our main app is `Init: 0/1`.
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e153b84b-1ff3-47ec-9c80-5d6e48f674d8">
+
+After the job gets Completed, our app starts Running. 💪
+
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/40f6f17a-8068-48ef-b9ba-4b27983c1a77">
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
