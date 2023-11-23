@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dockerfiles", "Dockerfiles"
 		TestApp.Api.Dockerfile = TestApp.Api.Dockerfile
 		TestApp.Cli.Dockerfile = TestApp.Cli.Dockerfile
 		TestApp.Service.Dockerfile = TestApp.Service.Dockerfile
+		TestApp.Cli-Exec-Host.Dockerfile = TestApp.Cli-Exec-Host.Dockerfile
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app", "test-app", "{0FBABF6E-4409-46C0-894E-24A9BA1FDD8D}"
@@ -71,6 +72,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		charts\test-app\charts\test-app-cli\templates\job.yaml = charts\test-app\charts\test-app-cli\templates\job.yaml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ShellScripts", "ShellScripts", "{D3776874-668E-4686-A1E6-C8186EB4238C}"
+	ProjectSection(SolutionItems) = preProject
+		deploy_and_wait.sh = deploy_and_wait.sh
+		keep_alive.sh = keep_alive.sh
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app-cli-exec-host", "test-app-cli-exec-host", "{6DBFD6FB-8C9E-4DDA-A624-81A811CBA54D}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\charts\test-app-cli-exec-host\Chart.yaml = charts\test-app\charts\test-app-cli-exec-host\Chart.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{6FF20EBB-7DCA-4958-8279-70EDFFDFBE04}"
+	ProjectSection(SolutionItems) = preProject
+		charts\test-app\charts\test-app-cli-exec-host\templates\_helpers.tpl = charts\test-app\charts\test-app-cli-exec-host\templates\_helpers.tpl
+		charts\test-app\charts\test-app-cli-exec-host\templates\deployment.yaml = charts\test-app\charts\test-app-cli-exec-host\templates\deployment.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,5 +124,8 @@ Global
 		{2216268A-4DD6-4C01-A6EE-4755A75736DF} = {AFED07A9-56B3-488E-ABF6-63E4725587F3}
 		{B4183FCF-DBF6-4619-A252-6F868D56F9FA} = {0094C2DA-D0D1-460F-BB6F-9FE59D46DD3C}
 		{5D5A3E5D-97E2-4415-9324-94BE9D0D9D08} = {B4183FCF-DBF6-4619-A252-6F868D56F9FA}
+		{D3776874-668E-4686-A1E6-C8186EB4238C} = {A52ADA7A-11F2-40CA-B135-6EC0B2DAFF0F}
+		{6DBFD6FB-8C9E-4DDA-A624-81A811CBA54D} = {0094C2DA-D0D1-460F-BB6F-9FE59D46DD3C}
+		{6FF20EBB-7DCA-4958-8279-70EDFFDFBE04} = {6DBFD6FB-8C9E-4DDA-A624-81A811CBA54D}
 	EndGlobalSection
 EndGlobal

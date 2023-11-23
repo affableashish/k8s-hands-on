@@ -19,7 +19,7 @@ WORKDIR /app
 COPY --from=build /app .
 
 # Provide env variables
-ENV ASPNETCORE_ENVIRONMENT Production
+ENV ASPNETCORE_ENVIRONMENT Development
 
 # This is how you run the app
 # Tells Docker to configure the container to run as an executable
