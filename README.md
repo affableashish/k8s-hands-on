@@ -35,7 +35,8 @@ Now open the solution.
    You can see that `memoryUsage` is 0 probably because `EnvironmentInfo` is written to extract this info when the app runs in Ubuntu. But I'm on a mac.
 
 #### Add a console app
-This app will run migrations.
+Create a CLI app for each of the main application.
+This app will run migrations, take ad-hoc commands etc.
 
 #### Add a service which is an empty web app
 This is an empty web app. This app will run long running tasks using Background services, for eg: handling messages from event queue using something like NServiceBus or MassTransit. It easily could have been just a `Worker Service` but I kept it as a web app just so it's easier to expose health check endpoints.
@@ -326,7 +327,7 @@ helm upgrade --install test-app-release . \
 ````
 (When writing a command over multiple lines, make sure there's no space after the backslash and before the newline.)
 
-Specifies that everytthing should be created in the `local` namespace of Kubernetes cluster.
+Specifies that everything should be created in the `local` namespace of Kubernetes cluster.
 
 `--dry-run` means we don't actually install anything. Instead, Helm shows you the manifests that would be generated, so you can check everything looks correct.
 
@@ -440,6 +441,11 @@ Now run the above command without the `--dry-run` flag which will deploy the cha
 
 The deployed resources will look like this:  
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5a937a43-dafa-4b01-979d-f3d198465052">
+
+Note that this is the command to uninstall the app
+````
+ helm uninstall test-app-release -n local
+````
 
 ### Update hosts file
 Check the ingress you deployed to see what address was assigned to your host because you'll be using that address to update your hosts file.
@@ -760,6 +766,11 @@ Now deploy the app
 helm upgrade --install test-app-release . --namespace=local --set test-app-cli.image.tag="0.1.0" --set test-app-api.image.tag="0.1.0" --set test-app-service.image.tag="0.1.0"
 ````
 
+Note that this is the command to uninstall the app
+````
+ helm uninstall test-app-release -n local
+````
+
 **This is what's happening here:**
 
 The Kubernetes job runs a single container that executes the database migrations as part of the Helm Chart installation. Meanwhile, init containers in the main application pods prevent the application containers from starting. Once the job completes, the init containers exit, and the new application containers can start.
@@ -809,6 +820,85 @@ When the `cli` job is running, the status of our main app is `Init: 0/1`.
 After the job gets Completed, our app starts Running. 💪
 
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/40f6f17a-8068-48ef-b9ba-4b27983c1a77">
+
+### Monitoring Helm Releases
+[Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-9-monitoring-helm-releases-that-use-jobs-and-init-containers/)
+
+Helm doesn't know about our "delayed startup" approach. Solution is to wait for a Helm release to complete.
+
+Add this file.  
+And give execute permissions to the file using `chmod +x ./deploy_and_wait.sh` by going to the folder where it's at.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7fb38fda-bfc0-4285-aa7b-00a9e0636848">
+
+Now run the script
+````
+CHART="test-app-repo/test-app" \
+RELEASE_NAME="test-app-release" \
+NAMESPACE="local" \
+HELM_ARGS="--set test-app-cli.image.tag=0.1.0 \
+  --set test-app-api.image.tag=0.1.0 \
+  --set test-app-service.image.tag=0.1.0 \
+" \
+./deploy_and_wait.sh
+````
+
+I got this error:
+````
+Error: repo test-app-repo not found
+````
+
+I didn't bother with creating a Helm repository and moved on to next post.
+
+### Creating 'exec-host' deployment for running one-off commands
+[Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-10-creating-an-exec-host-deployment-for-running-one-off-commands/)
+By using a long-running pod containing a CLI tool that allows running the commands.
+
+#### Create Dockerfile for TestApp.Cli-Exec-Host
+We can use the exisiting CLI project, i.e. `TestApp.Cli` to create an image for this.
+
+After you're done creating the Dockerfile, build it
+````
+docker build -f TestApp.Cli-Exec-Host.Dockerfile -t akhanal/test-app-cli-exec-host:0.1.0 .
+````
+
+Now create helm chart for this app.
+````
+helm create test-app-cli-exec-host
+````
+Delete all files except `Chart.yaml`, `templates/_helpers.tpl` and `templates/deployment.yaml`. From `deployment.yaml`, remove liveness/ readiness checks, ports.
+Add a section for injecting env variables.
+
+Add `test-app-cli-exec-host` config to top-level chart's `values.yaml` to specify docker image and some other settings.
+
+At this point, our overall Helm chart has now grown to 4 sub-charts: The two "main" applications (the API and message handler service), the CLI job for running database migrations automatically, and the CLI exec-host chart for running ad-hoc commands
+
+Install the chart
+````
+helm upgrade --install test-app-release . \
+--namespace=local \
+--set test-app-api.image.tag="0.1.0" \
+--set test-app-service.image.tag="0.1.0" \
+--set test-app-cli.image.tag="0.1.0" \
+--set test-app-cli-exec-host.image.tag="0.1.0" \
+--create-namespace \
+--debug
+````
+
+<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b07c0446-340e-41e9-9ca0-18bb07397f26">
+
+Try getting into the container by clicking this  
+<img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/664bdb82-ee4e-4a79-b1c8-a31d312540b7">
+
+List some files 😃  
+<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/05a67f08-402b-41e2-bf73-281f0bdee722">
+
+We have access to our CLI tool from here and can run ad-hoc commands from the cli app. For eg:  
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/328de7c4-cabc-491c-ab7b-26bf53bd63a9">
+
+Remember that it comes from the CLI program.  
+<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/22c66d9c-f5ab-464e-947d-f92a36e0f995">
+
 
 ## Microservices
 A variant of the service-oriented architecture (SOA) structural style - arranges an application as a collection of loosely coupled services.
