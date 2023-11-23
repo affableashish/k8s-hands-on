@@ -63,6 +63,18 @@ test-app-cli:
   job:
     # Should the job be rescheduled on the same node if it fails, or just stopped
     restartPolicy: Never
+
+test-app-cli-exec-host: 
+  image:
+    repository: akhanal/test-app-cli-exec-host
+    pullPolicy: IfNotPresent
+    tag: ""
+  
+  autoscaling:
+    enabled: false
+    
+  serviceAccount:
+    create: false
     
 test-app-service: 
   replicaCount: 1

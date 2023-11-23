@@ -36,18 +36,20 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          env:
+          # Dynamic environment values
+          {{ range $k, $v := .Values.global.envValuesFrom }}
+            - name: {{ $k | quote }}
+              valueFrom:
+                fieldRef:
+                  fieldPath: {{ $v | quote }}
+          {{- end }}
+          # Static environment variables
+          {{- $env := merge (.Values.env | default dict) (.Values.global.env | default dict) -}} # Static values merged together with global values taking non-priority if specific env values are provided.
+          {{ range $k, $v := $env }}
+            - name: {{ $k | quote }}
+              value: {{ $v | quote }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
