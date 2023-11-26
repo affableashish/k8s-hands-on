@@ -15,7 +15,6 @@ Also check out the following resources:
 3. [Tips](https://mikehadlow.com/posts/2022-06-24-writing-dotnet-services-for-kubernetes/) using Kubernetes with .NET apps.
 
 Happy Learning! 🤓
----
 
 ## Hands On Exercises
 For this section, I'm following along Andrew Lock's [excellent series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) on Kubernetes.
