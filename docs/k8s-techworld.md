@@ -1,5 +1,6 @@
 ## Nana's Kubernetes course
-[Reference](https://youtu.be/X48VuDVv0do?si=LBqvoUujADAQHj_n).  
+[Reference](https://youtu.be/X48VuDVv0do?si=LBqvoUujADAQHj_n).
+
 This is a continuation of Kubernetes course from Microsoft Learn. So, it's helpful to finish [this section](k8s-msftlearn.md#kubernetes) before reading this.
 
 ### Practice more `kubectl` commands
