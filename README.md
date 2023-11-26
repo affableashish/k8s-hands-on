@@ -866,8 +866,8 @@ Now create helm chart for this app.
 ````
 helm create test-app-cli-exec-host
 ````
-Delete all files except `Chart.yaml`, `templates/_helpers.tpl` and `templates/deployment.yaml`. From `deployment.yaml`, remove liveness/ readiness checks, ports.
-Add a section for injecting env variables.
+Delete all files except `Chart.yaml`, `templates/_helpers.tpl` and `templates/deployment.yaml`. From `deployment.yaml`, remove liveness/ readiness checks, and ports.  
+And add a section for injecting env variables.
 
 Add `test-app-cli-exec-host` config to top-level chart's `values.yaml` to specify docker image and some other settings.
 
@@ -885,15 +885,13 @@ helm upgrade --install test-app-release . \
 --debug
 ````
 
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b07c0446-340e-41e9-9ca0-18bb07397f26">
+<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b07c0446-340e-41e9-9ca0-18bb07397f26">
 
-Try getting into the container by clicking this  
+Try getting into the container by clicking this:  
 <img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/664bdb82-ee4e-4a79-b1c8-a31d312540b7">
 
-List some files 😃  
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/05a67f08-402b-41e2-bf73-281f0bdee722">
+We have access to our CLI tool from here and can run ad-hoc commands from the cli app.😃 For eg:
 
-We have access to our CLI tool from here and can run ad-hoc commands from the cli app. For eg:  
 <img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/328de7c4-cabc-491c-ab7b-26bf53bd63a9">
 
 Remember that it comes from the CLI program.  
