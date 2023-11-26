@@ -7,7 +7,7 @@ The notes from the theoretical portion of this learning are in docs folder which
 3. Basic Kubernetes course at Microsoft Learn. [Here](docs/k8s-msftlearn.md).
 4. Video course by Techworld at YouTube. [Here](docs/k8s-techworld.md).
 
-The 'hands-on' portion of this learning is based on Andrew Lock's [Kubernetes series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/). Feel free to look at the theoretical notes if you're new to cloud native, otherwise jump into hands-on exercises below.
+The 'hands-on' portion of this learning is based on Andrew Lock's [Kubernetes series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/). Feel free to look at the theoretical notes (1-4) if you're new to cloud native, otherwise jump straight into hands-on exercises below. You're going to learn a lot!
 
 Also check out the following resources:
 1. [9 tips](https://www.docker.com/blog/9-tips-for-containerizing-your-net-application/) for containerizing .NET apps.
