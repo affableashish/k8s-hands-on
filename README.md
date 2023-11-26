@@ -17,10 +17,6 @@ Also check out the following resources:
 Happy Learning! 🤓
 
 ## Hands On Exercises
-For this section, I'm following along Andrew Lock's [excellent series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) on Kubernetes.
-
-As for theoretical aspect of Kubernetes, read the section after this one below.
-
 ### Create the projects
 #### Clone this repo
 #### Add a solution file using terminal
