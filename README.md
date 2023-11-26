@@ -1,11 +1,20 @@
 # k8s-hands-on
-This repo contains notes from Docker and Kubernetes course at [Microsoft Learn](https://learn.microsoft.com/en-us/training/paths/intro-to-kubernetes-on-azure/) and also [Kubernetes course](https://youtu.be/X48VuDVv0do?si=T1xGQVUEa2ZdTatH) by TechWorld with Nana.
+This repo contains the notes I took when I studied courses at [Microsoft Learn](https://learn.microsoft.com/en-us/training/paths/intro-to-kubernetes-on-azure/), [YouTube](https://youtu.be/X48VuDVv0do?si=T1xGQVUEa2ZdTatH) and Andrew Lock's excellent [Kubernetes series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/).
+
+The notes from the theoretical portion of this learning are in docs folder which are linked as follows:
+1. Microservices and Container basics. [Here](docs/basics-theory.md).
+2. Hands on Docker course at Microsoft Learn. [Here](docs/docker-msftlearn.md).
+3. Basic Kubernetes course at Microsoft Learn. [Here](docs/k8s-msftlearn.md).
+4. Video course by Techworld at YouTube. [Here](docs/k8s-techworld.md).
+
+The 'hands-on' portion of this learning shown below is based on Andrew Lock's [Kubernetes series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/). Feel free to look at the theoretical notes if you're new to cloud native, otherwise jump into hands-on exercises below.
+
+Happy Learning! 🤓
 
 Also check out the following resources:
 1. [9 tips](https://www.docker.com/blog/9-tips-for-containerizing-your-net-application/) for containerizing .NET apps.
 2. ELI5 version of Kubernetes [video](https://youtu.be/4ht22ReBjno?si=gBkC4jhCS2G9ZYd5).
-3. Kubernetes [series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) by Andrew Lock.
-4. [Best practices](https://mikehadlow.com/posts/2022-06-24-writing-dotnet-services-for-kubernetes/) using Kubernetes with .NET apps.
+3. [Tips](https://mikehadlow.com/posts/2022-06-24-writing-dotnet-services-for-kubernetes/) using Kubernetes with .NET apps.
 
 ## Hands On Example
 For this section, I'm following along Andrew Lock's [excellent series](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-1-an-introduction-to-kubernetes/) on Kubernetes.
