@@ -902,3 +902,32 @@ We have access to our CLI tool from here and can run ad-hoc commands from the cl
 Remember that it comes from the CLI program.  
 <img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/22c66d9c-f5ab-464e-947d-f92a36e0f995">
 
+### Avoiding downtime in rolling deployments
+[Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-11-avoiding-downtime-in-rolling-deployments-by-blocking-sigterm/)
+
+Summary of a typical deployment to Kubernetes:  
+1. Your application is deployed in a pod, potentially with sidecar or init containers.
+2. The pod is deployed and replicated to multiple nodes using a Kubernetes deployment.
+3. A Kubernetes service acts as the load balancer for the pods, so that requests are sent to one of the pods.
+4. An ingress exposes the service externally, so that clients outside the cluster can send requests to your application.
+5. The whole setup is defined in Helm Charts, deployed in a declarative way.
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d0079898-21d7-454d-9de4-2ec81b836111">
+
+The way update works:  
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5dab5e81-c8f8-40b6-b314-0bf1e0d0aa81">
+<br>
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/aa431388-192d-46e9-812c-3da809378cb3">
+<br>
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c6bc3dc7-77be-4beb-907e-74d53a84402f">
+<br>
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48625ae6-93c8-4620-aae7-da512c3e1496">
+<br>
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/660026a9-229a-41c7-8bfd-5b3b4b4a82fe">
+
+
+
+
+
+
+
