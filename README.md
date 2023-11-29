@@ -1036,6 +1036,69 @@ You can increase this value by setting it in your `deployment.yaml` Helm Chart.
 
 This fixes the problem.
 
+### Tips and tricks
+[Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-12-tips-tricks-and-edge-cases/)
+
+#### Be careful about paths
+Windows uses backward slash `\` but Linux uses forward slash `/`, so don't use these slashes in your paths if you want to run your images in every environment. Use `PathSeparator` instead.
+
+For example, instead of:
+````
+var path = "some\long\path";
+````
+Use this:
+````
+var path1 = "some" + Path.PathSeparator + "long" + Path.PathSeparator + "path";
+// or
+var path2 = Path.Combine("some", "long", "path");
+````
+
+Also be careful about casing.  
+Windows is case insensitive, so if you have an appsettings.json file, but you try and load appSettings.json, Windows will have no problem loading the file. Try that on Linux, with its case sensitive filename, and your file won't be found.
+
+#### Treat Docker images as immutable artifacts
+Build the Docker images in your CI pipeline and then don't change them as you deploy them to other environments.
+
+#### Manage your configuration with files, environment variables, and secrets
+For our applications deployed to Kubernetes, we generally load configuration values from 3 different sources:
+1. **JSON files**  
+   For config values that are static values. They are embedded in the Docker container as part of the build and should not contain sensitive values. Ideally a new developer should be able to clone the repository and `dotnet run` the application (or F5 from Visual Studio) and the app should have the minimally required config to run locally.
+   
+   Separately, we have a script for configuring the local infrastructural prerequisites, such as a postgres database accessible at a well know local port etc. These values are safe to embed in the config files as they're only for local development.
+3. **Environment Variables**  
+   We use environment variables, configured at deploy time, to add Kubernetes-specific values, or values that are only known at runtime. This is the primary way to override your JSON file settings.
+   Prefer including configuration in the JSON files if possible. The downside to storing config in JSON files is you need to create a completely new build of the application to change a config value, whereas with environment variables you can quickly redeploy with the new value. It's really a judgement call which is best, just be aware of the trade offs.
+4. **Secrets**  
+   Store these in a separate config provider such as Azure Key vault or AWS secrets manager. 
+
+#### Data protection keys
+Also read [this](https://andrewlock.net/an-introduction-to-the-data-protection-system-in-asp-net-core/).
+
+#### Forwarding headers and pathbase
+ASP.NET Core 2.0 brought the ability for Kestrel to act as an "Edge" server, so you could expose it directly to the internet, instead of hosting behind a reverse proxy. when running in a Kubernetes cluster, you will likely be running behind a reverse proxy.
+
+If you're running behind a reverse proxy, then you need to make sure your application is configured to use the "forwarded headers" added by the reverse proxy. For example the defacto standard headers `X-Forwarded-Proto` and `X-Forwarded-Host` headers are added by reverse proxies to indicate what the original request details were, before the reverse proxy forwarded the request to your pod.
+
+#### Consider extending the shutdown timeout
+The issue was that during rolling deployments, our NGINX ingress controller configuration would send traffic to terminated pods. Our solution was to delay the shutdown of pods during termination, so they would remain available.
+
+#### Kubernetes service location
+One of the benefits you get for "free" with Kubernetes is in-cluster service-location. Each Kubernetes Service in a cluster gets a DNS record of the format:
+````
+[service-name].[namespace].svc.[cluster-domain]
+````
+`[cluster-domain]` is the configured local domain for your Kubernetes cluster, typically `cluster.local`.
+
+For example, say you have a `products-service` service, and a `search` service installed in the `prod` namespace. The `search` service needs to make an HTTP request to the `products-service`, for example at the path `/search-products`. You don't need to use any third-party service location tools here, instead you can send the request directly to `http://products-service.prod.svc.cluster.local/search-products`. Kubernetes will resolve the DNS to the `products-service`, and all the communication remains in-cluster.
+
+#### Helm delete -- purge
+This final tip is for when things go wrong installing a Helm Chart into your cluster. The chances are, you aren't going to get it right the first time you install a chart. You'll have a typo somewhere, incorrectly indented some YAML, or forgotten to add some required details. It's just the way it goes.
+
+If things are bad enough, especially if you've messed up a `selector` in your Helm Charts then you might find you can't deploy a new version of your chart. In that case, you'll need to delete the release from the cluster. However, don't just run `helm delete my-release`, instead use:
+````
+helm delete --purge my-release
+````
+Without the `--purge` argument, Helm keeps the configuration for the failed chart around as a ConfigMap in the cluster. This can cause issues when you've deleted a release due to mistakes in the chart definition. Using `--purge` clears the ConfigMaps, and gives you a clean-slate next time you install the Helm Chart in your Cluster.
 
 
 
