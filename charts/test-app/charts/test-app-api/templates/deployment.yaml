@@ -38,6 +38,8 @@ spec:
           args:
             - "job"
             - "{{ .Release.Name }}-test-app-cli-{{ .Release.Revision }}" # This is the name defined in job.yaml -> metadata:name
+      # Sets the value to 60s, overridable by passing in Values
+      terminationGracePeriodSeconds: {{ default 60 .Values.terminationGracePeriodSeconds }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

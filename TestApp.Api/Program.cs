@@ -11,6 +11,13 @@ builder.Services.AddSwaggerGen();
 
 // I added this 👇
 builder.Services.AddHostedService<StartupBackgroundService>();
+builder.Services.AddHostedService<ApplicationLifetimeService>();
+builder.Services.Configure<HostOptions>(options =>
+{
+    options.ShutdownTimeout = TimeSpan.FromSeconds(45);
+});
+
+//builder.Services.AddLogging();
 
 // Notice that I'm not registering RandomHealthCheck class.
 // I'm doing this only because StartupBackgroundService needs this.
