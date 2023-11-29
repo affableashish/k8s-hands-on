@@ -72,6 +72,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ShellScripts", "ShellScript
 	ProjectSection(SolutionItems) = preProject
 		deploy_and_wait.sh = deploy_and_wait.sh
 		keep_alive.sh = keep_alive.sh
+		docker_build.sh = docker_build.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app-cli-exec-host", "test-app-cli-exec-host", "{6DBFD6FB-8C9E-4DDA-A624-81A811CBA54D}"
