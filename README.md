@@ -905,7 +905,7 @@ Remember that it comes from the CLI program.
 ### Avoiding downtime in rolling deployments
 [Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-11-avoiding-downtime-in-rolling-deployments-by-blocking-sigterm/)
 
-Summary of a typical deployment to Kubernetes:  
+#### Summary of a typical deployment to Kubernetes
 1. Your application is deployed in a pod, potentially with sidecar or init containers.
 2. The pod is deployed and replicated to multiple nodes using a Kubernetes deployment.
 3. A Kubernetes service acts as the load balancer for the pods, so that requests are sent to one of the pods.
@@ -914,7 +914,8 @@ Summary of a typical deployment to Kubernetes:
 
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d0079898-21d7-454d-9de4-2ec81b836111">
 
-The way update works:  
+The way update works (at least in theory):
+
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5dab5e81-c8f8-40b6-b314-0bf1e0d0aa81">
 <br>
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/aa431388-192d-46e9-812c-3da809378cb3">
@@ -924,6 +925,121 @@ The way update works:
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48625ae6-93c8-4620-aae7-da512c3e1496">
 <br>
 <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/660026a9-229a-41c7-8bfd-5b3b4b4a82fe">
+
+#### The problem: rolling updates cause `502`s
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1a9f5f62-2f31-442d-8616-cd14eca47271">
+
+**Cause:** Niginx ingress controller.
+
+Recall that when you installed Ingress Controller to the cluster, you got 2 containers running:
+
+<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/53457e06-0284-48b0-ad2f-a5ec73c2fa3e">
+
+The `k8s_controller_ingress-nginx-controller` manages ingresses for your Kubernetes cluster by configuring instances of NGINX, `k8s_POD_ingress-nginx-controller` (pod) in this case. As you can see, the NGINX instances run as pods in your cluster, and receive all the inbound traffic to your cluster.
+
+The below picture shows this concept. Each node runs an instance of NGINX reverse proxy (as Pod) that monitors the Ingresses in the application and is configured to forward requests to the pods. 
+
+<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d4aab162-060b-44ab-8497-870961c2dab8">
+
+The Ingress controller is responsible for updating the configuration of those NGINX reverse proxy instances whenever the resources in your Kubernetes cluster change.
+
+For example, remember that you typically deploy an ingress manifest with your application. Deploying this resource allows you to expose your "internal" Kubernetes service outside the cluster, by specifying a hostname and path that should be used.
+
+The ingress controller is responsible for monitoring all these ingress "requests" as well as all the endpoints (pods) exposed by referenced services, and assembling them into an NGINX configuration file (nginx.conf) that the NGINX pods can use to direct traffic.
+
+#### What went wrong?
+Unfortunately, rebuilding all that configuration is an expensive operation. For that reason, the ingress controller only applies updates to the NGINX configuration every 30s by default.
+
+1. New pods are deployed, old pods continue running.
+2. When the new pods are ready, the old pods are marked for termination.
+3. Pods marked for termination receive a SIGTERM notification. This causes the pods to start shutting down.
+4. The Kubernetes service observes the pod change, and removes them from the list of available endpoints.
+5. The ingress controller observes the change to the service and endpoints.
+6. After 30s, the ingress controller updates the NGINX pods' config with the new endpoints.
+
+The problem lies between steps 5 and 6. Before the ingress controller updates the NGINX config, NGINX will continue to route requests to the old pods!  
+As those pods typically will shut down very quickly when requested by Kubernetes, that means incoming requests get routed to non-existent pods, hence the `502` response.
+
+Shown in picture below:
+
+<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b71dd1c2-7946-4cce-8f39-153e84c9f852">
+
+#### Fix: Delay app termination
+When Kubernetes asks for a pod to terminate, we ignore the signal for a while. We note that termination was requested, but we don't actually shut down the application for 30s, so we can continue to handle requests. After 30s, we gracefully shut down.
+
+#### Fix: Hook into `IHostApplicationLifetime`'s `ApplicationStopping` to delay shutdown
+The interface looks like this:
+````
+    /// <summary>
+    /// Allows consumers to be notified of application lifetime events. This interface is not intended to be user-replaceable.
+    /// </summary>
+    public interface IHostApplicationLifetime
+    {
+        /// <summary>
+        /// Triggered when the application host has fully started.
+        /// </summary>
+        CancellationToken ApplicationStarted { get; }
+
+        /// <summary>
+        /// Triggered when the application host is starting a graceful shutdown.
+        /// Shutdown will block until all callbacks registered on this token have completed.
+        /// </summary>
+        CancellationToken ApplicationStopping { get; }
+
+        /// <summary>
+        /// Triggered when the application host has completed a graceful shutdown.
+        /// The application will not exit until all callbacks registered on this token have completed.
+        /// </summary>
+        CancellationToken ApplicationStopped { get; }
+
+        /// <summary>
+        /// Requests termination of the current application.
+        /// </summary>
+        void StopApplication();
+    }
+````
+
+We create a service and register it.
+````
+// IHostedService interface provides a mechanism for tasks that run in the background throughout
+// the lifetime of the application
+public class ApplicationLifetimeService(IHostApplicationLifetime applicationLifetime,
+    ILogger<ApplicationLifetimeService> logger) : IHostedService
+{
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        // Register a callback that sleeps for 30 seconds
+        applicationLifetime.ApplicationStopping.Register(() =>
+        {
+            logger.LogInformation("SIGTERM received, waiting 10 seconds.");
+            Thread.Sleep(10_000);
+            logger.LogInformation("Termination delay complete, continuing stopping process.");
+        });
+        
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+}
+````
+
+After running the app, if you try to shut it down with `^C`, you'll see the callback being called:  
+<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8ef99d39-8ba3-4785-b1f9-6ddb41d6d73d">
+
+#### Fix: Preventing Kubernetes from killing your pods
+When Kubernetes sends the `SIGTERM` signal to terminate a pod, it expects the pod to shutdown in a graceful manner. If the pod doesn't, then Kubernetes gets bored and `SIGKILL`s it instead. The time between `SIGTERM` and `SIGKILL` is called the `terminationGracePeriodSeconds`.
+
+By default, that's 30 seconds. Given that we've just added a 30s delay after SIGTERM before our app starts shutting down, it's now pretty much guaranteed that our app is going to be hard killed.  
+To avoid that, we need to extend the terminationGracePeriodSeconds.
+
+You can increase this value by setting it in your `deployment.yaml` Helm Chart.
+
+This fixes the problem.
+
+
+
+
+
 
 
 
