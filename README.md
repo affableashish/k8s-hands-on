@@ -153,6 +153,7 @@ Now it's all clean:
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7034ac7b-5dd7-4257-9e48-46df1ff2b5a2">
 
+[Reference](https://stackoverflow.com/a/49427146/8644294).
 ### Install helm chart
 Follow instructions here: https://helm.sh/docs/intro/install/
 
