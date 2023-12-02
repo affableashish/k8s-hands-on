@@ -86,9 +86,9 @@ docker images "akhanal/*"
 ### Test out the image
 Remove the `http` profile from `launchSettings.json` file.  
 And run this:
-````
+```
 docker run --rm -it -p 8000:8080 -e ASPNETCORE_ENVIRONMENT=Development akhanal/test-app-api:0.1.0
-````
+```
 <img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8f52aa03-ea27-4681-ad22-b5c1ff11de12">
 
 The container only exposes `http` here.  
@@ -106,13 +106,13 @@ Make sure you have docker desktop installed and enable Kubernetes on it.
 #### Enable Kubernetes dashboard
 Follow instructions [here](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/).
 
-````
+```
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-````
+```
 You can enable access to the Dashboard using the kubectl command-line tool, by running the following command:
-````
+```
 kubectl proxy
-````
+```
 Kubectl will make Dashboard available at:  
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 
@@ -122,6 +122,23 @@ Or if you want to create a user to login, follow this [tutorial](https://medium.
 <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ca3a9481-7f06-4927-9704-bf2e81d29879">
 
 Now run `kubectl proxy` and go to the dashboard url, and hit "Skip" on the login screen.
+
+#### Delete Kubernetes dashboard (for cleanup at the end)
+View the dashboard you deployed previously:
+```
+kubectl --namespace kubernetes-dashboard get deployment
+```
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/db2197a5-6c06-4092-87e7-2b779650481f">
+
+Now use the same deployment yaml file you used to deploy the dashboard to uninstall it (copy from section above):
+```
+kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+```
+
+Now it's all clean:
+
+<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7034ac7b-5dd7-4257-9e48-46df1ff2b5a2">
 
 #### Fix permission issues
 At this point, you'll only be able to view default namespace and see a bunch of errors in the notification.
