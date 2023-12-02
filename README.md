@@ -242,6 +242,11 @@ Command way:
 Dashboard way:  
 <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2fd777e8-6b6b-4944-94c5-e5041764ce7f">
 
+Note that this is the command to uninstall ingress controller
+````
+helm uninstall ingress-nginx -n ingress-nginx
+````
+
 ### Liveness, Readiness and Startup probes
 [Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-6-adding-health-checks-with-liveness-readiness-and-startup-probes/)
 
