@@ -123,6 +123,19 @@ Or if you want to create a user to login, follow this [tutorial](https://medium.
 
 Now run `kubectl proxy` and go to the dashboard url, and hit "Skip" on the login screen.
 
+#### Fix permission issues
+At this point, you'll only be able to view default namespace and see a bunch of errors in the notification.
+
+<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bffd1281-0bf5-471b-a05c-3b11a561bf2d">
+
+The fix for that is giving `cluster-admin` role to `system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard` user like so:
+````
+$ kubectl delete clusterrolebinding serviceaccount-cluster-admin
+$ kubectl create clusterrolebinding serviceaccount-cluster-admin --clusterrole=cluster-admin --user=system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard
+````
+
+Now restart `kubectl proxy` and refresh the browser.
+
 #### Delete Kubernetes dashboard (for cleanup at the end)
 View the dashboard you deployed previously:
 ```
@@ -139,19 +152,6 @@ kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/
 Now it's all clean:
 
 <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7034ac7b-5dd7-4257-9e48-46df1ff2b5a2">
-
-#### Fix permission issues
-At this point, you'll only be able to view default namespace and see a bunch of errors in the notification.
-
-<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bffd1281-0bf5-471b-a05c-3b11a561bf2d">
-
-The fix for that is giving `cluster-admin` role to `system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard` user like so:
-````
-$ kubectl delete clusterrolebinding serviceaccount-cluster-admin
-$ kubectl create clusterrolebinding serviceaccount-cluster-admin --clusterrole=cluster-admin --user=system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard
-````
-
-Now restart `kubectl proxy` and refresh the browser.
 
 ### Install helm chart
 Follow instructions here: https://helm.sh/docs/intro/install/
