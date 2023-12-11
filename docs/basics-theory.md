@@ -21,7 +21,7 @@ In a microservices architecture, services are fine-grained and the protocols are
 ### Monolith to Microservices migration
 Incrementally migrate a legacy system by gradually replacing specific pieces of functionality with new applications and services. As features from the legacy system are replaced, the new system eventually replaces all of the old system's features, strangling the old system and allowing you to decommission it.
 
-<img width="800" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0de73ca-d817-4c80-b375-b0dfb5c7d47d">
+<img width="800" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/e0de73ca-d817-4c80-b375-b0dfb5c7d47d">
 
 [Reference](https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig)
 
@@ -36,7 +36,7 @@ View the Cloud Native Landscape here: https://landscape.cncf.io/
 ### Cloud Native Concepts
 1. Speed and Agility
 2. Application Architecture  
-   <img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/dc5b9041-9838-4010-893a-4125e32c7892">
+   <img width="450" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/dc5b9041-9838-4010-893a-4125e32c7892">
 3. Mentality : Pets vs Cattle
     1. Infrastructure becomes like cattle, as it becomes immutable and disposable.
     2. Provisioned in minutes and destroyed on demand.
@@ -55,7 +55,7 @@ Suppose you work for an online clothing retailer that's planning the development
 
 A **container** is a loosely isolated environment that allows us to build and run software packages. These software packages include the code and all dependencies (for eg: operating system, runtime, system tools, system libraries and so on) to run applications quickly and reliably on any computing environment. We call these packages container **images**. Docker containers are built off of Docker images. **The container is the in-memory instance of an image.** Since images are readonly, Docker adds a read-write file system over the read-only file system of the image to create a container.
 
-<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/42ed1fcf-becf-411f-bc88-ddf17f8e0f54">
+<img width="450" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/42ed1fcf-becf-411f-bc88-ddf17f8e0f54">
 
 ### Container Image
 A container image is a portable package that contains software. It's this image that, when run, becomes our container.
@@ -67,7 +67,7 @@ A container image is immutable. Once you've built an image, you can't change it.
 [Microsoft Learn reference](https://learn.microsoft.com/en-us/training/modules/intro-to-docker-containers/).
 
 ### VMs vs Containers
-<img width="480" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8731f9bc-291e-425d-b328-8d78103a07d7">
+<img width="480" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/8731f9bc-291e-425d-b328-8d78103a07d7">
 
 ### Container Registry
 Docker images are stored and made available in registries. A registry is a web service to which Docker can connect to upload and download container images. When you download and run an image, you must specify the registry, repository and version tag for the image.
@@ -89,19 +89,19 @@ The repository name must be of the form `*<login_server>/<image_name>:<tag/>`.
 
 For eg: This is how repositories looks like:
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/29cbde5c-6ad8-4ef6-8961-4f571f9414b7">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/29cbde5c-6ad8-4ef6-8961-4f571f9414b7">
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/13325509-40fd-4b43-9b9f-f13e65b0f382">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/13325509-40fd-4b43-9b9f-f13e65b0f382">
 
 Also take a look at [Microsoft Artifact Registry](https://mcr.microsoft.com/en-us/product/dotnet/samples/tags):
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1d5335a5-a36d-4ded-9802-7d2dba8e2eaf">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/1d5335a5-a36d-4ded-9802-7d2dba8e2eaf">
 
 ### How Image is created
 Go to this site:
 https://hub.docker.com/_/microsoft-dotnet-samples/
 
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bd9dfe43-2529-4cc3-a5d6-6eefaddcc3de">
+<img width="500" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/bd9dfe43-2529-4cc3-a5d6-6eefaddcc3de">
 
 And check out the Dockerfile:
 

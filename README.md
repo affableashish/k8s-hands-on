@@ -20,7 +20,7 @@ Happy Learning! 🤓
 ### Create the projects
 #### Clone this repo
 #### Add a solution file using terminal
-<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/753af618-7cd5-4453-a993-28df78a8b90d">
+<img width="350" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/753af618-7cd5-4453-a993-28df78a8b90d">
 
 Now open the solution.
 
@@ -31,11 +31,11 @@ Now open the solution.
    Check out the code to see how I implemented liveness and readiness checks.
 
 3. Navigate to health check url  
-   <img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/89c9c6be-b7c2-4816-90f5-ae5c360c7ab7">
+   <img width="300" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/89c9c6be-b7c2-4816-90f5-ae5c360c7ab7">
 
 4. Add an endpoint to expose environment info. I added a struct to return environment info. Check out to see how it's implemented.  
    For eg: This is what's returned when I run it in my Mac in Debug mode:  
-   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/62f764d0-92c9-4f59-8562-cf4f95fb4376">
+   <img width="900" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/62f764d0-92c9-4f59-8562-cf4f95fb4376">
 
    You can see that `memoryUsage` is 0 probably because `EnvironmentInfo` is written to extract this info when the app runs in Ubuntu. But I'm on a mac.
 
@@ -46,11 +46,11 @@ This app will run migrations, take ad-hoc commands etc.
 #### Add a service which is an empty web app
 This is an empty web app. This app will run long running tasks using Background services, for eg: handling messages from event queue using something like NServiceBus or MassTransit. It easily could have been just a `Worker Service` but I kept it as a web app just so it's easier to expose health check endpoints.
 
-<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5ff01df1-5772-4a9c-b948-12f1eddfc603">
+<img width="450" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/5ff01df1-5772-4a9c-b948-12f1eddfc603">
 
 Just has bare minimum code.
 
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b0a337a4-9583-46b9-8e22-ef757d42b498">
+<img width="400" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/b0a337a4-9583-46b9-8e22-ef757d42b498">
 
 We **won't expose** public HTTP endpoints for this app.
 
@@ -73,7 +73,7 @@ docker build -f TestApp.Cli.Dockerfile -t akhanal/test-app-cli:0.1.0 .
 The last parameter `.` is the build context. This means that the `.` used in the Dockerfile refers to `.` parameter which is current directory.
 
 For eg:  
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/70d37a34-5d61-4123-b303-8180dae572a1">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/70d37a34-5d61-4123-b303-8180dae572a1">
 
 Here `.` in "./TestApp.Api/TestApp.Api.csproj" in Dockerfile just means the directory given by the build context parameter.
 
@@ -81,7 +81,7 @@ View the created images:
 ````
 docker images "akhanal/*"
 ````
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1dadd287-f4e0-4c92-8e68-bdc0a42cf6fb">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/1dadd287-f4e0-4c92-8e68-bdc0a42cf6fb">
 
 ### Test out the image
 Remove the `http` profile from `launchSettings.json` file.  
@@ -89,7 +89,7 @@ And run this:
 ```
 docker run --rm -it -p 8000:8080 -e ASPNETCORE_ENVIRONMENT=Development akhanal/test-app-api:0.1.0
 ```
-<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8f52aa03-ea27-4681-ad22-b5c1ff11de12">
+<img width="300" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/8f52aa03-ea27-4681-ad22-b5c1ff11de12">
 
 The container only exposes `http` here.  
 To expose `https`, we need to add certificate.
@@ -101,7 +101,7 @@ One thing to note here is that [aspnetcore apps from .NET 8 use port 8080 port b
 ### Install Kubernetes
 Make sure you have docker desktop installed and enable Kubernetes on it.
 
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8eae263-6f83-4b67-a915-a509a7093de5">
+<img width="500" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/e8eae263-6f83-4b67-a915-a509a7093de5">
 
 #### Enable Kubernetes dashboard
 Follow instructions [here](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/).
@@ -119,14 +119,14 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 Now read this [blog post](https://andrewlock.net/running-kubernetes-and-the-dashboard-with-docker-desktop/) to disable the login prompt.
 Or if you want to create a user to login, follow this [tutorial](https://medium.com/@dijin123/kubernetes-and-the-ui-dashboard-with-docker-desktop-5ad4799b3b61).
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ca3a9481-7f06-4927-9704-bf2e81d29879">
+<img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/ca3a9481-7f06-4927-9704-bf2e81d29879">
 
 Now run `kubectl proxy` and go to the dashboard url, and hit "Skip" on the login screen.
 
 #### Fix permission issues
 At this point, you'll only be able to view default namespace and see a bunch of errors in the notification.
 
-<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bffd1281-0bf5-471b-a05c-3b11a561bf2d">
+<img width="250" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/bffd1281-0bf5-471b-a05c-3b11a561bf2d">
 
 The fix for that is giving `cluster-admin` role to `system:serviceaccount:kubernetes-dashboard:kubernetes-dashboard` user like so:
 ````
@@ -142,7 +142,7 @@ View the dashboard you deployed previously:
 kubectl --namespace kubernetes-dashboard get deployment
 ```
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/db2197a5-6c06-4092-87e7-2b779650481f">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/db2197a5-6c06-4092-87e7-2b779650481f">
 
 Now use the same deployment yaml file you used to deploy the dashboard to uninstall it (copy from section above):
 ```
@@ -151,7 +151,7 @@ kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/
 
 Now it's all clean:
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7034ac7b-5dd7-4257-9e48-46df1ff2b5a2">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/7034ac7b-5dd7-4257-9e48-46df1ff2b5a2">
 
 [Reference](https://stackoverflow.com/a/49427146/8644294).
 ### Install helm chart
@@ -167,11 +167,11 @@ Add a folder at the solution level named `charts`.
 
 Go into the folder and create a new chart called `test-app`.
 
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1227ce3e-fd6d-421f-835b-968f43f32059">
+<img width="500" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/1227ce3e-fd6d-421f-835b-968f43f32059">
 
 Remove templates folder  
-<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a013c80f-20fa-476d-84de-d5dc55a6d752">
-<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/16a2267b-030e-4ed4-9896-83a130b5547f">
+<img width="250" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/a013c80f-20fa-476d-84de-d5dc55a6d752">
+<img width="250" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/16a2267b-030e-4ed4-9896-83a130b5547f">
 
 Now go into `charts` folder and create charts for TestApp.Api and TestApp.Service
 ````
@@ -194,7 +194,7 @@ rm -r test-app-api/templates/tests test-app-service/templates/tests
 
 Now the folder structure looks like this:
 
-<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/734efd04-e753-469e-889c-e2a53f4f3889">
+<img width="300" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/734efd04-e753-469e-889c-e2a53f4f3889">
 
 This structure treats projects in this solution to be microservices that are deployed at the same time.
 So this solution is a "microservice" here.
@@ -206,7 +206,7 @@ We use top level `values.yaml` to share config with the sub charts as well.
 **Tip:** Don't include `.` in your chart names, and use lower case. It just makes everything easier.
 
 #### Looking around the templates
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ac01cde6-d0a4-4fa6-9c5c-f3af01de47ae">
+<img width="400" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/ac01cde6-d0a4-4fa6-9c5c-f3af01de47ae">
 
 (About this `nindent`, you can figure out the indentation number by sitting where you want the text to sit, and going left. 
 For eg: I had to hit left arrow 8 times until I reached the start of this line, so indent value is 8 here.)
@@ -255,10 +255,10 @@ The information you need from this controller is `ingressClassName` which you'll
 Find the `ingressClassName` of your controller by either running this command: `kubectl get ingressclasses` or finding it through K8s dashboard.
 
 Command way:  
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0b83d35c-91fa-4b16-9a71-3cb1ef87b877">
+<img width="500" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/0b83d35c-91fa-4b16-9a71-3cb1ef87b877">
 
 Dashboard way:  
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2fd777e8-6b6b-4944-94c5-e5041764ce7f">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/2fd777e8-6b6b-4944-94c5-e5041764ce7f">
 
 Note that this is the command to uninstall ingress controller
 ````
@@ -268,7 +268,7 @@ helm uninstall ingress-nginx -n ingress-nginx
 ### Liveness, Readiness and Startup probes
 [Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-6-adding-health-checks-with-liveness-readiness-and-startup-probes/)
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a12ffa29-4da0-4356-9b27-69293ac3a28d">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/a12ffa29-4da0-4356-9b27-69293ac3a28d">
 
 #### Startup Probe
 The first probe to run is the startup probe.
@@ -336,7 +336,7 @@ I didn't specify the image tag as I'll specify that at deploy time.
 #### Update container port in `deployment.yaml`
 Recall that aspnetcore apps now [run on port 8080 by default](https://andrewlock.net/exploring-the-dotnet-8-preview-updates-to-docker-images-in-dotnet-8/#asp-net-core-apps-now-use-port-8080-by-default). So we have to update the container port in `deployment.yaml` file.
 
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d9e4fedd-f954-4777-b824-0cb654a49e6f">
+<img width="400" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/d9e4fedd-f954-4777-b824-0cb654a49e6f">
 
 #### Update startup, liveness and readiness checks in `deployment.yaml`
 
@@ -465,10 +465,10 @@ spec:
 ````
 
 Now run the above command without the `--dry-run` flag which will deploy the chart to Kubernetes cluster.  
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/571ba762-7c77-4efe-b3b0-aba53de63115">
+<img width="500" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/571ba762-7c77-4efe-b3b0-aba53de63115">
 
 The deployed resources will look like this:  
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5a937a43-dafa-4b01-979d-f3d198465052">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/5a937a43-dafa-4b01-979d-f3d198465052">
 
 Note that this is the command to uninstall the app
 ````
@@ -481,7 +481,7 @@ Check the ingress you deployed to see what address was assigned to your host bec
 kubectl get ingress -n local
 ````
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4dbed22d-9601-41e1-8d3b-b1890a49ccdc">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/4dbed22d-9601-41e1-8d3b-b1890a49ccdc">
 
 Also seen in controller logs:
 ````
@@ -497,7 +497,7 @@ sudo vim /etc/hosts
 
 Enter the server IP address at the bottom of the hosts file, followed by a space, and then the domain name.
 
-<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d98b2441-9a0d-4f08-a4ad-f2f75386e99b">
+<img width="450" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/d98b2441-9a0d-4f08-a4ad-f2f75386e99b">
 
 Save and exit with `:wq`.
 
@@ -509,12 +509,12 @@ cat /etc/hosts
 Now, you should be able to reach the app using:  
 http://chart-example.local/my-test-app/weatherforecast
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e0d04a8b-48ce-4a82-8bf9-2773320690b6">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/e0d04a8b-48ce-4a82-8bf9-2773320690b6">
 
 ### Troubleshooting pods restarting (only here for learning exercise, the issue is not present in the example app in this repo)
 Check out the pods.
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f136f42c-e34d-456d-96d6-b351279f2dd5">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/f136f42c-e34d-456d-96d6-b351279f2dd5">
 
 You can see that they haven't been able to get ready and have already restarted many times.
 
@@ -523,36 +523,36 @@ Check out the reason why the Pods were restarted so often by looking at Pod's ev
 kubectl get event -n local --field-selector involvedObject.name=test-app-release-test-app-api-97757b99b-ppx9g
 ````
 
-<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/725e1728-bb47-4e09-be34-74718f0b99e9">
+<img width="950" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/725e1728-bb47-4e09-be34-74718f0b99e9">
 
 We can see that the containers were restarted because the readiness probe failed.
 
 Or you can view this info in the Kubernetes dashboard:
 
-<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f93701c1-868d-48c0-84f9-721bbcdf9847">
+<img width="950" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/f93701c1-868d-48c0-84f9-721bbcdf9847">
 
 The issue here is that it's trying to hit the wrong port (i.e. 80). Recall that the aspnet core apps use 8080 port by default. 
 
 The port the container has started on (8080) can be viewed from the pod logs as well:
 
-<img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3b212aa1-2ccf-4a33-8ef4-0b6cc5a91de4">
+<img width="500" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/3b212aa1-2ccf-4a33-8ef4-0b6cc5a91de4">
 
 To fix this, we have to update `containerPort` in `deployment.yaml`:
 
-<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/88021838-1741-4c00-b020-52ac4f024475">
+<img width="250" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/88021838-1741-4c00-b020-52ac4f024475">
 
 ### Troubleshooting Ingress not working (only here for learning exercise, the issue is not present in the example app in this repo)
 #### Issue 1: `chart-example.local` hostname doesn't get an address
 ````
 kubectl get ingress -n local
 ````
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d70bf0d5-5499-4b0c-be14-872a4b0975fa">
+<img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/d70bf0d5-5499-4b0c-be14-872a4b0975fa">
 
 When this happens, you don't know what address is assigned by ingress controller for the host name, so you won't be able to add this entry to your hosts file.
 
 Jump into logs of Ingress controller from the K8s dashboard.
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e8b97e23-7de5-4d31-a7f4-17a30f6524b4">
+<img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/e8b97e23-7de5-4d31-a7f4-17a30f6524b4">
 
 This is the error seen in the logs:
 ````
@@ -579,7 +579,7 @@ Summary: The fix is to remove the `ingress.class` annotation and add ingress `cl
 #### Issue 2: The service always returns 404
 Navigating to the url: http://chart-example.local/my-test-app/weatherforecast returns 404. This is a 404 returned by the app (not the nginx controller), so you can see that the app is reachable. This should tell you that the issue is in routing.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/03d7e7c9-3783-4da3-af96-43b2f505bcb6">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/03d7e7c9-3783-4da3-af96-43b2f505bcb6">
 
 Change the rewrite target from this:
 ````
@@ -668,7 +668,7 @@ helm upgrade --install my-test-app-release . \
 ````
 I can view my environment variables!
 
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/130a4266-84f5-480d-ac18-41a24f6dffcc">
+<img width="400" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/130a4266-84f5-480d-ac18-41a24f6dffcc">
 
 ### Running database migrations
 [Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-7-running-database-migrations/)
@@ -697,7 +697,7 @@ rm -r test-app-cli/charts
 Add a new file to `test-app-cli/templates/job.yaml`.
 
 Start off with this, and create a Job resource:  
-<img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cd25bf36-6273-4704-aff7-c5d913d996d2">
+<img width="400" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/cd25bf36-6273-4704-aff7-c5d913d996d2">
 
 Or just copy an example of a job from the Kubernetes docs [site](https://kubernetes.io/docs/concepts/workloads/controllers/job/).
 
@@ -759,11 +759,11 @@ helm upgrade --install test-app-release . --namespace=local --set test-app-cli.i
 
 Check it out in the dashboard:
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/694b33a0-193b-43c5-8270-96162e1a91f1">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/694b33a0-193b-43c5-8270-96162e1a91f1">
 
 Also view the logs:
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ab63ad54-4fea-4306-857c-f5b7f20552fe">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/ab63ad54-4fea-4306-857c-f5b7f20552fe">
 
 Note that we haven't implemented init containers yet, so our application pods will immediately start handling requests **without** waiting for the job to finish.
 
@@ -807,11 +807,11 @@ The Kubernetes job runs a single container that executes the database migrations
 
 #### Troubleshooting init container failing
 This is the error seen right after deployment:  
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8ccf7e5f-34c5-4110-b54a-85a04681de18">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/8ccf7e5f-34c5-4110-b54a-85a04681de18">
 
 Now let's check init container logs by going into Pod -> clicking Logs -> selecting init container.
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2818d40-1995-49d0-9aa6-ba7d90331fda">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/a2818d40-1995-49d0-9aa6-ba7d90331fda">
 
 Or you can use `kubectl` to get the container logs. For eg:
 ````
@@ -836,18 +836,18 @@ The fix for this is to create a role that has permission to read jobs, and bind 
    # You need to already have a role named "job-reader" in that namespace.
    kubectl create rolebinding read-jobs --role=job-reader --serviceaccount=local:default --namespace=local
    ````
-<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/43859dc3-dcd7-4507-afe7-58524a34fb2a">
+<img width="950" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/43859dc3-dcd7-4507-afe7-58524a34fb2a">
 
 This fixes the problem!
 
 #### Test init container working 🎉
 When the `cli` job is running, the status of our main app is `Init: 0/1`.
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e153b84b-1ff3-47ec-9c80-5d6e48f674d8">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/e153b84b-1ff3-47ec-9c80-5d6e48f674d8">
 
 After the job gets Completed, our app starts Running. 💪
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/40f6f17a-8068-48ef-b9ba-4b27983c1a77">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/40f6f17a-8068-48ef-b9ba-4b27983c1a77">
 
 ### Monitoring Helm Releases
 [Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-9-monitoring-helm-releases-that-use-jobs-and-init-containers/)
@@ -857,7 +857,7 @@ Helm doesn't know about our "delayed startup" approach. Solution is to wait for 
 Add this file.  
 And give execute permissions to the file using `chmod +x ./deploy_and_wait.sh` by going to the folder where it's at.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/7fb38fda-bfc0-4285-aa7b-00a9e0636848">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/7fb38fda-bfc0-4285-aa7b-00a9e0636848">
 
 Now run the script
 ````
@@ -913,17 +913,17 @@ helm upgrade --install test-app-release . \
 --debug
 ````
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b07c0446-340e-41e9-9ca0-18bb07397f26">
+<img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/b07c0446-340e-41e9-9ca0-18bb07397f26">
 
 Try getting into the container by clicking this:  
-<img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/664bdb82-ee4e-4a79-b1c8-a31d312540b7">
+<img width="200" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/664bdb82-ee4e-4a79-b1c8-a31d312540b7">
 
 We have access to our CLI tool from here and can run ad-hoc commands from the cli app.😃 For eg:
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/328de7c4-cabc-491c-ab7b-26bf53bd63a9">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/328de7c4-cabc-491c-ab7b-26bf53bd63a9">
 
 Remember that it comes from the CLI program.  
-<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/22c66d9c-f5ab-464e-947d-f92a36e0f995">
+<img width="350" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/22c66d9c-f5ab-464e-947d-f92a36e0f995">
 
 ### Avoiding downtime in rolling deployments
 [Reference](https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-11-avoiding-downtime-in-rolling-deployments-by-blocking-sigterm/)
@@ -935,34 +935,34 @@ Remember that it comes from the CLI program.
 4. An ingress exposes the service externally, so that clients outside the cluster can send requests to your application.
 5. The whole setup is defined in Helm Charts, deployed in a declarative way.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d0079898-21d7-454d-9de4-2ec81b836111">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/d0079898-21d7-454d-9de4-2ec81b836111">
 
 The way update works (at least in theory):
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5dab5e81-c8f8-40b6-b314-0bf1e0d0aa81">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/5dab5e81-c8f8-40b6-b314-0bf1e0d0aa81">
 <br>
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/aa431388-192d-46e9-812c-3da809378cb3">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/aa431388-192d-46e9-812c-3da809378cb3">
 <br>
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c6bc3dc7-77be-4beb-907e-74d53a84402f">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/c6bc3dc7-77be-4beb-907e-74d53a84402f">
 <br>
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48625ae6-93c8-4620-aae7-da512c3e1496">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/48625ae6-93c8-4620-aae7-da512c3e1496">
 <br>
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/660026a9-229a-41c7-8bfd-5b3b4b4a82fe">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/660026a9-229a-41c7-8bfd-5b3b4b4a82fe">
 
 #### The problem: rolling updates cause `502`s
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1a9f5f62-2f31-442d-8616-cd14eca47271">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/1a9f5f62-2f31-442d-8616-cd14eca47271">
 
 **Cause:** Niginx ingress controller.
 
 Recall that when you installed Ingress Controller to the cluster, you got 2 containers running:
 
-<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/53457e06-0284-48b0-ad2f-a5ec73c2fa3e">
+<img width="950" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/53457e06-0284-48b0-ad2f-a5ec73c2fa3e">
 
 The `k8s_controller_ingress-nginx-controller` manages ingresses for your Kubernetes cluster by configuring instances of NGINX, `k8s_POD_ingress-nginx-controller` (pod) in this case. As you can see, the NGINX instances run as pods in your cluster, and receive all the inbound traffic to your cluster.
 
 The below picture shows this concept. Each node runs an instance of NGINX reverse proxy (as Pod) that monitors the Ingresses in the application and is configured to forward requests to the pods. 
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d4aab162-060b-44ab-8497-870961c2dab8">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/d4aab162-060b-44ab-8497-870961c2dab8">
 
 The Ingress controller is responsible for updating the configuration of those NGINX reverse proxy instances whenever the resources in your Kubernetes cluster change.
 
@@ -985,7 +985,7 @@ As those pods typically will shut down very quickly when requested by Kubernetes
 
 Shown in picture below:
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/b71dd1c2-7946-4cce-8f39-153e84c9f852">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/b71dd1c2-7946-4cce-8f39-153e84c9f852">
 
 #### Fix: Delay app termination
 When Kubernetes asks for a pod to terminate, we ignore the signal for a while. We note that termination was requested, but we don't actually shut down the application for 30s, so we can continue to handle requests. After 30s, we gracefully shut down.
@@ -1047,7 +1047,7 @@ public class ApplicationLifetimeService(IHostApplicationLifetime applicationLife
 ````
 
 After running the app, if you try to shut it down with `^C`, you'll see the callback being called:  
-<img width="450" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/8ef99d39-8ba3-4785-b1f9-6ddb41d6d73d">
+<img width="450" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/8ef99d39-8ba3-4785-b1f9-6ddb41d6d73d">
 
 #### Fix: Preventing Kubernetes from killing your pods
 When Kubernetes sends the `SIGTERM` signal to terminate a pod, it expects the pod to shutdown in a graceful manner. If the pod doesn't, then Kubernetes gets bored and `SIGKILL`s it instead. The time between `SIGTERM` and `SIGKILL` is called the `terminationGracePeriodSeconds`.

@@ -38,7 +38,7 @@ However, it's important to understand that Kubernetes isn't a single installed a
 Cloud services such as Azure Kubernetes Service (AKS) reduce these challenges by providing a hosted Kubernetes environment.
 
 ### How Kubernetes Works
-<img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/10663c92-689f-43f3-91e3-40e840ed2132">
+<img width="950" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/10663c92-689f-43f3-91e3-40e840ed2132">
 
 Image taken from [here](https://kubernetes.io/docs/concepts/overview/components/).
 
@@ -47,12 +47,12 @@ Cluster is a set of computers that you configure to work together and view as a 
 
 A cluster uses centralized software that's responsible for scheduling and controlling these tasks.  
 The computers in a cluster that run the tasks are called nodes, and the computers that run the scheduling software are called control planes.  
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/4e3a1c69-51da-4695-9c12-a2845f02f168">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/4e3a1c69-51da-4695-9c12-a2845f02f168">
 
 #### Kubernetes Architecture
 You use Kubernetes as the orchestration and cluster software to deploy your apps and respond to changes in compute resource needs.
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/e1202f9e-e735-42db-974a-173445306e7c">
+<img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/e1202f9e-e735-42db-974a-173445306e7c">
 
 A K8s cluster contains at least one main plane and one or more nodes. THe default host OS in K8s is Linux, with default support for Linux based workloads.<br>
 You can also run Microsoft workloads by using Windows Server 2019 or later on cluster nodes. For eg: if you have some app that's written in `.NET 4.5`, this can run only on nodes that run a Windows Server OS.
@@ -107,7 +107,7 @@ Here’s a simplified version of how it works:
    
 So, the scheduler doesn’t create containers or pods. It simply decides where new pods should run based on the current state of the cluster and the resource requirements of the new pod. The actual creation and management of containers within a pod is handled by the `Kubelet` on the chosen node.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5304b47a-6e3d-42ab-b692-17fe30a55308">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/5304b47a-6e3d-42ab-b692-17fe30a55308">
 
 #### Controller manager
 Controller manager launches and monitors the controllers configured for a cluster through the API server. "through the API server" means that the controller manager uses the API server to interact with the K8s objects that the controllers manage.  
@@ -135,7 +135,7 @@ So CCM is essentially a bridge between your K8s cluster and your cloud provider.
 #### Services that run on a node
 There are several services that run on a K8s node to control how workloads run.
 
-<img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d043a3f-019c-46b8-9a97-f947207a8f9c">
+<img width="350" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/0d043a3f-019c-46b8-9a97-f947207a8f9c">
 
 The following services run on the Kubernetes node:
 
@@ -162,7 +162,7 @@ The support for many container runtime types is based on the Container Runtime I
 The default container runtime in AKS is `containerd`, an industry-standard container runtime.
 
 ### Interact with a Kubernetes cluster
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a2adfddb-e6f5-4bac-ac23-540d381b32a7">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/a2adfddb-e6f5-4bac-ac23-540d381b32a7">
 
 K8s provides a command line tool called `kubectl` to manage your cluster. You use `kubectl` to send commands to the cluster's control plane or fetch information about all K8s objects via the API server.
 
@@ -177,7 +177,7 @@ You can configure `kubectl` to connect to multiple clusters by providing the cor
 ### Kubernetes Pods
 A pod represents a single instance of an app running in K8s.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/cad0406a-8b59-4282-b58f-1c973ddd4884">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/cad0406a-8b59-4282-b58f-1c973ddd4884">
 
 Unlike in a Docker environment, you can't run containers directly on Kubernetes. You package the container into a Kubernetes object called a pod. A pod is the smallest object that you can create in Kubernetes.
 
@@ -189,14 +189,14 @@ For example, let's say that you want to deploy a website to a Kubernetes cluster
 
 Assume that your site uses a database. The website is packaged in the main container, and the database is packaged in the supporting container. Multiple containers communicate with each other through an environment. The containers include services for a host OS, network stack, kernel namespace, shared memory, and storage volume. The pod is the sandbox environment that provides all of these services to your app. The pod also allows the containers to share its assigned IP address.
 
-<img width="250" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c7016ccb-02df-4396-afa1-1c53cd665787">
+<img width="250" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/c7016ccb-02df-4396-afa1-1c53cd665787">
 
 Because you can potentially create many pods that are running on many nodes, it can be hard to identify them. You can recognize and group pods by using string labels that you specify when you define a pod.
 
 #### Lifecycle of Kubernetes Pods
 Kubernetes pods have a distinct lifecycle that affects the way you deploy, run, and update pods. You start by submitting the pod YAML manifest to the cluster. After the manifest file is submitted and persisted to the cluster, it defines the desired state of the pod. The scheduler schedules the pod to a healthy node that has enough resources to run the pod.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/34330559-426b-433f-9790-81c8b0b150e9">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/34330559-426b-433f-9790-81c8b0b150e9">
 
 | Phase | Description |
 | --- | ----------- |
@@ -222,7 +222,7 @@ Keep in mind that the phases explained above are a summary of where the pod is i
 ### How Kubernetes deployments work
 The drone-tracking app has several components that are deployed separately from each other. It's your job to configure deployments for these components on the cluster.
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c955a7b0-f0ea-45e6-b031-d548e70ea8cb">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/c955a7b0-f0ea-45e6-b031-d548e70ea8cb">
 
 #### Pod Deployment options
 There are several options to manage the deployment of pods in a Kubernetes cluster when you're using `kubectl`. The options are:
@@ -252,7 +252,7 @@ A selector enables the replica set to identify all the pods running underneath i
 #### Deployment (abstraction over Pods)
 A deployment creates a management object one level higher than a replica set, and allows you to deploy and manage updates for pods in a cluster.
 
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0a5337f0-ee99-49b4-b565-6c296c3f1e2e">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/0a5337f0-ee99-49b4-b565-6c296c3f1e2e">
 
 **Note:** Databases can't be replicated via deployment because Db have state. If we have clones or replica of the database, they would all need to access the same shared data storage and they you would need some kind of mechanism that manages which pods are currently reading/ writing from/ to that storage in order to avoid data inconsistencies and that mechanism in addition to replicating feature is offered by another K8s component called **StatefulSet**. This component is meant specifically for databases.
 
@@ -269,20 +269,20 @@ Everything below Deployment is handled by K8s.
 | **CONTAINER** |
 
 Abstraction Layers example:  
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/ed9b483e-c722-461d-a89a-c0829c58dac1">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/ed9b483e-c722-461d-a89a-c0829c58dac1">
 
 ---
 
 **Example:**  
 Assume that you have five instances of your app deployed in your cluster. There are five pods running version 1.0.0 of your app.
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/80697bac-8828-40bb-8ac5-e05b9f52f3ff">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/80697bac-8828-40bb-8ac5-e05b9f52f3ff">
 
 If you decide to update your app manually, you can remove all pods, then launch new pods running version 2.0.0 of your app. With this strategy, your app experiences downtime.
 
 Instead, you want to execute a rolling update where you launch pods with the new version of your app before you remove the older app versioned pods. Rolling updates launch one pod at a time instead of taking down all the older pods at once. Deployments honor the number of replicas configured in the section that describes information about replica sets. It maintains the number of pods specified in the replica set as it replaces old pods with new pods.
 
-<img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/3b91f482-730f-4279-8740-05975b9d3b0d">
+<img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/3b91f482-730f-4279-8740-05975b9d3b0d">
 
 Deployments, by default, provide a rolling update strategy for updating pods. You can also use a re-create strategy. This strategy terminates pods before launching new pods.
 
@@ -300,11 +300,11 @@ For example, each of the services in the drone-tracking app has specific require
 ### Kubernetes networking
 Assume you have a cluster with one control plane and two nodes. When you add nodes to Kubernetes, an IP address is automatically assigned to each node from an internal private network range. For example, assume that your local network range is `192.168.1.0/24`.
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a3894369-3f70-4240-9346-1e88d7771a3f">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/a3894369-3f70-4240-9346-1e88d7771a3f">
 
 Each pod that you deploy gets assigned an IP from a pool of IP addresses. For example, assume that your configuration uses the 10.32.0.0/12 network range, as the following image shows.
 
-<img width="550" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/bb814554-897a-457e-9c8d-4d959afe57b9">
+<img width="550" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/bb814554-897a-457e-9c8d-4d959afe57b9">
 
 By default, the pods and nodes can't communicate with each other by using different IP address ranges.
 
@@ -342,7 +342,7 @@ A K8s service is a K8s object that provides stable networking for pods. A Kubern
 
 Service also provides load balancing.
 
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/73075614-7b57-415d-85ab-73f0e0be0833">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/73075614-7b57-415d-85ab-73f0e0be0833">
 
 To make your app accessible through the browser, you have to create an external service. External service opens communication from external sources into your cluster.
 
@@ -350,7 +350,7 @@ In the example above, you can't access `db-service` from outside the cluster bec
 
 ### Kubernetes Ingress
 The request goes to the Ingress which forwards it to the Service.
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/12cc8886-4592-41f3-a543-280e286fafbc">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/12cc8886-4592-41f3-a543-280e286fafbc">
 
 Notice how the way you access the app using Ingress (_https://my-app.com_) differs from using External Service (_http://124.89.101.2:8080_). [Reference](https://youtu.be/X48VuDVv0do?si=lGg7EqqRyhqnqDcH&t=613).
 
@@ -359,28 +359,28 @@ This is explained in more detail in its own section below.
 ### Group Pods using Selector
 Managing pods by IP address isn't practical. Pod IP addresses change as controllers re-create them, and you might have any number of pods running.
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d200b5cc-9adf-4472-9389-07bbd55323ef">
+<img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/d200b5cc-9adf-4472-9389-07bbd55323ef">
 
 A service object allows you to target and manage specific pods in your cluster by using selector labels. You set the selector label in a service definition to match the pod label defined in the pod's definition file.
 
 For example, assume that you have many running pods. Only a few of these pods are on the front end, and you want to set a LoadBalancer service that targets only the front-end pods. You can apply your service to expose these pods by referencing the pod label as a selector value in the `drone-front-end-service` service's definition file. The service groups only the pods that match the label. If a pod is removed and re-created, the new pod is automatically added to the service group through its matching label.
 
 ### ConfigMap
-<img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f1f1f3c4-285e-4d01-9996-0a9412a2c2f3">
+<img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/f1f1f3c4-285e-4d01-9996-0a9412a2c2f3">
 
 ### Secrets
-<img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f355abc5-222e-4ff8-9ebe-f1c80a230b43">
+<img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/f355abc5-222e-4ff8-9ebe-f1c80a230b43">
 
 ### Kubernetes storage
 Kubernetes uses the same storage volume concept that you find when using Docker. Docker volumes are less managed than the Kubernetes volumes, because Docker volume lifetimes aren't managed. The Kubernetes volume's lifetime is an explicit lifetime that matches the pod's lifetime. This lifetime match means a volume outlives the containers that run in the pod. However, if the pod is removed, so is the volume.
 
-<img width="300" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/1bcdf8e2-dbe4-4775-8381-943fb1932eef">
+<img width="300" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/1bcdf8e2-dbe4-4775-8381-943fb1932eef">
 
 Kubernetes provides options to provision persistent storage with the use of PersistentVolumes. You can also request specific storage for pods by using PersistentVolumeClaims.
 
 Keep both of these options in mind when you're deploying app components that require persisted storage, like message queues and databases.
 
-<img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0b2bf7c7-d4e3-4c4f-868b-a8fe89b4c3fa">
+<img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/0b2bf7c7-d4e3-4c4f-868b-a8fe89b4c3fa">
 
 ### Cloud integration considerations
 Kubernetes doesn't provide any of the following services:
@@ -403,27 +403,27 @@ To run MicroK8s on macOS, use Multipass. Multipass is a lightweight VM manager f
 
 1. `brew install --cask multipass`
    
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/0d0cc10e-02c3-4dc2-99c1-ff9bf2cc2438">
+   <img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/0d0cc10e-02c3-4dc2-99c1-ff9bf2cc2438">
 2. Run the multipass launch command to configure and run the microk8s-vm image.  
    `multipass launch --name microk8s-vm --memory 4G --disk 40G`
    
-   <img width="700" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/d934b92e-55dd-4385-9eb2-8fd0e9b27882">
+   <img width="700" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/d934b92e-55dd-4385-9eb2-8fd0e9b27882">
 3. Enter into the VM instance  
    `multipass shell microk8s-vm`
    
-   <img width="350" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/f1ea5e32-1096-49ea-b61f-17d02880df03">
+   <img width="350" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/f1ea5e32-1096-49ea-b61f-17d02880df03">
    
    At this point, you can access the Ubuntu VM to host your cluster. You still have to install MicroK8s.  
 4. Install the MicroK8s snap app.  
    `sudo snap install microk8s --classic`
    
-   <img width="400" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6ae3c2ca-5c8f-42c3-a398-04991edf4220">
+   <img width="400" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/6ae3c2ca-5c8f-42c3-a398-04991edf4220">
 
 #### Prepare the cluster
 1. Check the status of the installation  
    `sudo microk8s.status --wait-ready`
    
-   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6fdf15b9-11de-4457-86af-0f92613f3105">
+   <img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/6fdf15b9-11de-4457-86af-0f92613f3105">
 2. Enable the 3 services  
    `sudo microk8s.enable dashboard registry` (`dns` was already enabled for me)
    
@@ -441,32 +441,32 @@ MicroK8s provides a version of `kubectl` that you can use to interact with your 
 1. Run the `snap alias` command to alias `microk8s.kubectl` to `kubectl`. This simplifies usage.  
    `sudo snap alias microk8s.kubectl kubectl`
    
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/fdc075da-38d7-4b3e-ba9f-22eac0cf5dad">
+   <img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/fdc075da-38d7-4b3e-ba9f-22eac0cf5dad">
 2. Check the nodes running in your cluster.
    
    You know that MicroK8s is a single-node cluster installation, so you expect to see only one node. Keep in mind, though, that this node is both the control plane and a worker node in the cluster.
 
    `sudo kubectl get nodes`
    
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/6af17180-5be2-423b-9b46-b00e6690d72c">  
+   <img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/6af17180-5be2-423b-9b46-b00e6690d72c">  
    The ready state indicates that the control plane might schedule workloads on this node.
    
    You can get more information for the specific resource that's requested. For example, let's assume that you need to find the IP address of the node.
 
    `sudo kubectl get nodes -o wide`
    
-   <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/657069fb-c280-4ed4-afd1-89072b37919b">
+   <img width="850" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/657069fb-c280-4ed4-afd1-89072b37919b">
 3. Explore the services running on your cluster
    
    `sudo kubectl get services -o wide`
 
-    <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5de59576-5892-4e5a-b4da-32448cd84f35">
+    <img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/5de59576-5892-4e5a-b4da-32448cd84f35">
     
     Notice that only one service is listed. You installed add-ons on the cluster earlier, and you'd expect to see these services as well. The reason for the single service listing is that Kubernetes uses a concept called namespaces to logically divide a cluster into multiple virtual clusters.
 
     To fetch all services in all namespaces, pass the `--all-namespaces` parameter:
 
-    <img width="850" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/db756ded-70d4-4f41-9590-724b3101ad7f">
+    <img width="850" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/db756ded-70d4-4f41-9590-724b3101ad7f">
 
    Notice all the namespaces.
 
@@ -484,17 +484,17 @@ Even though the use of `kubectl` is handy, using manifest files is a best practi
    
    `sudo kubectl create deployment nginxdeploy --image=nginx`
    
-   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/465372c3-3d3a-4333-9541-9653f6ed0d3b">
+   <img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/465372c3-3d3a-4333-9541-9653f6ed0d3b">
 2. View deployments
    
-   <img width="600" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/aae09952-8ea0-44e3-97a8-e26323549ee0">
+   <img width="600" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/aae09952-8ea0-44e3-97a8-e26323549ee0">
 3. View Pods
    
    The deployment from earlier created a pod. View it.
    
    `sudo kubectl get pods`
    
-   <img width="650" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/313d83fd-1872-4695-9774-76a5deb90be0">  
+   <img width="650" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/313d83fd-1872-4695-9774-76a5deb90be0">  
    Notice the name of the pod is generated using the deployment name I gave earlier.
 
 #### Test the website installation
@@ -502,14 +502,14 @@ Even though the use of `kubectl` is handy, using manifest files is a best practi
    
    `sudo kubectl get pods -o wide`
    
-   <img width="950" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/a8fe7f88-f81b-4a9a-ae8a-ef3e345ed74e">
+   <img width="950" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/a8fe7f88-f81b-4a9a-ae8a-ef3e345ed74e">
 
    Notice that the command returns both the IP address of the pod and the node name on which the workload is scheduled.
 2. Access the website
    
    `wget 10.1.254.73`
    
-   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/473b0a7e-4931-4363-b597-dc9f2675892a">
+   <img width="900" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/473b0a7e-4931-4363-b597-dc9f2675892a">
 
 #### Scale the webserver deployment on a cluster
 To scale the number of replicas in your deployment, run the `kubectl scale` command. You specify the number of replicas you need and the name of the deployment.
@@ -518,10 +518,10 @@ To scale the number of replicas in your deployment, run the `kubectl scale` comm
    
    `sudo kubectl scale --replicas=3 deployments/nginxdeploy`
     
-   <img width="750" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/c2ca06bb-0597-4072-9b70-5abe18c4801d">
+   <img width="750" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/c2ca06bb-0597-4072-9b70-5abe18c4801d">
 2. Check the pods
    
-   <img width="900" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/36e1b878-4250-4a63-9541-3411a38ae583">
+   <img width="900" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/36e1b878-4250-4a63-9541-3411a38ae583">
 
 You'd need to apply several more configurations to the cluster to effectively expose your website as a public-facing website. Examples include installing a load balancer and mapping node IP addresses. This type of configuration forms part of advanced aspects that you'll explore in the future.
 
@@ -539,7 +539,7 @@ For example, the effort in containerization and deployment of a monolithic app m
 
 ### Uninstall MicroK8s
 Before uninstall:  
-<img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/48d515fe-2e7c-4e36-b324-8c39876d9ac0">
+<img width="200" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/48d515fe-2e7c-4e36-b324-8c39876d9ac0">
 
 1. Remove add ons from the cluster
    
@@ -551,7 +551,7 @@ Before uninstall:
    
    `exit`
    
-   <img width="500" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/2add3d14-da0d-4dea-beba-fa0ce5a92312">
+   <img width="500" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/2add3d14-da0d-4dea-beba-fa0ce5a92312">
 4. Stop the VM
    
    `multipass stop microk8s-vm`
@@ -563,4 +563,4 @@ Before uninstall:
    ````
 
 After uninstall:  
-<img width="200" alt="image" src="https://github.com/affableashish/k8s-hands-on/assets/30603497/5fe17dad-8cd3-45ec-ac17-980b00ac126d">
+<img width="200" alt="image" src="https://github.com/akhanalcs/k8s-hands-on/assets/30603497/5fe17dad-8cd3-45ec-ac17-980b00ac126d">
