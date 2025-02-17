@@ -337,6 +337,8 @@ So first octet (8 bits) = 10. We want to figure out last 4 bits of the second oc
 2^4 = 16, so that's what's needed to be added to `.32` to find max in second octet. 32 + 15 (0-15 is 16 when 0 is included) = 47.  
 So the IP range is: `10.32.0.0` to `10.47.255.255`.
 
+Example using [Azure virtual network](https://github.com/akhanalcs/iac-on-azure/blob/main/bicep/main.bicep).
+
 ### Kubernetes Services
 A K8s service is a K8s object that provides stable networking for pods. A Kubernetes service enables communication between nodes, pods, and users of your app, both internal and external, to the cluster.
 
